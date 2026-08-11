@@ -25,13 +25,14 @@ export function SiteFooter() {
 
           <FooterColumn title="Courses">
             {COURSES.slice(0, 4).map((course) => (
-              <FooterLink
+              <Link
                 key={course.slug}
                 to="/syllabus/$courseSlug"
                 params={{ courseSlug: course.slug }}
+                className="text-sm text-primary-foreground/75 transition-colors hover:text-accent"
               >
                 {course.title}
-              </FooterLink>
+              </Link>
             ))}
           </FooterColumn>
 
