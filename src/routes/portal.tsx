@@ -247,7 +247,7 @@ type Rows = ReturnType<typeof useProgress>["data"] extends (infer T)[] | undefin
   ? T[]
   : never;
 
-function Shell({ children, email }: { children: React.ReactNode; email?: string }) {
+function Shell({ children, email }: { children: React.ReactNode; email?: string | undefined }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-sidebar px-5 py-5">
