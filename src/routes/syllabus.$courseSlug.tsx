@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Lock, FileText } from "lucide-react";
 import { getCourse } from "@/content/courses";
+import type { Course } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/brand/Section";
 
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/syllabus/$courseSlug")({
 });
 
 function SyllabusPage() {
-  const { course } = Route.useLoaderData();
+  const { course } = Route.useLoaderData() as { course: Course };
 
   return (
     <>
