@@ -10,33 +10,141 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AcceleratorRouteImport } from './routes/accelerator'
+import { Route as ApplyRouteImport } from './routes/apply'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as PortalRouteImport } from './routes/portal'
+import { Route as SyllabusCourseSlugRouteImport } from './routes/syllabus.$courseSlug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcceleratorRoute = AcceleratorRouteImport.update({
+  id: '/accelerator',
+  path: '/accelerator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApplyRoute = ApplyRouteImport.update({
+  id: '/apply',
+  path: '/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SyllabusCourseSlugRoute = SyllabusCourseSlugRouteImport.update({
+  id: '/syllabus/$courseSlug',
+  path: '/syllabus/$courseSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/accelerator': typeof AcceleratorRoute
+  '/apply': typeof ApplyRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/courses': typeof CoursesRoute
+  '/portal': typeof PortalRoute
+  '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/accelerator': typeof AcceleratorRoute
+  '/apply': typeof ApplyRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/courses': typeof CoursesRoute
+  '/portal': typeof PortalRoute
+  '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/accelerator': typeof AcceleratorRoute
+  '/apply': typeof ApplyRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/courses': typeof CoursesRoute
+  '/portal': typeof PortalRoute
+  '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/accelerator'
+    | '/apply'
+    | '/auth'
+    | '/contact'
+    | '/courses'
+    | '/portal'
+    | '/syllabus/$courseSlug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/accelerator'
+    | '/apply'
+    | '/auth'
+    | '/contact'
+    | '/courses'
+    | '/portal'
+    | '/syllabus/$courseSlug'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/accelerator'
+    | '/apply'
+    | '/auth'
+    | '/contact'
+    | '/courses'
+    | '/portal'
+    | '/syllabus/$courseSlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AcceleratorRoute: typeof AcceleratorRoute
+  ApplyRoute: typeof ApplyRoute
+  AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
+  CoursesRoute: typeof CoursesRoute
+  PortalRoute: typeof PortalRoute
+  SyllabusCourseSlugRoute: typeof SyllabusCourseSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +156,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accelerator': {
+      id: '/accelerator'
+      path: '/accelerator'
+      fullPath: '/accelerator'
+      preLoaderRoute: typeof AcceleratorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apply': {
+      id: '/apply'
+      path: '/apply'
+      fullPath: '/apply'
+      preLoaderRoute: typeof ApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/syllabus/$courseSlug': {
+      id: '/syllabus/$courseSlug'
+      path: '/syllabus/$courseSlug'
+      fullPath: '/syllabus/$courseSlug'
+      preLoaderRoute: typeof SyllabusCourseSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AcceleratorRoute: AcceleratorRoute,
+  ApplyRoute: ApplyRoute,
+  AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
+  CoursesRoute: CoursesRoute,
+  PortalRoute: PortalRoute,
+  SyllabusCourseSlugRoute: SyllabusCourseSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
