@@ -92,23 +92,26 @@ function AboutPage() {
       </section>
 
       <section className="bg-mint/60 py-16">
-        <div className="mx-auto grid max-w-6xl items-start gap-12 px-5 lg:grid-cols-[0.85fr_1.15fr]">
-          <div>
+        <div className="mx-auto max-w-3xl px-5">
+          <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
             <img
-              src={evePortrait}
-              width={1024}
-              height={1280}
+              src={evePortrait.url}
+              width={160}
+              height={160}
               loading="lazy"
               alt="Eve Wanjiru, founder and CEO of The VApreneurs School"
-              className="w-full rounded-2xl object-cover shadow-lift"
+              className="h-28 w-28 shrink-0 rounded-full object-cover object-top shadow-lift"
             />
+            <div>
+              <Eyebrow>Founder &amp; CEO</Eyebrow>
+              <h2 className="mt-2 text-3xl text-primary">Eve Wanjiru</h2>
+              <p className="mt-1 font-mono text-xs uppercase tracking-widest text-accent-deep">
+                Executive operations · Business systems · Process optimisation
+              </p>
+            </div>
           </div>
           <div>
-            <Eyebrow>Founder &amp; CEO</Eyebrow>
-            <h2 className="mt-3 text-3xl text-primary sm:text-4xl">Eve Wanjiru</h2>
-            <p className="mt-2 font-mono text-xs uppercase tracking-widest text-accent-deep">
-              Executive operations · Business systems · Process optimisation
-            </p>
+
             <div className="mt-6 space-y-4 text-sm leading-relaxed text-foreground/85">
               <p>
                 Eve's background is in executive operations, business systems and
