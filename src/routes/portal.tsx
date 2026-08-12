@@ -94,51 +94,8 @@ function PortalPage() {
   const enrolledSlugs = new Set(enrolled.map((e) => e.course_slug));
   const rows = progress.data ?? [];
 
-  if (!enrollments.isLoading && enrolled.length === 0) {
-    return (
-      <Shell email={user.email}>
-        <LockedCard
-          title="Your portal is locked"
-          text="The portal unlocks as soon as you're enrolled in a course or the Accelerator. Apply to any course, or enrol below to start straight away."
-        >
-          <Button asChild variant="brand">
-            <Link to="/courses">See the courses</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/accelerator">Accelerator Cohort 1</Link>
-          </Button>
-        </LockedCard>
 
-        <div className="mt-8">
-          <Eyebrow>Enrol now</Eyebrow>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {COURSES.map((course) => (
-              <div key={course.slug} className="surface-card flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className="font-display text-sm font-semibold text-primary">{course.title}</p>
-                  <p className="mt-0.5 font-mono text-[0.625rem] uppercase tracking-widest text-accent-deep">
-                    {course.modules.length} modules
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="brand"
-                  onClick={() =>
-                    enroll.mutate(
-                      { courseSlug: course.slug, track: "self" },
-                      { onSuccess: () => toast.success(`Enrolled in ${course.title}`) },
-                    )
-                  }
-                >
-                  Enrol
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Shell>
-    );
-  }
+
 
   const activeCourse = openCourse ? getCourse(openCourse) : undefined;
   const activeModule =
