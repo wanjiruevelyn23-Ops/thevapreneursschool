@@ -94,51 +94,8 @@ function PortalPage() {
   const enrolledSlugs = new Set(enrolled.map((e) => e.course_slug));
   const rows = progress.data ?? [];
 
-  if (!enrollments.isLoading && enrolled.length === 0) {
-    return (
-      <Shell email={user.email}>
-        <LockedCard
-          title="Your portal is locked"
-          text="The portal unlocks as soon as you're enrolled in a course or the Accelerator. Apply to any course, or enrol below to start straight away."
-        >
-          <Button asChild variant="brand">
-            <Link to="/courses">See the courses</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/accelerator">Accelerator Cohort 1</Link>
-          </Button>
-        </LockedCard>
 
-        <div className="mt-8">
-          <Eyebrow>Enrol now</Eyebrow>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {COURSES.map((course) => (
-              <div key={course.slug} className="surface-card flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className="font-display text-sm font-semibold text-primary">{course.title}</p>
-                  <p className="mt-0.5 font-mono text-[0.625rem] uppercase tracking-widest text-accent-deep">
-                    {course.modules.length} modules
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="brand"
-                  onClick={() =>
-                    enroll.mutate(
-                      { courseSlug: course.slug, track: "self" },
-                      { onSuccess: () => toast.success(`Enrolled in ${course.title}`) },
-                    )
-                  }
-                >
-                  Enrol
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Shell>
-    );
-  }
+
 
   const activeCourse = openCourse ? getCourse(openCourse) : undefined;
   const activeModule =
@@ -347,6 +304,26 @@ function MyCourses({
       <p className="mt-2 text-sm text-muted-foreground">
         Modules unlock one at a time. Finish a module's quiz to open the next waypoint.
       </p>
+      {enrolledSlugs.size === 0 ? (
+        <div className="mt-6 rounded-lg border border-accent/30 bg-mint p-5">
+          <p className="font-display text-base font-semibold text-primary">
+            You're not enrolled in a course yet
+          </p>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Browse the courses below and enrol to open the modules, quizzes and notes. Course
+            content stays locked until you enrol.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button asChild size="sm" variant="brand">
+              <Link to="/courses">Browse courses</Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/accelerator">Accelerator Cohort 1</Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-8 space-y-3">
         {COURSES.map((course) => (
           <CourseRow

@@ -33,6 +33,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && user) navigate({ to: "/portal" });
@@ -41,8 +43,11 @@ function AuthPage() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
+    setError(null);
+    setNotice(null);
+
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -51,22 +56,47 @@ function AuthPage() {
         },
       });
       setBusy(false);
-      if (error) {
-        toast.error(error.message);
+      if (signUpError) {
+        const message = /already registered|already been registered/i.test(signUpError.message)
+          ? "That email already has an account. Switch to “Sign in” instead."
+          : signUpError.message;
+        setError(message);
+        toast.error(message);
         return;
       }
-      toast.success("Account created. You're signed in.");
-      navigate({ to: "/portal" });
+      if (data.session) {
+        toast.success("Account created — you're signed in.");
+        navigate({ to: "/portal" });
+        return;
+      }
+      setMode("signin");
+      setPassword("");
+      setNotice(
+        "Account created. Please check your email and confirm your address, then sign in below.",
+      );
+      toast.success("Account created. Confirm your email, then sign in.");
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
     setBusy(false);
-    if (error) {
-      toast.error(error.message);
+    if (signInError) {
+      let message = signInError.message;
+      if (/email not confirmed/i.test(message)) {
+        message =
+          "Your email isn't confirmed yet. Open the confirmation link we emailed you, then sign in again.";
+      } else if (/invalid login credentials/i.test(message)) {
+        message = "Wrong email or password. Check both and try again.";
+      }
+      setError(message);
+      toast.error(message);
+      return;
+    }
+    if (!data.session) {
+      setError("Sign in did not complete. Please try again.");
       return;
     }
     navigate({ to: "/portal" });
@@ -84,8 +114,22 @@ function AuthPage() {
             {mode === "signin" ? "Sign in to continue" : "Create your student account"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Your portal unlocks once you're enrolled in a course or the Accelerator.
+            Sign in to reach your dashboard. Course content unlocks once you enrol.
           </p>
+
+          {notice ? (
+            <p className="mt-4 rounded-md border border-accent/30 bg-mint px-3.5 py-2.5 text-sm text-accent-deep">
+              {notice}
+            </p>
+          ) : null}
+          {error ? (
+            <p
+              role="alert"
+              className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-sm text-destructive"
+            >
+              {error}
+            </p>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {mode === "signup" ? (
@@ -131,7 +175,11 @@ function AuthPage() {
             <button
               type="button"
               className="font-medium text-accent-deep underline underline-offset-4"
-              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+              onClick={() => {
+              setError(null);
+              setNotice(null);
+              setMode(mode === "signin" ? "signup" : "signin");
+            }}
             >
               {mode === "signin" ? "Create an account" : "Sign in"}
             </button>
