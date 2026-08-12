@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
-import heroImage from "@/assets/hero-va.jpg";
+
 import { Button } from "@/components/ui/button";
 import { RouteMap, WaypointStrip } from "@/components/brand/RouteMap";
 import { SectionHeading, Eyebrow } from "@/components/brand/Section";
