@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Compass, HeartHandshake, Globe2, Target } from "lucide-react";
-import evePortrait from "@/assets/eve-wanjiru.jpg";
+import evePortrait from "@/assets/eve-wanjiru.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { SectionHeading, Eyebrow } from "@/components/brand/Section";
 
