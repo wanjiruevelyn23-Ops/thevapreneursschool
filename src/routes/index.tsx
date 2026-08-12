@@ -62,21 +62,22 @@ function Index() {
             </div>
           </div>
 
-          <div className="relative">
-            <img
-              src={heroImage}
-              width={1280}
-              height={1600}
-              alt="A virtual assistant working at her desk"
-              className="w-full rounded-2xl object-cover shadow-lift"
-            />
-            <div className="absolute -bottom-5 left-5 right-5 rounded-xl bg-card p-4 shadow-lift sm:left-8 sm:right-8">
-              <p className="eyebrow text-accent-deep">Now enrolling</p>
-              <p className="mt-2 text-sm font-medium text-foreground">
-                Accelerator Cohort 1 — 10 days, live + community, limited seats.
-              </p>
+          <div className="rounded-2xl border border-primary-foreground/15 bg-primary-foreground/5 p-7">
+            <p className="eyebrow text-accent">Now enrolling</p>
+            <p className="mt-3 font-display text-2xl leading-snug text-primary-foreground">
+              Accelerator Cohort 1
+            </p>
+            <p className="mt-2 text-sm text-primary-foreground/70">
+              10 days, live + community, limited seats. Prerequisite: any one skill
+              track.
+            </p>
+            <div className="mt-6 grid gap-3 border-t border-primary-foreground/15 pt-5 text-sm text-primary-foreground/75">
+              <p>4 pillars: branding, positioning, client acquisition, pricing</p>
+              <p>7 courses across 3 waypoints</p>
+              <p>Portfolio-ready deliverable in every module</p>
             </div>
           </div>
+
         </div>
       </section>
 
