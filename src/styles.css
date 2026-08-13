@@ -182,6 +182,7 @@
 
 @utility eyebrow {
   font-family: var(--font-mono);
+  font-weight: 600;
   font-size: 0.6875rem;
   line-height: 1;
   text-transform: uppercase;
