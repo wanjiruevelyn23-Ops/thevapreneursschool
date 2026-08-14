@@ -553,63 +553,76 @@ function ModuleView({
       <h1 className="mt-3 text-3xl text-primary">{module.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{module.summary}</p>
 
-      {!showQuiz ? (
-        <>
-          <div className="mt-8">
-            {hasLesson ? (
-              <LessonBody blocks={module.lesson} />
-            ) : (
-              <div className="surface-card p-6">
-                <p className="text-sm text-muted-foreground">
-                  The lesson content for this module is being written and will appear here as
-                  soon as it's published. You can still mark it complete to continue testing
-                  the route.
-                </p>
-              </div>
+      <div className="mt-6 flex flex-wrap gap-1 border-b border-border">
+        {([
+          { key: "notes" as const, label: "Notes" },
+          { key: "quiz" as const, label: "Quiz" },
+          { key: "assignment" as const, label: "Assignment" },
+        ]).map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => setTab(item.key)}
+            className={cn(
+              "-mb-px border-b-2 px-4 py-2.5 font-mono text-[0.6875rem] uppercase tracking-widest transition-colors",
+              tab === item.key
+                ? "border-accent text-accent-deep"
+                : "border-transparent text-muted-foreground hover:text-accent-deep",
             )}
-          </div>
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
 
+      {tab === "notes" ? (
+        <>
           {module.notes ? (
-            <div className="mt-10 surface-card p-6">
+            <div className="mt-8">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="eyebrow text-accent-deep">Notes</p>
-                  <p className="mt-2 text-sm font-medium text-primary">{module.notes.title}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setShowNotes((v) => !v)}>
-                    <NotebookPen className="h-4 w-4" />
-                    {showNotes ? "Hide notes" : "Show notes"}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="softMint"
-                    onClick={() =>
-                      module.notes &&
-                      downloadNotesDoc(
-                        module.notes.title,
-                        module.notes.fileName,
-                        module.notes.paragraphs,
-                      )
-                    }
-                  >
-                    <FileDown className="h-4 w-4" /> Word doc
-                  </Button>
-                </div>
+                <p className="font-display text-lg font-semibold text-primary">
+                  {module.notes.title}
+                </p>
+                <Button
+                  size="sm"
+                  variant="softMint"
+                  onClick={() =>
+                    module.notes &&
+                    downloadNotesDoc(
+                      module.notes.title,
+                      module.notes.fileName,
+                      module.notes.paragraphs,
+                    )
+                  }
+                >
+                  <FileDown className="h-4 w-4" /> Word doc
+                </Button>
               </div>
-              {showNotes ? (
-                <div className="mt-5 space-y-3 border-t border-border pt-5 text-sm leading-relaxed text-foreground/80">
-                  {module.notes.paragraphs.map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
-                </div>
-              ) : null}
+              <div className="mt-5 space-y-3 border-t border-border pt-5 text-[0.9375rem] leading-relaxed text-foreground/85">
+                {module.notes.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="mt-8">
+              {hasLesson ? (
+                <LessonBody blocks={module.lesson} />
+              ) : (
+                <div className="surface-card p-6">
+                  <p className="text-sm text-muted-foreground">
+                    The notes for this module are being written and will appear here as soon as
+                    they're published. You can still mark it complete to continue testing the
+                    route.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6">
             {module.quiz.length ? (
-              <Button variant="brand" size="lg" onClick={() => setShowQuiz(true)}>
+              <Button variant="brand" size="lg" onClick={() => setTab("quiz")}>
                 Take the module quiz
               </Button>
             ) : (
@@ -628,7 +641,54 @@ function ModuleView({
             )}
           </div>
         </>
-      ) : (
+      ) : null}
+
+      {tab === "assignment" ? (
+        <div className="mt-8 surface-card p-6">
+          {module.assignment ? (
+            <>
+              <Eyebrow>Module {module.number} assignment</Eyebrow>
+              <h2 className="mt-3 text-xl text-primary">{module.assignment.title}</h2>
+              {module.assignment.intro ? (
+                <p className="mt-3 text-[0.9375rem] leading-relaxed text-foreground/85">
+                  {module.assignment.intro}
+                </p>
+              ) : null}
+              <ol className="mt-5 list-decimal space-y-2 pl-6 text-[0.9375rem] text-foreground/85">
+                {module.assignment.tasks.map((task) => (
+                  <li key={task}>{task}</li>
+                ))}
+              </ol>
+              {module.assignment.deliverable ? (
+                <div className="mt-6 rounded-xl border border-accent/30 bg-mint/70 p-5">
+                  <p className="eyebrow text-accent-deep">What to hand in</p>
+                  <p className="mt-2 text-sm leading-relaxed text-primary">
+                    {module.assignment.deliverable}
+                  </p>
+                </div>
+              ) : null}
+              {module.assignment.criteria?.length ? (
+                <div className="mt-6 border-t border-border pt-5">
+                  <p className="eyebrow text-accent-deep">How it's marked</p>
+                  <ul className="mt-3 list-disc space-y-2 pl-6 text-sm text-foreground/85">
+                    {module.assignment.criteria.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              The assignment for this module is being written and will appear here as soon as
+              it's published.
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {tab === "quiz" ? (
+
         <div className="mt-8 surface-card p-6">
           <Eyebrow>Module {module.number} quiz</Eyebrow>
           <p className="mt-3 text-sm text-muted-foreground">
