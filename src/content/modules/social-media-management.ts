@@ -211,7 +211,28 @@ const module1: CourseModule = {
       "One SMART goal. One-page audience profile covering all three layers. Competitor audit sheet: seven areas x three competitors. Two-platform recommendation with a one-line justification each.",
     ],
   },
+  assignment: {
+    title: "Module 1 assignment — Build a strategy foundation for one brand",
+    intro:
+      "Pick one real brand (a past client, a business you admire, or your own VA business) and work through the four decisions from this module in that order. Keep it to two pages maximum.",
+    tasks: [
+      "Write one SMART goal for the account — name the metric, the starting number, the target number and the deadline.",
+      "Build a one-page audience profile with all three layers: demographics, psychographics and behavioural.",
+      "Audit three competitors (two direct, one aspirational) across the seven audit areas in a simple table.",
+      "From the audit, list three gaps: what everyone does, what nobody does, and what is clearly working.",
+      "Recommend two platforms — one primary engine, one for repurposing — with a one-sentence reason for each.",
+    ],
+    deliverable:
+      "One document (Google Doc, Word or PDF) containing the SMART goal, audience profile, competitor audit table, gap list and platform recommendation.",
+    criteria: [
+      "The goal is measurable and dated — not a wish.",
+      "Every audience layer answers a different question about the person, with no overlap.",
+      "The audit only records things visible from outside the account.",
+      "Platform choices are justified by the audience and the goal, not by preference.",
+    ],
+  },
 };
+
 
 export const socialMediaModules: CourseModule[] = [
   module1,
