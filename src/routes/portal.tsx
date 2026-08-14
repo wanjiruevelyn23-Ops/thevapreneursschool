@@ -808,7 +808,8 @@ function ModuleView({
             </div>
           )}
         </div>
-      )}
+      ) : null}
+
     </div>
   );
 }
