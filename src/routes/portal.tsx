@@ -525,12 +525,12 @@ function ModuleView({
   onBack: () => void;
 }) {
   const complete = useCompleteModule(userId);
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [showNotes, setShowNotes] = useState(false);
+  const [tab, setTab] = useState<"notes" | "quiz" | "assignment">("notes");
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<{ score: number; total: number } | null>(null);
 
   const hasLesson = module.lesson.length > 0;
+
 
   function submitQuiz() {
     const total = module.quiz.length;
