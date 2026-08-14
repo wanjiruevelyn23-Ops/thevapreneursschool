@@ -297,6 +297,9 @@ function MyCourses({
   onOpen: (slug: string) => void;
   onEnrol: (slug: string, title: string) => void;
 }) {
+  const enrolledCourses = COURSES.filter((course) => enrolledSlugs.has(course.slug));
+  const otherCourses = COURSES.filter((course) => !enrolledSlugs.has(course.slug));
+
   return (
     <div>
       <Eyebrow>Student portal</Eyebrow>
@@ -304,14 +307,14 @@ function MyCourses({
       <p className="mt-2 text-sm text-muted-foreground">
         Modules unlock one at a time. Finish a module's quiz to open the next waypoint.
       </p>
-      {enrolledSlugs.size === 0 ? (
+      {enrolledCourses.length === 0 ? (
         <div className="mt-6 rounded-lg border border-accent/30 bg-mint p-5">
           <p className="font-display text-base font-semibold text-primary">
             You're not enrolled in a course yet
           </p>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Browse the courses below and enrol to open the modules, quizzes and notes. Course
-            content stays locked until you enrol.
+            Enrol in a course below to open its modules, quizzes and notes. Course content stays
+            locked until you enrol.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Button asChild size="sm" variant="brand">
@@ -322,23 +325,46 @@ function MyCourses({
             </Button>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-8 space-y-3">
+          {enrolledCourses.map((course) => (
+            <CourseRow
+              key={course.slug}
+              course={course}
+              rows={rows}
+              isEnrolled
+              onOpen={onOpen}
+              onEnrol={onEnrol}
+            />
+          ))}
+        </div>
+      )}
 
-      <div className="mt-8 space-y-3">
-        {COURSES.map((course) => (
-          <CourseRow
-            key={course.slug}
-            course={course}
-            rows={rows}
-            isEnrolled={enrolledSlugs.has(course.slug)}
-            onOpen={onOpen}
-            onEnrol={onEnrol}
-          />
-        ))}
-      </div>
+      {otherCourses.length ? (
+        <div className="mt-12 border-t border-border pt-8">
+          <Eyebrow>Not enrolled yet</Eyebrow>
+          <h2 className="mt-3 text-xl text-primary">Other courses available</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Enrol to add any of these to your route map.
+          </p>
+          <div className="mt-6 space-y-3">
+            {otherCourses.map((course) => (
+              <CourseRow
+                key={course.slug}
+                course={course}
+                rows={rows}
+                isEnrolled={false}
+                onOpen={onOpen}
+                onEnrol={onEnrol}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
+
 
 function CourseView({
   course,
