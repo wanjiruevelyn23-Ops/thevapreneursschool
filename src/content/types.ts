@@ -36,6 +36,16 @@ export type ModuleNotes = {
   paragraphs: string[];
 };
 
+/** Practical work handed in after the lesson. Drop one in per module as content lands. */
+export type ModuleAssignment = {
+  title: string;
+  intro?: string;
+  tasks: string[];
+  deliverable?: string;
+  /** Optional guidance on how the work is judged. */
+  criteria?: string[];
+};
+
 export type CourseModule = {
   slug: string;
   number: number;
@@ -48,7 +58,9 @@ export type CourseModule = {
   /** Empty array = no quiz yet; the module can be marked complete directly. */
   quiz: QuizQuestion[];
   notes?: ModuleNotes;
+  assignment?: ModuleAssignment;
 };
+
 
 export type CourseCategory = "skill" | "toolkit";
 
