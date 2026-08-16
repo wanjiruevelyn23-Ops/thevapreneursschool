@@ -33,8 +33,12 @@ export type QuizQuestion = {
 export type ModuleNotes = {
   title: string;
   fileName: string;
-  paragraphs: string[];
+  /** Optional short standfirst shown under the notes title. */
+  intro?: string;
+  /** The notes, written exactly as supplied, as structured blocks. */
+  blocks: LessonBlock[];
 };
+
 
 /** Practical work handed in after the lesson. Drop one in per module as content lands. */
 export type ModuleAssignment = {
