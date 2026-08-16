@@ -525,11 +525,43 @@ function LessonBody({ blocks }: { blocks: LessonBlock[] }) {
   );
 }
 
-function downloadNotesDoc(title: string, fileName: string, paragraphs: string[]) {
-  const body = paragraphs
-    .map((paragraph) => `<p style="font-family:Calibri,sans-serif;font-size:11pt">${paragraph}</p>`)
+function blocksToDocHtml(blocks: LessonBlock[]) {
+  const navy = "#0B2D48";
+  const emerald = "#0F8B5F";
+  return blocks
+    .map((block) => {
+      switch (block.type) {
+        case "heading":
+          return `<h2 style="font-family:Georgia,serif;color:${navy}">${block.text}</h2>`;
+        case "subheading":
+          return `<h3 style="font-family:Georgia,serif;color:${emerald}">${block.text}</h3>`;
+        case "paragraph":
+          return `<p style="font-family:Calibri,sans-serif;font-size:11pt;color:#0C1F2E">${block.text}</p>`;
+        case "list": {
+          const tag = block.ordered ? "ol" : "ul";
+          return `<${tag} style="font-family:Calibri,sans-serif;font-size:11pt;color:#0C1F2E">${block.items
+            .map((item) => `<li>${item}</li>`)
+            .join("")}</${tag}>`;
+        }
+        case "callout":
+          return `<p style="font-family:Calibri,sans-serif;font-size:11pt;background:#E4F3EC;border-left:4px solid ${emerald};padding:8pt"><b style="color:${emerald}">${block.title}:</b> ${block.text}</p>`;
+        case "quote":
+          return `<p style="font-family:Georgia,serif;font-style:italic;color:${navy}">${block.text}</p>`;
+        case "table":
+          return `<table border="1" cellpadding="6" style="border-collapse:collapse;font-family:Calibri,sans-serif;font-size:11pt"><tr>${block.headers
+            .map((h) => `<th style="background:#E4F3EC;color:${navy};text-align:left">${h}</th>`)
+            .join("")}</tr>${block.rows
+            .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
+            .join("")}</table>`;
+        default:
+          return "";
+      }
+    })
     .join("");
-  const html = `<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${title}</title></head><body><h1 style="font-family:Georgia,serif">${title}</h1>${body}</body></html>`;
+}
+
+function downloadNotesDoc(title: string, fileName: string, blocks: LessonBlock[]) {
+  const html = `<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${title}</title></head><body><h1 style="font-family:Georgia,serif;color:#0B2D48">${title}</h1>${blocksToDocHtml(blocks)}</body></html>`;
   const blob = new Blob([html], { type: "application/msword" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -538,6 +570,7 @@ function downloadNotesDoc(title: string, fileName: string, paragraphs: string[])
   link.click();
   URL.revokeObjectURL(url);
 }
+
 
 function ModuleView({
   course,
