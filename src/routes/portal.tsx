@@ -447,16 +447,20 @@ function LessonBody({ blocks }: { blocks: LessonBlock[] }) {
         switch (block.type) {
           case "heading":
             return (
-              <h2 key={index} className="pt-4 text-2xl text-primary">
+              <h2
+                key={index}
+                className="mt-8 border-l-4 border-accent pl-4 text-2xl text-primary"
+              >
                 {block.text}
               </h2>
             );
           case "subheading":
             return (
-              <h3 key={index} className="pt-2 font-display text-lg font-semibold text-primary">
+              <h3 key={index} className="pt-2 font-display text-lg font-semibold text-accent-deep">
                 {block.text}
               </h3>
             );
+
           case "paragraph":
             return (
               <p key={index} className="text-[0.9375rem] leading-relaxed text-foreground/85">
