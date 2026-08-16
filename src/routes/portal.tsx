@@ -650,19 +650,23 @@ function ModuleView({
                     downloadNotesDoc(
                       module.notes.title,
                       module.notes.fileName,
-                      module.notes.paragraphs,
+                      module.notes.blocks,
                     )
                   }
                 >
                   <FileDown className="h-4 w-4" /> Word doc
                 </Button>
               </div>
-              <div className="mt-5 space-y-3 border-t border-border pt-5 text-[0.9375rem] leading-relaxed text-foreground/85">
-                {module.notes.paragraphs.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
+              {module.notes.intro ? (
+                <p className="mt-4 rounded-xl border-l-4 border-accent bg-mint/60 p-4 text-[0.9375rem] leading-relaxed text-primary">
+                  {module.notes.intro}
+                </p>
+              ) : null}
+              <div className="mt-5 border-t border-border pt-5">
+                <LessonBody blocks={module.notes.blocks} />
               </div>
             </div>
+
           ) : (
             <div className="mt-8">
               {hasLesson ? (
