@@ -162,10 +162,10 @@ function ContactPage() {
                 <div>
                   <p className="font-medium text-primary">Email</p>
                   <a
-                    href="mailto:hello@vapreneursschool.com"
+                    href="mailto:info@thevapreneursschool.com"
                     className="text-muted-foreground underline-offset-4 hover:text-accent-deep hover:underline"
                   >
-                    hello@vapreneursschool.com
+                    info@thevapreneursschool.com
                   </a>
                 </div>
               </li>
