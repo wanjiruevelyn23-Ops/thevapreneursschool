@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { Mail, Clock, Instagram, Linkedin, Send } from "lucide-react";
+import { Mail, Clock, Linkedin, Send, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -170,17 +170,17 @@ function ContactPage() {
                 </div>
               </li>
               <li className="flex gap-3">
-                <Instagram className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                <div>
-                  <p className="font-medium text-primary">Instagram</p>
-                  <p className="text-muted-foreground">@vapreneursschool</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
                 <Linkedin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <div>
                   <p className="font-medium text-primary">LinkedIn</p>
-                  <p className="text-muted-foreground">The VApreneurs School</p>
+                  <a
+                    href="https://www.linkedin.com/company/the-vapreneurs-academy-outsourcing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground underline-offset-4 hover:text-accent-deep hover:underline"
+                  >
+                    The Vapreneurs School
+                  </a>
                 </div>
               </li>
               <li className="flex gap-3">
@@ -199,9 +199,17 @@ function ContactPage() {
             <Eyebrow>Pick My Brain</Eyebrow>
             <p className="mt-3 text-sm leading-relaxed text-primary">
               A focused one-hour consultation for VAs who need a decision made:
-              niche, pricing, offer or next move. Choose that topic above and we'll
-              send you booking details.
+              niche, pricing, offer or next move.
             </p>
+            <a
+              href="https://calendar.app.google/vtoGzuU1M1wzYUZw6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-accent-deep underline-offset-4 hover:underline"
+            >
+              Book your slot
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
           </div>
         </aside>
       </section>

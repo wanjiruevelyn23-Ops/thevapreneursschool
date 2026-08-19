@@ -138,9 +138,13 @@ function AboutPage() {
                 <Link to="/courses">See the curriculum</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/contact" search={{ topic: "pick-my-brain" }}>
+                <a
+                  href="https://calendar.app.google/vtoGzuU1M1wzYUZw6"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Book a Pick My Brain session
-                </Link>
+                </a>
               </Button>
             </div>
           </div>
