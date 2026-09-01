@@ -11,10 +11,12 @@ import {
   ArrowLeft,
   FileDown,
   NotebookPen,
+  Inbox,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import {
   useEnrollments,
   useProgress,
@@ -67,6 +69,7 @@ function PortalPage() {
   const enrollments = useEnrollments(user?.id);
   const progress = useProgress(user?.id);
   const enroll = useEnroll(user?.id);
+  const isAdmin = useIsAdmin(user?.id);
 
   if (loading) {
     return <Shell><p className="text-sm text-muted-foreground">Loading your portal…</p></Shell>;
@@ -133,6 +136,18 @@ function PortalPage() {
             </button>
           ))}
         </nav>
+        {isAdmin ? (
+          <div className="px-3 pb-4">
+            <Link
+              to="/admin/submissions"
+              className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent"
+            >
+              <Inbox className="h-4 w-4" />
+              Submissions
+            </Link>
+          </div>
+        ) : null}
+
         <div className="hidden px-5 py-4 lg:block">
           <p className="font-mono text-[0.625rem] uppercase tracking-widest text-sidebar-foreground/50">
             Signed in
