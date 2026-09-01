@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { notifyApplication } from "@/lib/notify.functions";
 import { z } from "zod";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -54,6 +56,7 @@ function ApplyPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const enroll = useEnroll(user?.id);
+  const sendNotification = useServerFn(notifyApplication);
 
   const courseSlug = search.course ?? "";
   const isAccelerator = courseSlug === ACCELERATOR.slug;
@@ -101,6 +104,26 @@ function ApplyPage() {
       course_title: selectionTitle,
       track: isAccelerator ? "cohort" : track,
     });
+
+    // Notify the school inbox; failures never block the applicant.
+    if (!error) {
+      try {
+        await sendNotification({
+          data: {
+            name: parsed.data.name,
+            email: parsed.data.email,
+            phone: parsed.data.phone,
+            experience: parsed.data.experience,
+            message: parsed.data.message ?? "",
+            courseTitle: selectionTitle,
+            courseSlug,
+            track: isAccelerator ? "cohort" : track,
+          },
+        });
+      } catch (notifyError) {
+        console.error("Application notification failed", notifyError);
+      }
+    }
 
     // Signed-in applicants are enrolled immediately so the portal unlocks.
     if (!error && user && !isAccelerator) {
