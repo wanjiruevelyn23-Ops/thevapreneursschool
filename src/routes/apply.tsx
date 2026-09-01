@@ -56,6 +56,7 @@ function ApplyPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const enroll = useEnroll(user?.id);
+  const sendNotification = useServerFn(notifyApplication);
 
   const courseSlug = search.course ?? "";
   const isAccelerator = courseSlug === ACCELERATOR.slug;
