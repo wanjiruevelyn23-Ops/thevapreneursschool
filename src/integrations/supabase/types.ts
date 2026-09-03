@@ -104,6 +104,57 @@ export type Database = {
         }
         Relationships: []
       }
+      module_content: {
+        Row: {
+          assignment: Json | null
+          course_slug: string
+          created_at: string
+          duration: string | null
+          id: string
+          lesson: Json
+          module_slug: string
+          notes: Json | null
+          published: boolean
+          quiz: Json
+          summary: string | null
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          assignment?: Json | null
+          course_slug: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          lesson?: Json
+          module_slug: string
+          notes?: Json | null
+          published?: boolean
+          quiz?: Json
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          assignment?: Json | null
+          course_slug?: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          lesson?: Json
+          module_slug?: string
+          notes?: Json | null
+          published?: boolean
+          quiz?: Json
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       module_progress: {
         Row: {
           completed: boolean
