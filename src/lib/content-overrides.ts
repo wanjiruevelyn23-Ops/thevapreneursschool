@@ -61,16 +61,20 @@ export function mergeModule(
   row: ModuleContentRow | undefined,
 ): CourseModule {
   if (!row) return base;
-  return {
+  const merged: CourseModule = {
     ...base,
     title: row.title?.trim() ? row.title : base.title,
     summary: row.summary?.trim() ? row.summary : base.summary,
-    duration: row.duration?.trim() ? row.duration : base.duration,
     lesson: row.lesson.length ? row.lesson : base.lesson,
     quiz: row.quiz.length ? row.quiz : base.quiz,
-    notes: row.notes ?? base.notes,
-    assignment: row.assignment ?? base.assignment,
   };
+  const duration = row.duration?.trim() ? row.duration : base.duration;
+  if (duration) merged.duration = duration;
+  const notes = row.notes ?? base.notes;
+  if (notes) merged.notes = notes;
+  const assignment = row.assignment ?? base.assignment;
+  if (assignment) merged.assignment = assignment;
+  return merged;
 }
 
 export function mergeCourses(overrides: OverrideMap): Course[] {
