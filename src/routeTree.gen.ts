@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as AdminInstructorRouteImport } from './routes/admin.instructor'
 import { Route as AdminSubmissionsRouteImport } from './routes/admin.submissions'
 import { Route as SyllabusCourseSlugRouteImport } from './routes/syllabus.$courseSlug'
 
@@ -60,6 +61,11 @@ const PortalRoute = PortalRouteImport.update({
   path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminInstructorRoute = AdminInstructorRouteImport.update({
+  id: '/admin/instructor',
+  path: '/admin/instructor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSubmissionsRoute = AdminSubmissionsRouteImport.update({
   id: '/admin/submissions',
   path: '/admin/submissions',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
   '/portal': typeof PortalRoute
+  '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
   '/portal': typeof PortalRoute
+  '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
   '/portal': typeof PortalRoute
+  '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/courses'
     | '/portal'
+    | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/courses'
     | '/portal'
+    | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/courses'
     | '/portal'
+    | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CoursesRoute: typeof CoursesRoute
   PortalRoute: typeof PortalRoute
+  AdminInstructorRoute: typeof AdminInstructorRoute
   AdminSubmissionsRoute: typeof AdminSubmissionsRoute
   SyllabusCourseSlugRoute: typeof SyllabusCourseSlugRoute
 }
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/instructor': {
+      id: '/admin/instructor'
+      path: '/admin/instructor'
+      fullPath: '/admin/instructor'
+      preLoaderRoute: typeof AdminInstructorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/submissions': {
       id: '/admin/submissions'
       path: '/admin/submissions'
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CoursesRoute: CoursesRoute,
   PortalRoute: PortalRoute,
+  AdminInstructorRoute: AdminInstructorRoute,
   AdminSubmissionsRoute: AdminSubmissionsRoute,
   SyllabusCourseSlugRoute: SyllabusCourseSlugRoute,
 }
