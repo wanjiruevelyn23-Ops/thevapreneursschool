@@ -26,7 +26,7 @@ import {
   useResetProgress,
   courseState,
 } from "@/lib/lms";
-import { COURSES, TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
+import { TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
 import { useCourses } from "@/lib/content-overrides";
 import type { Course, CourseModule, LessonBlock } from "@/content/types";
 import { Button } from "@/components/ui/button";
