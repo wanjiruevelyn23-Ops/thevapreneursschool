@@ -141,7 +141,14 @@ function PortalPage() {
           ))}
         </nav>
         {isAdmin ? (
-          <div className="px-3 pb-4">
+          <div className="flex flex-col gap-1 px-3 pb-4">
+            <Link
+              to="/admin/instructor"
+              className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent"
+            >
+              <PenSquare className="h-4 w-4" />
+              Instructor Studio
+            </Link>
             <Link
               to="/admin/submissions"
               className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent"
