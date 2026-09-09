@@ -947,7 +947,7 @@ function RouteMapView({
       </div>
 
       <div className="mt-8 space-y-3">
-        {COURSES.map((course) => {
+        {courses.map((course) => {
           const state = courseState(course, rows);
           return (
             <div key={course.slug} className="surface-card p-5">
