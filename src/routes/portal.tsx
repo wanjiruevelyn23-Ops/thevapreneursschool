@@ -11,13 +11,10 @@ import {
   ArrowLeft,
   FileDown,
   NotebookPen,
-  Inbox,
-  PenSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
 import {
   useEnrollments,
   useProgress,
@@ -71,7 +68,6 @@ function PortalPage() {
   const enrollments = useEnrollments(user?.id);
   const progress = useProgress(user?.id);
   const enroll = useEnroll(user?.id);
-  const isAdmin = useIsAdmin(user?.id);
   const { courses: allCourses } = useCourses(user?.id);
 
   if (loading) {
