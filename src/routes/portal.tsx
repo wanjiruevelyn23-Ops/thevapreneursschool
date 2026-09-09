@@ -203,7 +203,9 @@ function PortalPage() {
             />
           ) : null}
 
-          {nav === "route-map" ? <RouteMapView rows={rows} enrolledSlugs={enrolledSlugs} /> : null}
+          {nav === "route-map" ? (
+            <RouteMapView courses={allCourses} rows={rows} enrolledSlugs={enrolledSlugs} />
+          ) : null}
           {nav === "accelerator" ? <AcceleratorView /> : null}
           {nav === "toolkit" ? (
             <ToolkitView
