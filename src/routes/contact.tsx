@@ -170,6 +170,20 @@ function ContactPage() {
                 </div>
               </li>
               <li className="flex gap-3">
+                <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <div>
+                  <p className="font-medium text-primary">WhatsApp</p>
+                  <a
+                    href="https://wa.me/254114602052"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground underline-offset-4 hover:text-accent-deep hover:underline"
+                  >
+                    0114 602 052
+                  </a>
+                </div>
+              </li>
+              <li className="flex gap-3">
                 <Linkedin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <div>
                   <p className="font-medium text-primary">LinkedIn</p>
