@@ -315,18 +315,20 @@ function CourseRow({
 }
 
 function MyCourses({
+  courses,
   enrolledSlugs,
   rows,
   onOpen,
   onEnrol,
 }: {
+  courses: Course[];
   enrolledSlugs: Set<string>;
   rows: Rows;
   onOpen: (slug: string) => void;
   onEnrol: (slug: string, title: string) => void;
 }) {
-  const enrolledCourses = COURSES.filter((course) => enrolledSlugs.has(course.slug));
-  const otherCourses = COURSES.filter((course) => !enrolledSlugs.has(course.slug));
+  const enrolledCourses = courses.filter((course) => enrolledSlugs.has(course.slug));
+  const otherCourses = courses.filter((course) => !enrolledSlugs.has(course.slug));
 
   return (
     <div>
