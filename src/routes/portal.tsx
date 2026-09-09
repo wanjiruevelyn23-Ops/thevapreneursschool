@@ -101,7 +101,9 @@ function PortalPage() {
 
 
 
-  const activeCourse = openCourse ? getCourse(openCourse) : undefined;
+  const activeCourse = openCourse
+    ? allCourses.find((course) => course.slug === openCourse)
+    : undefined;
   const activeModule =
     activeCourse && openModule
       ? activeCourse.modules.find((m) => m.slug === openModule)
