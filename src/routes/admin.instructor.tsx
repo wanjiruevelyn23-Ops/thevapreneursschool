@@ -607,7 +607,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Shell({ children, email }: { children: React.ReactNode; email?: string }) {
+function Shell({ children, email }: { children: React.ReactNode; email?: string | undefined }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-5 py-16">

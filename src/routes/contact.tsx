@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { Mail, Clock, Linkedin, Send, ExternalLink } from "lucide-react";
+import { Mail, Clock, Linkedin, Send, ExternalLink, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -166,6 +166,20 @@ function ContactPage() {
                     className="text-muted-foreground underline-offset-4 hover:text-accent-deep hover:underline"
                   >
                     info@thevapreneursschool.com
+                  </a>
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <div>
+                  <p className="font-medium text-primary">WhatsApp</p>
+                  <a
+                    href="https://wa.me/254114602052"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground underline-offset-4 hover:text-accent-deep hover:underline"
+                  >
+                    0114 602 052
                   </a>
                 </div>
               </li>

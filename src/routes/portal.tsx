@@ -12,6 +12,7 @@ import {
   FileDown,
   NotebookPen,
   Inbox,
+  PenSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,7 +26,8 @@ import {
   useResetProgress,
   courseState,
 } from "@/lib/lms";
-import { COURSES, TOOLKIT_COURSES, ACCELERATOR, getCourse } from "@/content/courses";
+import { TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
+import { useCourses } from "@/lib/content-overrides";
 import type { Course, CourseModule, LessonBlock } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -70,6 +72,7 @@ function PortalPage() {
   const progress = useProgress(user?.id);
   const enroll = useEnroll(user?.id);
   const isAdmin = useIsAdmin(user?.id);
+  const { courses: allCourses } = useCourses(user?.id);
 
   if (loading) {
     return <Shell><p className="text-sm text-muted-foreground">Loading your portal…</p></Shell>;
@@ -100,7 +103,9 @@ function PortalPage() {
 
 
 
-  const activeCourse = openCourse ? getCourse(openCourse) : undefined;
+  const activeCourse = openCourse
+    ? allCourses.find((course) => course.slug === openCourse)
+    : undefined;
   const activeModule =
     activeCourse && openModule
       ? activeCourse.modules.find((m) => m.slug === openModule)
@@ -137,7 +142,14 @@ function PortalPage() {
           ))}
         </nav>
         {isAdmin ? (
-          <div className="px-3 pb-4">
+          <div className="flex flex-col gap-1 px-3 pb-4">
+            <Link
+              to="/admin/instructor"
+              className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent"
+            >
+              <PenSquare className="h-4 w-4" />
+              Instructor Studio
+            </Link>
             <Link
               to="/admin/submissions"
               className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent"
@@ -160,6 +172,7 @@ function PortalPage() {
         <div className="mx-auto max-w-4xl">
           {nav === "courses" && !activeCourse ? (
             <MyCourses
+              courses={allCourses}
               enrolledSlugs={enrolledSlugs}
               rows={rows}
               onOpen={(slug) => setOpenCourse(slug)}
@@ -190,7 +203,9 @@ function PortalPage() {
             />
           ) : null}
 
-          {nav === "route-map" ? <RouteMapView rows={rows} enrolledSlugs={enrolledSlugs} /> : null}
+          {nav === "route-map" ? (
+            <RouteMapView courses={allCourses} rows={rows} enrolledSlugs={enrolledSlugs} />
+          ) : null}
           {nav === "accelerator" ? <AcceleratorView /> : null}
           {nav === "toolkit" ? (
             <ToolkitView
@@ -302,18 +317,20 @@ function CourseRow({
 }
 
 function MyCourses({
+  courses,
   enrolledSlugs,
   rows,
   onOpen,
   onEnrol,
 }: {
+  courses: Course[];
   enrolledSlugs: Set<string>;
   rows: Rows;
   onOpen: (slug: string) => void;
   onEnrol: (slug: string, title: string) => void;
 }) {
-  const enrolledCourses = COURSES.filter((course) => enrolledSlugs.has(course.slug));
-  const otherCourses = COURSES.filter((course) => !enrolledSlugs.has(course.slug));
+  const enrolledCourses = courses.filter((course) => enrolledSlugs.has(course.slug));
+  const otherCourses = courses.filter((course) => !enrolledSlugs.has(course.slug));
 
   return (
     <div>
@@ -896,8 +913,16 @@ function ModuleView({
   );
 }
 
-function RouteMapView({ rows, enrolledSlugs }: { rows: Rows; enrolledSlugs: Set<string> }) {
-  const totals = COURSES.reduce(
+function RouteMapView({
+  courses,
+  rows,
+  enrolledSlugs,
+}: {
+  courses: Course[];
+  rows: Rows;
+  enrolledSlugs: Set<string>;
+}) {
+  const totals = courses.reduce(
     (acc, course) => {
       const state = courseState(course, rows);
       return {
@@ -922,7 +947,7 @@ function RouteMapView({ rows, enrolledSlugs }: { rows: Rows; enrolledSlugs: Set<
       </div>
 
       <div className="mt-8 space-y-3">
-        {COURSES.map((course) => {
+        {courses.map((course) => {
           const state = courseState(course, rows);
           return (
             <div key={course.slug} className="surface-card p-5">
