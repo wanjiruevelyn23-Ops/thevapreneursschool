@@ -71,6 +71,7 @@ function PortalPage() {
   const progress = useProgress(user?.id);
   const enroll = useEnroll(user?.id);
   const isAdmin = useIsAdmin(user?.id);
+  const { courses: allCourses } = useCourses(user?.id);
 
   if (loading) {
     return <Shell><p className="text-sm text-muted-foreground">Loading your portal…</p></Shell>;
