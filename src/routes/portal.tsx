@@ -913,8 +913,16 @@ function ModuleView({
   );
 }
 
-function RouteMapView({ rows, enrolledSlugs }: { rows: Rows; enrolledSlugs: Set<string> }) {
-  const totals = COURSES.reduce(
+function RouteMapView({
+  courses,
+  rows,
+  enrolledSlugs,
+}: {
+  courses: Course[];
+  rows: Rows;
+  enrolledSlugs: Set<string>;
+}) {
+  const totals = courses.reduce(
     (acc, course) => {
       const state = courseState(course, rows);
       return {
