@@ -172,6 +172,7 @@ function PortalPage() {
         <div className="mx-auto max-w-4xl">
           {nav === "courses" && !activeCourse ? (
             <MyCourses
+              courses={allCourses}
               enrolledSlugs={enrolledSlugs}
               rows={rows}
               onOpen={(slug) => setOpenCourse(slug)}
