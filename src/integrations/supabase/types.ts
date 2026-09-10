@@ -116,6 +116,7 @@ export type Database = {
           notes: Json | null
           published: boolean
           quiz: Json
+          resources: Json
           summary: string | null
           title: string | null
           updated_at: string
@@ -132,6 +133,7 @@ export type Database = {
           notes?: Json | null
           published?: boolean
           quiz?: Json
+          resources?: Json
           summary?: string | null
           title?: string | null
           updated_at?: string
@@ -148,6 +150,7 @@ export type Database = {
           notes?: Json | null
           published?: boolean
           quiz?: Json
+          resources?: Json
           summary?: string | null
           title?: string | null
           updated_at?: string
