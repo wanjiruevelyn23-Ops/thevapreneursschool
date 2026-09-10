@@ -138,3 +138,18 @@ export function useCourses(userId: string | undefined) {
   const courses = useMemo(() => mergeCourses(map), [map]);
   return { courses, overrides: map, loading, reload };
 }
+
+/**
+ * Instructor uploads live in a private bucket, so downloads go through a
+ * short-lived signed link. Any signed-in student may open module files.
+ */
+export async function getModuleFileUrl(path: string): Promise<string | null> {
+  const { data } = await supabase.storage.from("module-files").createSignedUrl(path, 60 * 10);
+  return data?.signedUrl ?? null;
+}
+
+export function formatFileSize(bytes: number | undefined): string {
+  if (!bytes) return "";
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
