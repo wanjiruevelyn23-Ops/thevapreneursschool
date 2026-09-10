@@ -15,6 +15,7 @@ import type {
   LessonBlock,
   ModuleAssignment,
   ModuleNotes,
+  ModuleResource,
   QuizQuestion,
 } from "@/content/types";
 
@@ -29,9 +30,11 @@ export type ModuleContentRow = {
   notes: ModuleNotes | null;
   quiz: QuizQuestion[];
   assignment: ModuleAssignment | null;
+  resources: ModuleResource[];
   published: boolean;
   updated_at: string;
 };
+
 
 export type OverrideMap = Map<string, ModuleContentRow>;
 

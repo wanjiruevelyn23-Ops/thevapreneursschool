@@ -50,6 +50,16 @@ export type ModuleAssignment = {
   criteria?: string[];
 };
 
+/** A file the instructor attached to a module for students to download. */
+export type ModuleResource = {
+  /** Storage path inside the module-files bucket. */
+  path: string;
+  /** Name shown to students. */
+  name: string;
+  /** Size in bytes, for display. */
+  size?: number;
+};
+
 export type CourseModule = {
   slug: string;
   number: number;
@@ -63,7 +73,10 @@ export type CourseModule = {
   quiz: QuizQuestion[];
   notes?: ModuleNotes;
   assignment?: ModuleAssignment;
+  /** Instructor-uploaded downloads (PDF, Word, slides…). */
+  resources?: ModuleResource[];
 };
+
 
 
 export type CourseCategory = "skill" | "toolkit";
