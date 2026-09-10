@@ -695,7 +695,10 @@ function ModuleView({
                     route.
                   </p>
                 </div>
-              )}
+          )}
+
+          <ModuleDownloads resources={module.resources ?? []} />
+
             </div>
           )}
 
