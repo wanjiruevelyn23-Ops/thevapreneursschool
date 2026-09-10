@@ -695,12 +695,12 @@ function ModuleView({
                     route.
                   </p>
                 </div>
+              )}
+            </div>
           )}
 
           <ModuleDownloads resources={module.resources ?? []} />
 
-            </div>
-          )}
 
           <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6">
             {module.quiz.length ? (
