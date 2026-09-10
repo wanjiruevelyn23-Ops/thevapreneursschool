@@ -24,8 +24,8 @@ import {
   courseState,
 } from "@/lib/lms";
 import { TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
-import { useCourses } from "@/lib/content-overrides";
-import type { Course, CourseModule, LessonBlock } from "@/content/types";
+import { useCourses, getModuleFileUrl, formatFileSize } from "@/lib/content-overrides";
+import type { Course, CourseModule, LessonBlock, ModuleResource } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Logo } from "@/components/brand/Logo";
@@ -1060,6 +1060,45 @@ function SettingsView({ email, userId }: { email: string; userId: string }) {
           {reset.isPending ? "Resetting…" : "Reset all progress"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+/** Instructor-uploaded files students can download for a module. */
+function ModuleDownloads({ resources }: { resources: ModuleResource[] }) {
+  if (resources.length === 0) return null;
+
+  async function open(resource: ModuleResource) {
+    const url = await getModuleFileUrl(resource.path);
+    if (!url) {
+      toast.error("That file couldn't be opened. Please try again.");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <div className="mt-8 border-t border-border pt-6">
+      <p className="font-mono text-[0.6875rem] uppercase tracking-widest text-muted-foreground">
+        Downloads
+      </p>
+      <ul className="mt-3 space-y-2">
+        {resources.map((resource) => (
+          <li key={resource.path}>
+            <button
+              type="button"
+              onClick={() => void open(resource)}
+              className="flex w-full items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-primary transition-colors hover:border-accent"
+            >
+              <FileDown className="h-4 w-4 shrink-0 text-accent" />
+              <span className="min-w-0 flex-1 truncate">{resource.name}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {formatFileSize(resource.size)}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
