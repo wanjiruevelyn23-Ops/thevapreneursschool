@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Check, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Check, FileDown, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,9 +11,15 @@ import type {
   LessonBlock,
   ModuleAssignment,
   ModuleNotes,
+  ModuleResource,
   QuizQuestion,
 } from "@/content/types";
-import { useModuleOverrides, overrideKey } from "@/lib/content-overrides";
+import {
+  formatFileSize,
+  getModuleFileUrl,
+  useModuleOverrides,
+  overrideKey,
+} from "@/lib/content-overrides";
 import { BlockEditor } from "@/components/instructor/BlockEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Logo } from "@/components/brand/Logo";
 import { Eyebrow } from "@/components/brand/Section";
 import { cn } from "@/lib/utils";
+
 
 const TITLE = "Instructor Studio | The VApreneurs School";
 const DESCRIPTION =
