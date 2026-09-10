@@ -15,6 +15,7 @@ import type {
   LessonBlock,
   ModuleAssignment,
   ModuleNotes,
+  ModuleResource,
   QuizQuestion,
 } from "@/content/types";
 
@@ -29,9 +30,11 @@ export type ModuleContentRow = {
   notes: ModuleNotes | null;
   quiz: QuizQuestion[];
   assignment: ModuleAssignment | null;
+  resources: ModuleResource[];
   published: boolean;
   updated_at: string;
 };
+
 
 export type OverrideMap = Map<string, ModuleContentRow>;
 
@@ -50,7 +53,9 @@ function toRow(raw: Record<string, unknown>): ModuleContentRow {
     notes: (raw['notes'] as ModuleNotes | null) ?? null,
     quiz: (raw['quiz'] as QuizQuestion[] | null) ?? [],
     assignment: (raw['assignment'] as ModuleAssignment | null) ?? null,
+    resources: (raw['resources'] as ModuleResource[] | null) ?? [],
     published: Boolean(raw['published']),
+
     updated_at: String(raw['updated_at'] ?? ""),
   };
 }
@@ -74,7 +79,9 @@ export function mergeModule(
   if (notes) merged.notes = notes;
   const assignment = row.assignment ?? base.assignment;
   if (assignment) merged.assignment = assignment;
+  if (row.resources.length) merged.resources = row.resources;
   return merged;
+
 }
 
 export function mergeCourses(overrides: OverrideMap): Course[] {
@@ -130,4 +137,19 @@ export function useCourses(userId: string | undefined) {
   const { map, loading, reload } = useModuleOverrides(userId);
   const courses = useMemo(() => mergeCourses(map), [map]);
   return { courses, overrides: map, loading, reload };
+}
+
+/**
+ * Instructor uploads live in a private bucket, so downloads go through a
+ * short-lived signed link. Any signed-in student may open module files.
+ */
+export async function getModuleFileUrl(path: string): Promise<string | null> {
+  const { data } = await supabase.storage.from("module-files").createSignedUrl(path, 60 * 10);
+  return data?.signedUrl ?? null;
+}
+
+export function formatFileSize(bytes: number | undefined): string {
+  if (!bytes) return "";
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }

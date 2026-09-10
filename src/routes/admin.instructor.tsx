@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Check, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Check, FileDown, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,9 +11,15 @@ import type {
   LessonBlock,
   ModuleAssignment,
   ModuleNotes,
+  ModuleResource,
   QuizQuestion,
 } from "@/content/types";
-import { useModuleOverrides, overrideKey } from "@/lib/content-overrides";
+import {
+  formatFileSize,
+  getModuleFileUrl,
+  useModuleOverrides,
+  overrideKey,
+} from "@/lib/content-overrides";
 import { BlockEditor } from "@/components/instructor/BlockEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Logo } from "@/components/brand/Logo";
 import { Eyebrow } from "@/components/brand/Section";
 import { cn } from "@/lib/utils";
+
 
 const TITLE = "Instructor Studio | The VApreneurs School";
 const DESCRIPTION =
@@ -49,7 +56,9 @@ type Draft = {
   notes: ModuleNotes;
   quiz: QuizQuestion[];
   assignment: ModuleAssignment;
+  resources: ModuleResource[];
 };
+
 
 const emptyNotes = (title: string): ModuleNotes => ({
   title: `${title} — notes`,
@@ -137,7 +146,9 @@ function InstructorPage() {
       assignment: draft.assignment.tasks.length || draft.assignment.title.trim()
         ? draft.assignment
         : null,
+      resources: draft.resources,
       published: publish,
+
       updated_by: user!.id,
     };
     const { error } = await supabase
@@ -305,6 +316,8 @@ function InstructorPage() {
                   <TabsTrigger value="lesson">Lesson</TabsTrigger>
                   <TabsTrigger value="quiz">Quiz</TabsTrigger>
                   <TabsTrigger value="assignment">Assignment</TabsTrigger>
+                  <TabsTrigger value="files">Downloads</TabsTrigger>
+
                 </TabsList>
 
                 <TabsContent value="notes" className="mt-6 space-y-4">
@@ -359,6 +372,16 @@ function InstructorPage() {
                     onChange={(quiz) => setDraft({ ...draft, quiz })}
                   />
                 </TabsContent>
+
+                <TabsContent value="files" className="mt-6">
+                  <FileManager
+                    courseSlug={courseSlug}
+                    moduleSlug={moduleSlug}
+                    resources={draft.resources}
+                    onChange={(resources) => setDraft({ ...draft, resources })}
+                  />
+                </TabsContent>
+
 
                 <TabsContent value="assignment" className="mt-6 space-y-4">
                   <Field label="Assignment title">
@@ -467,8 +490,129 @@ function fromSources(
     quiz: stored?.quiz.length ? stored.quiz : builtIn.quiz,
     notes: stored?.notes ?? builtIn.notes ?? emptyNotes(builtIn.title),
     assignment: stored?.assignment ?? builtIn.assignment ?? emptyAssignment(),
+    resources: stored?.resources ?? builtIn.resources ?? [],
   };
 }
+
+/** Upload, list and remove the files students can download for this module. */
+function FileManager({
+  courseSlug,
+  moduleSlug,
+  resources,
+  onChange,
+}: {
+  courseSlug: string;
+  moduleSlug: string;
+  resources: ModuleResource[];
+  onChange: (next: ModuleResource[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function upload(files: FileList | null) {
+    if (!files?.length) return;
+    setBusy(true);
+    const added: ModuleResource[] = [];
+    for (const file of Array.from(files)) {
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
+      const path = `${courseSlug}/${moduleSlug}/${Date.now()}-${safe}`;
+      const { error } = await supabase.storage.from("module-files").upload(path, file, {
+        upsert: false,
+      });
+      if (error) {
+        toast.error(`Could not upload ${file.name}`, { description: error.message });
+        continue;
+      }
+      added.push({ path, name: file.name, size: file.size });
+    }
+    setBusy(false);
+    if (inputRef.current) inputRef.current.value = "";
+    if (added.length) {
+      onChange([...resources, ...added]);
+      toast.success(
+        `${added.length} file${added.length === 1 ? "" : "s"} uploaded — publish to show students`,
+      );
+    }
+  }
+
+  async function remove(resource: ModuleResource) {
+    await supabase.storage.from("module-files").remove([resource.path]);
+    onChange(resources.filter((r) => r.path !== resource.path));
+    toast.success("File removed — publish to update students");
+  }
+
+  async function open(resource: ModuleResource) {
+    const url = await getModuleFileUrl(resource.path);
+    if (!url) {
+      toast.error("Could not open that file");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Label className="font-mono text-[11px] tracking-[0.12em] uppercase">
+          Student downloads
+        </Label>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => inputRef.current?.click()}
+        >
+          {busy ? (
+            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+          ) : (
+            <Upload className="mr-1.5 h-4 w-4" />
+          )}
+          Upload files
+        </Button>
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={(e) => void upload(e.target.files)}
+        />
+      </div>
+
+      {resources.length === 0 ? (
+        <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+          No files attached yet. Upload a PDF, Word document or slide deck — up to 50 MB each — and
+          students will see it on the module's Notes tab once you publish.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {resources.map((resource) => (
+            <li
+              key={resource.path}
+              className="flex items-center justify-between gap-3 rounded-md border bg-card p-3"
+            >
+              <button
+                type="button"
+                onClick={() => void open(resource)}
+                className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm hover:text-accent-deep"
+              >
+                <FileDown className="h-4 w-4 shrink-0 text-accent" />
+                <span className="truncate">{resource.name}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {formatFileSize(resource.size)}
+                </span>
+              </button>
+              <Button type="button" size="icon" variant="ghost" onClick={() => void remove(resource)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 
 function QuizEditor({
   quiz,
