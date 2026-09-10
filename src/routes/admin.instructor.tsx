@@ -56,7 +56,9 @@ type Draft = {
   notes: ModuleNotes;
   quiz: QuizQuestion[];
   assignment: ModuleAssignment;
+  resources: ModuleResource[];
 };
+
 
 const emptyNotes = (title: string): ModuleNotes => ({
   title: `${title} — notes`,
@@ -144,7 +146,9 @@ function InstructorPage() {
       assignment: draft.assignment.tasks.length || draft.assignment.title.trim()
         ? draft.assignment
         : null,
+      resources: draft.resources,
       published: publish,
+
       updated_by: user!.id,
     };
     const { error } = await supabase
@@ -312,6 +316,8 @@ function InstructorPage() {
                   <TabsTrigger value="lesson">Lesson</TabsTrigger>
                   <TabsTrigger value="quiz">Quiz</TabsTrigger>
                   <TabsTrigger value="assignment">Assignment</TabsTrigger>
+                  <TabsTrigger value="files">Downloads</TabsTrigger>
+
                 </TabsList>
 
                 <TabsContent value="notes" className="mt-6 space-y-4">
@@ -366,6 +372,16 @@ function InstructorPage() {
                     onChange={(quiz) => setDraft({ ...draft, quiz })}
                   />
                 </TabsContent>
+
+                <TabsContent value="files" className="mt-6">
+                  <FileManager
+                    courseSlug={courseSlug}
+                    moduleSlug={moduleSlug}
+                    resources={draft.resources}
+                    onChange={(resources) => setDraft({ ...draft, resources })}
+                  />
+                </TabsContent>
+
 
                 <TabsContent value="assignment" className="mt-6 space-y-4">
                   <Field label="Assignment title">
