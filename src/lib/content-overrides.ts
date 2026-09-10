@@ -53,7 +53,9 @@ function toRow(raw: Record<string, unknown>): ModuleContentRow {
     notes: (raw['notes'] as ModuleNotes | null) ?? null,
     quiz: (raw['quiz'] as QuizQuestion[] | null) ?? [],
     assignment: (raw['assignment'] as ModuleAssignment | null) ?? null,
+    resources: (raw['resources'] as ModuleResource[] | null) ?? [],
     published: Boolean(raw['published']),
+
     updated_at: String(raw['updated_at'] ?? ""),
   };
 }
@@ -77,7 +79,9 @@ export function mergeModule(
   if (notes) merged.notes = notes;
   const assignment = row.assignment ?? base.assignment;
   if (assignment) merged.assignment = assignment;
+  if (row.resources.length) merged.resources = row.resources;
   return merged;
+
 }
 
 export function mergeCourses(overrides: OverrideMap): Course[] {
