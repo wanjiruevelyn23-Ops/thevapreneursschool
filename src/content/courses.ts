@@ -298,23 +298,38 @@ export const ACCELERATOR = {
   pillars: [
     {
       number: 1,
-      title: "Personal branding",
+      title: "Personal branding & positioning",
       text: "Build a professional identity that says what you do, who you do it for and why you're the safe choice — across your profile, portfolio and pitch.",
     },
     {
       number: 2,
-      title: "Market positioning",
+      title: "Defining your ideal client",
       text: "Choose a niche and a service offer, size the market, and position against the thousands of generalist VAs competing on price.",
     },
     {
       number: 3,
-      title: "Client acquisition",
+      title: "Client acquisition strategies and sources",
       text: "Where global clients actually hire, how to pitch cold and warm, and a daily outreach system that fills your pipeline.",
     },
     {
       number: 4,
+      title: "Portfolio building and resume creation",
+      text: "Turn your skills and experience into a client-ready portfolio and resume that prove you can deliver before the first call.",
+    },
+    {
+      number: 5,
+      title: "Client Onboarding process",
+      text: "Design a smooth, repeatable onboarding flow that sets expectations, collects what you need and starts the relationship strong.",
+    },
+    {
+      number: 6,
       title: "Pricing your services",
       text: "Move from hourly guessing to packaged, profitable pricing — plus the language to hold your rate in a negotiation.",
+    },
+    {
+      number: 7,
+      title: "Contracts, proposals and terms",
+      text: "Protect your work and your income with clear proposals, contracts and terms that clients respect and sign.",
     },
   ],
   whoFor: [

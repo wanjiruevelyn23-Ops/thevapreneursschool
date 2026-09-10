@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading, Eyebrow } from "@/components/brand/Section";
 import { ACCELERATOR } from "@/content/courses";
 
-const TITLE = "The VApreneurs Accelerator — Cohort 1 | 10 Days, Live";
+const TITLE = "The VApreneurs School — The Accelerator | 10 Days, Live";
 const DESCRIPTION =
-  "Done with your VA course… now what? A 10-day live, cohort-based accelerator covering personal branding, market positioning, client acquisition and pricing.";
+  "Done with your VA course… now what? A 10-day live, cohort-based accelerator covering personal branding, ideal client definition, client acquisition, portfolio building, onboarding, pricing, contracts and proposals.";
 
 export const Route = createFileRoute("/accelerator")({
   head: () => ({
@@ -34,7 +34,7 @@ function AcceleratorPage() {
         <div className="mx-auto max-w-6xl px-5 py-16 lg:py-20">
           <Eyebrow className="text-accent">Waypoint 2 · Position yourself</Eyebrow>
           <h1 className="mt-4 max-w-3xl text-4xl leading-[1.1] sm:text-5xl">
-            "Done With My VA Course… Now What?"
+            The VApreneurs School — The Accelerator
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-primary-foreground/75">
             You have the skill. What you don't have yet is a brand, a niche, a
@@ -72,7 +72,7 @@ function AcceleratorPage() {
       <section className="mx-auto max-w-6xl px-5 py-16">
         <SectionHeading
           eyebrow="Curriculum"
-          title="Four pillars over ten days"
+          title="Seven pillars over ten days"
           intro="Each pillar is taught live, then applied to your own business before the next one starts."
         />
         <div className="mt-10 grid gap-6 md:grid-cols-2">
