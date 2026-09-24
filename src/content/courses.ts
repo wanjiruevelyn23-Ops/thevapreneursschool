@@ -295,6 +295,8 @@ export const ACCELERATOR = {
   format: "Live sessions + private community",
   prerequisite: "Completion of any one skill track",
   seats: "Limited seats",
+  price: "Ksh 3,999",
+  startDate: "October 28",
   pillars: [
     {
       number: 1,
