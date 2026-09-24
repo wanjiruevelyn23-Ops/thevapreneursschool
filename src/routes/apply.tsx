@@ -92,8 +92,10 @@ function ApplyPage() {
       setErrors(fieldErrors);
       return;
     }
-    setErrors({});
+        setErrors({});
     setSubmitting(true);
+
+    // 1. Keep saving the application to your database records safely
     const { error } = await supabase.from("applications").insert({
       name: parsed.data.name,
       email: parsed.data.email,
@@ -105,23 +107,28 @@ function ApplyPage() {
       track: isAccelerator ? "cohort" : track,
     });
 
-    // Notify the school inbox; failures never block the applicant.
+    // 2. Bypassing Lovable credits: Send application details straight to Formspree!
     if (!error) {
       try {
-        await sendNotification({
-          data: {
-            name: parsed.data.name,
-            email: parsed.data.email,
-            phone: parsed.data.phone,
-            experience: parsed.data.experience,
-            message: parsed.data.message ?? "",
-            courseTitle: selectionTitle,
-            courseSlug,
-            track: isAccelerator ? "cohort" : track,
+        await fetch("https://formspree.io/f/mnpnzgpb", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
           },
+          body: JSON.stringify({
+            Form: "School Application Form",
+            Name: parsed.data.name,
+            Email: parsed.data.email,
+            Phone: parsed.data.phone,
+            Experience: parsed.data.experience,
+            Message: parsed.data.message ?? "No additional message",
+            Applied_For: selectionTitle,
+            Track: isAccelerator ? "cohort" : track
+          })
         });
-      } catch (notifyError) {
-        console.error("Application notification failed", notifyError);
+      } catch (formspreeError) {
+        console.error("Formspree forward failed", formspreeError);
       }
     }
 
