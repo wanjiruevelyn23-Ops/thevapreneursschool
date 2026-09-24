@@ -95,13 +95,11 @@ function AboutPage() {
         <div className="mx-auto max-w-3xl px-5">
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
             <img
-              src="https://githubusercontent.com"
-              width={160}
-              height={160}
-              loading="lazy"
-              alt="Eve Wanjiru, founder and CEO of The VApreneurs School"
-              className="h-28 w-28 shrink-0 rounded-full object-cover object-top shadow-lift"
-            />
+  src="https://githubusercontent.com"
+  alt="Eve Wanjiru, founder and CEO of The VApreneurs School"
+  className="h-28 w-28 shrink-0 rounded-full object-cover object-top shadow-md"
+/>
+
             <div>
               <Eyebrow>Founder &amp; CEO</Eyebrow>
               <h2 className="mt-2 text-3xl text-primary">Eve Wanjiru</h2>
