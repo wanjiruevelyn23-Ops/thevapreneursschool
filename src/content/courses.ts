@@ -286,7 +286,6 @@ export function getModule(courseSlug: string, moduleSlug: string) {
   if (index === -1) return undefined;
   return { course, module: course.modules[index], index };
 }
-
 export const ACCELERATOR = {
   slug: "accelerator",
   title: "The VApreneurs Accelerator",
@@ -295,6 +294,7 @@ export const ACCELERATOR = {
   format: "Live sessions + private community",
   prerequisite: "Completion of any one skill track",
   seats: "Limited seats",
+  originalPrice: "Ksh 4,500",
   price: "Ksh 3,999",
   startDate: "October 28",
   pillars: [
