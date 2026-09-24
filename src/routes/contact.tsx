@@ -33,6 +33,15 @@ const contactSchema = z.object({
     .max(2000, "Please keep it under 2000 characters"),
 });
 
+// 🟩 MOVING THIS OUTSIDE FIXES THE CURSOR LOSING FOCUS BUG PERFECTLY!
+const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
+  <div className="space-y-1.5">
+    <Label>{label}</Label>
+    {children}
+    {error && <p className="text-xs font-medium text-destructive">{error}</p>}
+  </div>
+);
+
 export const Route = createFileRoute("/contact")({
   validateSearch: z.object({ topic: z.string().optional() }),
   head: () => ({
@@ -56,15 +65,6 @@ function ContactPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-
-  // Custom interface field builder helper
-  const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
-      {error && <p className="text-xs font-medium text-destructive">{error}</p>}
-    </div>
-  );
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -90,7 +90,7 @@ function ContactPage() {
     if (!error) {
       try {
         const topicLabel = TOPICS.find((t) => t.value === parsed.data.topic)?.label || parsed.data.topic;
-        await fetch("https://formspree.io/f/xnpnzgzb", {
+        await fetch("https://formspree.io", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -244,4 +244,3 @@ function ContactPage() {
     </>
   );
 }
-
