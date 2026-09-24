@@ -95,7 +95,7 @@ function AboutPage() {
         <div className="mx-auto max-w-3xl px-5">
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
             <img
-  src="https://githubusercontent.com"
+  src="/proffessional shot.jpg"
   alt="Eve Wanjiru, founder and CEO of The VApreneurs School"
   className="h-28 w-28 shrink-0 rounded-full object-cover object-top shadow-md"
 />
