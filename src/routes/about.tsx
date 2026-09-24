@@ -95,7 +95,7 @@ function AboutPage() {
         <div className="mx-auto max-w-3xl px-5">
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
             <img
-              src="https://github.com"
+              src="https://githubusercontent.com"
               width={160}
               height={160}
               loading="lazy"
