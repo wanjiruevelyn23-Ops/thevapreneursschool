@@ -90,7 +90,7 @@ function ContactPage() {
     if (!error) {
       try {
         const topicLabel = TOPICS.find((t) => t.value === parsed.data.topic)?.label || parsed.data.topic;
-        await fetch("https://formspree.io", {
+        await fetch("https://formspree.io/f/xnpnzgzb", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
