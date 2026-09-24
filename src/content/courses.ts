@@ -308,30 +308,45 @@ export const ACCELERATOR = {
     },
     {
       number: 3,
-      title: "Client acquisition strategies and sources",
-      text: "Where global clients actually hire, how to pitch cold and warm, and a daily outreach system that fills your pipeline.",
+      title: "Portfolio Building & Resume Creation",
+      text: "Package your skills into a high-converting digital portfolio and a modern resume that proves you can handle real client workloads.",
     },
     {
       number: 4,
-      title: "Portfolio building and resume creation",
-      text: "Turn your skills and experience into a client-ready portfolio and resume that prove you can deliver before the first call.",
+      title: "LinkedIn Optimization",
+      text: "Turn your personal profile into a client magnet by rewriting your bio, structuring your experience, and positioning yourself as a premium service provider.",
     },
     {
       number: 5,
-      title: "Client Onboarding process",
-      text: "Design a smooth, repeatable onboarding flow that sets expectations, collects what you need and starts the relationship strong.",
+      title: "Pricing Your Services",
+      text: "Ditch hourly rates for retainer models. Learn how to calculate your value, structure premium packages, and quote prices with complete confidence.",
     },
     {
       number: 6,
-      title: "Pricing your services",
-      text: "Move from hourly guessing to packaged, profitable pricing — plus the language to hold your rate in a negotiation.",
+      title: "Client Acquisition Strategies: Crafting Irresistible Offers",
+      text: "Master outbound pitching and inbound strategy. Learn how to build an offer so clear and valuable that your ideal clients can't say no.",
     },
     {
       number: 7,
-      title: "Contracts, proposals and terms",
-      text: "Protect your work and your income with clear proposals, contracts and terms that clients respect and sign.",
+      title: "Discovery Calls & Interviews",
+      text: "Overcome call anxiety. Practice the exact script to lead sales conversations, handle client objections, and close the deal without feeling salesy.",
     },
-  ],
+         { 
+      number: "8", 
+      title: "Contracts, Proposals & Terms",
+      text: "Protect your business and formalize your agreements. Create solid client proposals, service contracts, and boundary-setting onboarding terms."
+    },
+    { 
+      number: "9", 
+      title: "Client Onboarding Process",
+      text: "Deliver a premium first impression. Set up the exact workflows, welcome packets, and communication systems to seamlessly transition a lead into a long-term client."
+    },
+    { 
+      number: "10", 
+      title: "Mock Testing & Real-World Application (Apply + Pitch to at Least One Job/Client)",
+      text: "Put everything into immediate action. Complete live client simulation testing and launch your first real application pitch to secure your first paying client."
+    },
+ ],
   whoFor: [
     "You've finished a VA course but haven't landed consistent clients",
     "You can do the work, but freeze when it's time to pitch or price",
