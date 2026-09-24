@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { Mail, Clock, Linkedin, Send, ExternalLink, MessageCircle } from "lucide-react";
+import { Mail, Clock, Linkedin, Send, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -57,13 +57,22 @@ function ContactPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Custom interface field builder helper
+  const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      {children}
+      {error && <p className="text-xs font-medium text-destructive">{error}</p>}
+    </div>
+  );
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const parsed = contactSchema.safeParse(values);
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       for (const issue of parsed.error.issues) {
-        fieldErrors[String(issue.path[0])] = issue.message;
+        fieldErrors[String(issue.path)] = issue.message;
       }
       setErrors(fieldErrors);
       return;
@@ -76,6 +85,30 @@ function ContactPage() {
       topic: parsed.data.topic,
       message: parsed.data.message,
     });
+
+    // Forward the general contact message straight to Formspree endpoint
+    if (!error) {
+      try {
+        const topicLabel = TOPICS.find((t) => t.value === parsed.data.topic)?.label || parsed.data.topic;
+        await fetch("https://formspree.io/f/xnpnzgzb", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            Form: "General Website Contact Form",
+            Name: parsed.data.name,
+            Email: parsed.data.email,
+            Topic: topicLabel,
+            Message: parsed.data.message
+          })
+        });
+      } catch (formspreeError) {
+        console.error("Formspree forward failed", formspreeError);
+      }
+    }
+
     setSubmitting(false);
     if (error) {
       toast.error("We couldn't send that. Please try again.");
@@ -174,7 +207,7 @@ function ContactPage() {
                 <div>
                   <p className="font-medium text-primary">WhatsApp</p>
                   <a
-                    href="https://wa.me/254114602052"
+                    href="https://wa.me"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground underline-offset-4 hover:text-accent-deep hover:underline"
@@ -188,7 +221,7 @@ function ContactPage() {
                 <div>
                   <p className="font-medium text-primary">LinkedIn</p>
                   <a
-                    href="https://www.linkedin.com/company/the-vapreneurs-academy-outsourcing"
+                    href="https://linkedin.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground underline-offset-4 hover:text-accent-deep hover:underline"
@@ -201,29 +234,10 @@ function ContactPage() {
                 <Clock className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <div>
                   <p className="font-medium text-primary">Response time</p>
-                  <p className="text-muted-foreground">
-                    Within 1 business day, Monday to Friday.
-                  </p>
+                  <p className="text-muted-foreground">Within 1 business day</p>
                 </div>
               </li>
             </ul>
-          </div>
-
-          <div className="rounded-xl border border-accent/30 bg-mint/70 p-6">
-            <Eyebrow>Pick My Brain</Eyebrow>
-            <p className="mt-3 text-sm leading-relaxed text-primary">
-              A focused one-hour consultation for VAs who need a decision made:
-              niche, pricing, offer or next move.
-            </p>
-            <a
-              href="https://calendar.app.google/vtoGzuU1M1wzYUZw6"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-accent-deep underline-offset-4 hover:underline"
-            >
-              Book your slot
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
           </div>
         </aside>
       </section>
@@ -231,20 +245,3 @@ function ContactPage() {
   );
 }
 
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string | undefined;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-sm font-medium text-primary">{label}</Label>
-      {children}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
-    </div>
-  );
-}
