@@ -41,7 +41,29 @@ function AcceleratorPage() {
             pipeline and a price you can defend. The Accelerator is 10 live days
             built to install exactly that — with a cohort moving beside you.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+
+          {/* 💰 HEADER DISCOUNTED PRICING & DATE MATRIX */}
+          <div className="mt-6 mb-2 p-4 bg-white/10 rounded-xl border border-white/20 inline-flex flex-wrap items-center gap-4 backdrop-blur-sm">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-accent">Special Launch Offer</span>
+              <div className="flex items-baseline gap-2 mt-0.5">
+                <span className="text-sm line-through text-primary-foreground/50 font-medium">Ksh 4,500</span>
+                <span className="text-2xl font-black text-white tracking-tight">Ksh 3,999</span>
+              </div>
+            </div>
+            <div className="h-8 w-px bg-white/20 hidden sm:block" />
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-accent">Next Kick-off</span>
+              <span className="text-lg font-bold text-white mt-0.5 flex items-center gap-1.5">
+                <CalendarDays className="h-4 w-4 text-accent" /> October 28th
+              </span>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-1 bg-accent text-accent-foreground rounded-md uppercase tracking-wide">
+              Save 11%
+            </span>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild variant="brand" size="lg">
               <Link to="/apply" search={{ course: "accelerator", track: "coaching" }}>
                 Apply to Cohort 1 <ArrowRight className="h-4 w-4" />
@@ -121,6 +143,24 @@ function AcceleratorPage() {
                 </li>
               ))}
             </ul>
+            
+            {/* 💰 CARD BOTTOM DISCOUNTED PRICING & DATE MATRIX */}
+            <div className="mt-6 p-4 bg-primary/5 rounded-xl border border-primary/10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Investment</span>
+                <div className="flex items-baseline gap-2 mt-0.5">
+                  <span className="text-xs line-through text-muted-foreground/60 font-medium">Ksh 4,500</span>
+                  <span className="text-xl font-extrabold text-primary tracking-tight">Ksh 3,999</span>
+                </div>
+              </div>
+              <div className="flex flex-col sm:items-end">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Commences</span>
+                <span className="text-sm font-semibold text-primary mt-0.5">
+                  October 28th
+                </span>
+              </div>
+            </div>
+
             <div className="mt-6 rounded-lg border border-accent/30 bg-mint p-4">
               <p className="eyebrow text-accent-deep">Prerequisite</p>
               <p className="mt-2 text-sm text-primary">
