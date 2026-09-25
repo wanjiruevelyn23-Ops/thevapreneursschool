@@ -1,4 +1,3 @@
-import IntaSend from "intasend-inlinejs-sdk";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
