@@ -76,8 +76,7 @@ function ApplyPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent) {
+   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!courseSlug) {
       toast.error("Choose what you're applying for first.");
@@ -87,15 +86,15 @@ function ApplyPage() {
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       for (const issue of parsed.error.issues) {
-        fieldErrors[String(issue.path[0])] = issue.message;
+        fieldErrors[String(issue.path)] = issue.message;
       }
       setErrors(fieldErrors);
       return;
     }
-        setErrors({});
+    setErrors({});
     setSubmitting(true);
 
-    // 1. Keep saving the application to your database records safely
+    // 1. Save application data to your database records safely
     const { error } = await supabase.from("applications").insert({
       name: parsed.data.name,
       email: parsed.data.email,
@@ -107,10 +106,10 @@ function ApplyPage() {
       track: isAccelerator ? "cohort" : track,
     });
 
-        // 2. Bypassing Lovable credits: Send application details straight to Formspree!
+    // 2. Dispatch application profiles out to your Formspree backend dashboard repository channel
     if (!error) {
       try {
-        await fetch("https://formspree.io/f/mnpnzgpb", {
+        await fetch("https://formspree.io", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -128,53 +127,56 @@ function ApplyPage() {
           })
         });
 
-                // 🇰🇪 NATIVE INTASEND INLINE M-PESA CHECKOUT INITIALIZATION
+        // 🇰🇪 INITIALIZE AUTOMATED INTASEND Accepts: M-Pesa STK Push
         // @ts-ignore
-        const intasend = new window.IntaSend({
-          publicAPIKey: "ISPubKey_test_38043a14-6063-41a8-813e-ba4d2969bee0",
-          live: false
-        });
+        if (window.IntaSend) {
+          // @ts-ignore
+          const intasendInstance = new window.IntaSend({
+            publicAPIKey: "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f",
+            live: false
+          });
 
-        const nameParts = parsed.data.name.trim().split(" ");
-        const firstName = nameParts[0] || "Student";
-        const lastName = nameParts.slice(1).join(" ") || "Enrolled";
-        const cleanPhone = parsed.data.phone.replace(/[\s+]/g, "");
-
-        // Trigger payment processing listeners
-        intasend.on("COMPLETE", async (results: any) => {
-          console.log("IntaSend payment successful secure tracking logs:", results);
-          toast.success("Payment Verified! Opening Student Portal...");
+          intasendInstance.on("COMPLETE", (results: any) => {
+            console.log("IntaSend payment integration success:", results);
+            toast.success("Payment verified successfully!");
+            setSubmitted(true); // Flipped onto confirmation message layout instantly!
+          })
+          .on("FAILED", (results: any) => {
+            console.error("IntaSend interface transaction exception:", results);
+            toast.error("Payment authorization incomplete. Please check your balance and retry.");
+            setSubmitting(false);
+          });
           
-          // Securely record payment verification inside Supabase database profile mapping!
-          if (user) {
-            await supabase.from("profiles").update({ payment_status: "Paid — Cohort 1" }).eq("id", user.id);
-          }
-          setSubmitted(true);
-        })
-        .on("FAILED", (results: any) => {
-          console.error("IntaSend payment failed trace logs:", results);
-          toast.error("Payment authorization incomplete. Please check your balance or retry.");
-        })
-        .on("IN-PROGRESS", () => {
-          console.log("STK push initialized successfully... awaiting PIN entry confirmation");
-        });
+          // Clear cleaning regex parameters for Kenyan phone context tracking loops
+          const cleanPhone = parsed.data.phone.replace(/[\s+]/g, "");
+          const nameParts = parsed.data.name.trim().split(" ");
 
-        // Launch the floating payment modal container directly over your website canvas!
-        intasend.launch({
-          amount: 3999,
-          currency: "KES",
-          email: parsed.data.email,
-          phone_number: cleanPhone,
-          first_name: firstName,
-          last_name: lastName,
-          api_ref: "ACCELERATOR-COHORT-1"
-        });
+          // 🚀 DIRECT LAUNCH WITH FALLBACK WIDGET ROUTING PIPELINE
+          // @ts-ignore
+          intasendInstance.launch({
+            amount: 3999,
+            currency: "KES",
+            email: parsed.data.email,
+            phone_number: cleanPhone,
+            first_name: nameParts[0] || "Student",
+            last_name: nameParts[1] || "Enrolled",
+            api_ref: "ACCELERATOR-COHORT-1"
+          });
+        } else {
+          // Absolute system fallback script tracker routing strategy
+          toast.success("Form submitted! Routing secure payment link gateway interface...");
+          window.location.href = `https://intasend.com{encodeURIComponent(parsed.data.email)}`;
+        }
 
       } catch (formspreeError) {
-        console.error("Formspree data transmission exception:", formspreeError);
+        console.error("Formspree data forward exception:", formspreeError);
+        setSubmitting(false);
       }
+    } else {
+      setSubmitting(false);
+      toast.error("We couldn't submit that application. Please check fields and try again.");
     }
-
+  }
     // 🔐 SECURE PORTAL TIMELINE GATEWAY
     const now = new Date();
     const cohortLaunchDate = new Date("2026-10-28T00:00:00"); // ⏱️ Absolute lock down until October 28th at 12:00 AM midnight EAT
