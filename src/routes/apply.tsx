@@ -106,7 +106,7 @@ function ApplyPage() {
       track: isAccelerator ? "cohort" : track,
     });
 
-    // 2. Dispatch application profiles out to your Formspree backend dashboard repository channel
+       // 2. Dispatch application profiles out to your Formspree backend dashboard repository channel
     if (!error) {
       try {
         await fetch("https://formspree.io", {
@@ -127,47 +127,50 @@ function ApplyPage() {
           })
         });
 
-               // 🇰🇪 INITIALIZE AUTOMATED INTASEND Accepts: M-Pesa STK Push natively!
-        // @ts-ignore
-        const intasendInstance = new IntaSend({
-          publicAPIKey: "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f",
-          live: false
-        });
+        // 🚀 DYNAMIC COMPILER BYPASS LOOKUP LOOP
+        const globalWindow = typeof window !== "undefined" ? (window as any) : null;
 
-        intasendInstance.on("COMPLETE", (results: any) => {
-          console.log("IntaSend payment integration success:", results);
-          toast.success("Payment verified successfully!");
-          setSubmitted(true);
-        })
-        .on("FAILED", (results: any) => {
-          console.error("IntaSend interface transaction exception:", results);
-          toast.error("Payment authorization incomplete. Please check your balance and retry.");
-          setSubmitting(false);
-        });
-        
-        const cleanPhone = parsed.data.phone.replace(/[\s+]/g, "");
-        const nameParts = parsed.data.name.trim().split(" ");
+        if (globalWindow && globalWindow.IntaSend) {
+          const intasendInstance = new globalWindow.IntaSend({
+            publicAPIKey: "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f",
+            live: false
+          });
 
-        // @ts-ignore
-        intasendInstance.launch({
-          amount: 3999,
-          currency: "KES",
-          email: parsed.data.email,
-          phone_number: cleanPhone,
-          first_name: nameParts[0] || "Student",
-          last_name: nameParts[1] || "Enrolled",
-          api_ref: "ACCELERATOR-COHORT-1"
-        });
+          intasendInstance.on("COMPLETE", (results: any) => {
+            console.log("IntaSend payment integration success:", results);
+            toast.success("Payment verified successfully!");
+            setSubmitted(true);
+          })
+          .on("FAILED", (results: any) => {
+            console.error("IntaSend interface transaction exception:", results);
+            toast.error("Payment authorization incomplete. Please check your balance and retry.");
+            setSubmitting(false);
+          });
+          
+          const cleanPhone = parsed.data.phone.replace(/[\s+]/g, "");
+          const nameParts = parsed.data.name.trim().split(" ");
+
+          intasendInstance.launch({
+            amount: 3999,
+            currency: "KES",
+            email: parsed.data.email,
+            phone_number: cleanPhone,
+            first_name: nameParts[0] || "Student",
+            last_name: nameParts[1] || "Enrolled",
+            api_ref: "ACCELERATOR-COHORT-1"
+          });
         } else {
-          // Absolute system fallback script tracker routing strategy
-          toast.success("Form submitted! Routing secure payment link gateway interface...");
-          window.location.href = `https://intasend.com{encodeURIComponent(parsed.data.email)}`;
+          // If the script is still downloading, route them directly to the sandbox checkout portal natively!
+          toast.success("Form submitted successfully! Directing to payment checkout...");
+          const cleanEmail = encodeURIComponent(parsed.data.email);
+          globalWindow.location.href = `https://intasend.com{cleanEmail}`;
         }
 
       } catch (formspreeError) {
         console.error("Formspree data forward exception:", formspreeError);
         setSubmitting(false);
       }
+    }
     } else {
       setSubmitting(false);
       toast.error("We couldn't submit that application. Please check fields and try again.");
