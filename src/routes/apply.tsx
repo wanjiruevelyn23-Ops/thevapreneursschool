@@ -195,8 +195,12 @@ function ApplyPage() {
       toast.error("We couldn't submit that. Please try again.");
       return;
     }
-    setSubmitted(true);
-    toast.success("Application received.");
+       setSubmitting(false);
+    if (error) {
+      toast.error("We couldn't submit that. Please try again.");
+      return;
+    }
+    // 😉 Clean space here! The submission screen now waits patiently for the checkout success payload callback.
   }
 
   if (submitted) {
