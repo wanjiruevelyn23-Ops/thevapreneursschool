@@ -118,7 +118,6 @@ function RootShell({ children }: { children: ReactNode }) {
            <body>
         {children}
         <Scripts />
-        <script src="https://unpkg.com"></script>
       </body>
     </html>
   );
