@@ -1,3 +1,4 @@
+import IntaSend from "intasend-inlinejs-sdk";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -127,41 +128,37 @@ function ApplyPage() {
           })
         });
 
-        // 🇰🇪 INITIALIZE AUTOMATED INTASEND Accepts: M-Pesa STK Push
+               // 🇰🇪 INITIALIZE AUTOMATED INTASEND Accepts: M-Pesa STK Push natively!
         // @ts-ignore
-        if (window.IntaSend) {
-          // @ts-ignore
-          const intasendInstance = new window.IntaSend({
-            publicAPIKey: "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f",
-            live: false
-          });
+        const intasendInstance = new IntaSend({
+          publicAPIKey: "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f",
+          live: false
+        });
 
-          intasendInstance.on("COMPLETE", (results: any) => {
-            console.log("IntaSend payment integration success:", results);
-            toast.success("Payment verified successfully!");
-            setSubmitted(true); // Flipped onto confirmation message layout instantly!
-          })
-          .on("FAILED", (results: any) => {
-            console.error("IntaSend interface transaction exception:", results);
-            toast.error("Payment authorization incomplete. Please check your balance and retry.");
-            setSubmitting(false);
-          });
-          
-          // Clear cleaning regex parameters for Kenyan phone context tracking loops
-          const cleanPhone = parsed.data.phone.replace(/[\s+]/g, "");
-          const nameParts = parsed.data.name.trim().split(" ");
+        intasendInstance.on("COMPLETE", (results: any) => {
+          console.log("IntaSend payment integration success:", results);
+          toast.success("Payment verified successfully!");
+          setSubmitted(true);
+        })
+        .on("FAILED", (results: any) => {
+          console.error("IntaSend interface transaction exception:", results);
+          toast.error("Payment authorization incomplete. Please check your balance and retry.");
+          setSubmitting(false);
+        });
+        
+        const cleanPhone = parsed.data.phone.replace(/[\s+]/g, "");
+        const nameParts = parsed.data.name.trim().split(" ");
 
-          // 🚀 DIRECT LAUNCH WITH FALLBACK WIDGET ROUTING PIPELINE
-          // @ts-ignore
-          intasendInstance.launch({
-            amount: 3999,
-            currency: "KES",
-            email: parsed.data.email,
-            phone_number: cleanPhone,
-            first_name: nameParts[0] || "Student",
-            last_name: nameParts[1] || "Enrolled",
-            api_ref: "ACCELERATOR-COHORT-1"
-          });
+        // @ts-ignore
+        intasendInstance.launch({
+          amount: 3999,
+          currency: "KES",
+          email: parsed.data.email,
+          phone_number: cleanPhone,
+          first_name: nameParts[0] || "Student",
+          last_name: nameParts[1] || "Enrolled",
+          api_ref: "ACCELERATOR-COHORT-1"
+        });
         } else {
           // Absolute system fallback script tracker routing strategy
           toast.success("Form submitted! Routing secure payment link gateway interface...");
