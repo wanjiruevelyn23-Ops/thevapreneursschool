@@ -107,7 +107,7 @@ function ApplyPage() {
       track: isAccelerator ? "cohort" : track,
     });
 
-    // 2. Bypassing Lovable credits: Send application details straight to Formspree!
+        // 2. Bypassing Lovable credits: Send application details straight to Formspree!
     if (!error) {
       try {
         await fetch("https://formspree.io/f/mnpnzgpb", {
@@ -127,6 +127,14 @@ function ApplyPage() {
             Track: isAccelerator ? "cohort" : track
           })
         });
+
+        // 🚀 FREE UPGRADE BYPASS: Slide the student instantly to your native checkout route!
+        navigate({ to: "/checkout" });
+
+      } catch (formspreeError) {
+        console.error("Formspree forward failed", formspreeError);
+      }
+    }
       } catch (formspreeError) {
         console.error("Formspree forward failed", formspreeError);
       }
