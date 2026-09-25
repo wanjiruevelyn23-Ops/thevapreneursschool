@@ -115,14 +115,14 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+           <body>
         {children}
         <Scripts />
+        <script src="https://unpkg.com"></script>
       </body>
     </html>
   );
 }
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
