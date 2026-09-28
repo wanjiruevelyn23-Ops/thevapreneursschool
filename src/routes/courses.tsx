@@ -7,7 +7,6 @@ import { SKILL_TRACKS, TOOLKIT_COURSES } from "@/content/courses";
 const TITLE = "Courses — Skill Tracks & Sustain Toolkit | The VApreneurs School";
 const DESCRIPTION =
   "Four self-taught VA skill tracks (social media, admin, project management, AI & automation) plus three Sustain Toolkit courses. Self-taught or with added coaching.";
-
 export interface Course {
   slug: string;
   title: string;
