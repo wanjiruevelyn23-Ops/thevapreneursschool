@@ -115,10 +115,9 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-                <body>
+                      <body>
         {children}
         <Scripts />
-        <script src="https://unpkg.com/intasend-inlinejs-sdk@4.0.5/build/intasend-inline.js" async></script>
       </body>
     </html>
   );
