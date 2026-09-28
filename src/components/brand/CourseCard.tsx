@@ -1,54 +1,43 @@
 import { Link } from "@tanstack/react-router";
-import { Check, Lock } from "lucide-react";
-import type { Course } from "@/content/types";
 import { Button } from "@/components/ui/button";
+
+interface Course {
+  slug: string;
+  title: string;
+  priceKES: number;
+  isFree: boolean;
+  requiresWaitingList: boolean;
+  description: string;
+}
 
 export function CourseCard({ course }: { course: Course }) {
   return (
-    <article className="surface-card flex flex-col p-6 transition-shadow hover:shadow-lift">
-      <p className="eyebrow text-accent-deep">{course.eyebrow}</p>
-      <h3 className="mt-3 text-xl text-primary">{course.title}</h3>
-      <p className="mt-2 text-sm font-medium text-foreground/80">{course.tagline}</p>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        {course.description}
-      </p>
-
-      <ul className="mt-5 space-y-2">
-        {course.outcomes.slice(0, 3).map((outcome) => (
-          <li key={outcome} className="flex gap-2.5 text-sm text-foreground/80">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-            <span>{outcome}</span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-5 flex flex-wrap gap-2">
-        <span className="rounded-full bg-mint px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-widest text-mint-foreground">
-          Self-taught
-        </span>
-        {course.coaching ? (
-          <span className="rounded-full border border-accent/40 px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-widest text-accent-deep">
-            + Add coaching
+    <div className="surface-card flex flex-col justify-between p-6 rounded-xl border border-border/50 bg-card">
+      <div>
+        <h3 className="font-display text-xl font-bold text-primary">{course.title}</h3>
+        
+        {/* 🏷️ DYNAMIC TUITION BADGE INFRASTRUCTURE */}
+        <div className="mt-2.5 flex items-center gap-2">
+          <span className="text-xs font-black px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">
+            {course.isFree ? "🎁 FREE TRACK" : `Ksh ${course.priceKES.toLocaleString()}`}
           </span>
-        ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-widest text-muted-foreground">
-            <Lock className="h-3 w-3" /> No coaching track
-          </span>
-        )}
+          {course.requiresWaitingList && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+              ⏳ Waitlist Active
+            </span>
+          )}
+        </div>
+
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{course.description}</p>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">
-        <Button asChild variant="outline" size="sm">
-          <Link to="/syllabus/$courseSlug" params={{ courseSlug: course.slug }}>
-            View syllabus
-          </Link>
-        </Button>
-        <Button asChild variant="brand" size="sm">
+      <div className="mt-6">
+        <Button asChild variant={course.requiresWaitingList ? "outline" : "brand"} className="w-full">
           <Link to="/apply" search={{ course: course.slug, track: "self" }}>
-            Apply
+            {course.requiresWaitingList ? "Join the Waiting List" : "Enroll Now"}
           </Link>
         </Button>
       </div>
-    </article>
+    </div>
   );
 }
