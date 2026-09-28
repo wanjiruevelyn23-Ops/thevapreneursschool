@@ -41,8 +41,8 @@ export function SiteHeader() {
             <Link to="/portal">Student portal</Link>
           </Button>
           <Button asChild size="sm" variant="brand">
-            <Link to="/apply">Apply now</Link>
-          </Button>
+  <Link to="/waiting-list">Join Waiting List</Link>
+</Button>
         </div>
 
         <button
@@ -79,10 +79,10 @@ export function SiteHeader() {
             </Link>
           </nav>
           <Button asChild variant="brand" className="mt-3 w-full">
-            <Link to="/apply" onClick={() => setOpen(false)}>
-              Apply now
-            </Link>
-          </Button>
+  <Link to="/waiting-list" onClick={() => setOpen(false)}>
+    Join Waiting List
+  </Link>
+</Button>
         </div>
       ) : null}
     </header>
