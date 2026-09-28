@@ -2,19 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/brand/Section";
 import { SectionHeading } from "@/components/brand/SectionHeading";
-
-// 🚀 CRITICAL FIX: The Route configuration must sit at the absolute top for TanStack Start compilation!
-export const Route = createFileRoute("/courses")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-    ],
-  }),
-  component: CoursesPage,
-});
+import { CourseCard } from "@/components/CourseCard";
 
 const TITLE = "Courses — Skill Tracks & Sustain Toolkit | The VApreneurs School";
 const DESCRIPTION =
@@ -29,7 +17,7 @@ export interface Course {
   description: string;
 }
 
-// 🎓 Waypoint 1: Skill Tracks Catalog Map
+// 🎓 Waypoint 1: Skill Tracks Tier Catalog Array
 export const SKILL_TRACKS: Course[] = [
   {
     slug: "admin-va",
@@ -65,7 +53,7 @@ export const SKILL_TRACKS: Course[] = [
   }
 ];
 
-// 🧰 Waypoint 3: Sustain Toolkit Course Map
+// 🧰 Waypoint 3: Sustain Toolkit Course Tier Array
 export const TOOLKIT_COURSES: Course[] = [
   {
     slug: "finance-management",
@@ -93,38 +81,17 @@ export const TOOLKIT_COURSES: Course[] = [
   }
 ];
 
-// 📇 INLINE COMPONENT: Renders individual product layouts locally with dynamic pricing indicators
-function CourseCard({ course }: { course: Course }) {
-  return (
-    <div className="surface-card flex flex-col justify-between p-6 rounded-xl border border-border/50">
-      <div>
-        <h3 className="font-display text-xl font-bold text-primary">{course.title}</h3>
-        
-        {/* 🏷️ DYNAMIC TUITION BADGE SYSTEM */}
-        <div className="mt-2.5 flex items-center gap-2">
-          <span className="text-xs font-black px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">
-            {course.isFree ? "🎁 FREE TRACK" : `Ksh ${course.priceKES.toLocaleString()}`}
-          </span>
-          {course.requiresWaitingList && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
-              ⏳ Waitlist Active
-            </span>
-          )}
-        </div>
-
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{course.description}</p>
-      </div>
-
-      <div className="mt-6">
-        <Button asChild variant={course.requiresWaitingList ? "outline" : "brand"} className="w-full">
-          <Link to="/apply" search={{ course: course.slug, track: "self" }}>
-            {course.requiresWaitingList ? "Join the Waiting List" : "Enroll Now"}
-          </Link>
-        </Button>
-      </div>
-    </div>
-  );
-}
+export const Route = createFileRoute("/courses")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+    ],
+  }),
+  component: CoursesPage,
+});
 
 function CoursesPage() {
   return (
