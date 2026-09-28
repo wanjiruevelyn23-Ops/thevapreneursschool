@@ -4,10 +4,69 @@ import { SectionHeading, Eyebrow } from "@/components/brand/Section";
 import { CourseCard } from "@/components/brand/CourseCard";
 import { SKILL_TRACKS, TOOLKIT_COURSES } from "@/content/courses";
 
-const TITLE = "Courses — Skill Tracks & Sustain Toolkit | The VApreneurs School";
-const DESCRIPTION =
-  "Four self-taught VA skill tracks (social media, admin, project management, AI & automation) plus three Sustain Toolkit courses. Self-taught or with added coaching.";
-export interface Course {
+// 🎓 Waypoint 1: Skill Tracks Tier Catalog Mapping Matrix
+export const SKILL_TRACKS = [
+  {
+    slug: "admin-va",
+    title: "Administrative Virtual Assistant Core",
+    priceKES: 3499,
+    isFree: false,
+    requiresWaitingList: true, // ⏳ Waitlist Mode Enabled
+    description: "Master calendar optimization, inbox triaging pipelines, and professional corporate scheduling matrices."
+  },
+  {
+    slug: "smm-va",
+    title: "Social Media Management (SMM) Specialist",
+    priceKES: 6499,
+    isFree: false,
+    requiresWaitingList: true,
+    description: "Content scheduling calendars, audience engagement blueprints, and community growth mechanics."
+  },
+  {
+    slug: "project-management",
+    title: "Digital Project Management & Operations",
+    priceKES: 6499,
+    isFree: false,
+    requiresWaitingList: true,
+    description: "Structure cross-functional tasks using modern tools like Notion, Asana, and click-up sprint structures."
+  },
+  {
+    slug: "ai-automation",
+    title: "AI & Workflow Automation Architect",
+    priceKES: 6499,
+    isFree: false,
+    requiresWaitingList: true,
+    description: "Connect APIs with Make.com and Zapier to build self-running business infrastructure components."
+  }
+];
+
+// 🧰 Waypoint 3: Sustain Toolkit Course Tier Catalog Mapping Matrix
+export const TOOLKIT_COURSES = [
+  {
+    slug: "finance-management",
+    title: "Financial Management for Digital Professionals",
+    priceKES: 2999,
+    isFree: false,
+    requiresWaitingList: true,
+    description: "Invoicing strategies, tax filing preparation loops, and multi-currency income allocation routines."
+  },
+  {
+    slug: "imposter-syndrome",
+    title: "Overcoming Imposter Syndrome & Scaling Confidently",
+    priceKES: 2999,
+    isFree: false,
+    requiresWaitingList: true,
+    description: "Psychological framing toolkits to confidently talk to high-ticket foreign corporate decision makers."
+  },
+  {
+    slug: "dilemma-assessment",
+    title: "The Dilemma Assessment & Strategy Guide",
+    priceKES: 0,
+    isFree: true,
+    requiresWaitingList: true, // 🗓️ Available starting October 19th!
+    description: "Identify client operation bottlenecks using our proprietary professional diagnostic mapping tool."
+  }
+];
   slug: string;
   title: string;
   priceKES: number;
