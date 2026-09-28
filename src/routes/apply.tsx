@@ -93,8 +93,7 @@ function ApplyPage() {
     }
     setErrors({});
     setSubmitting(true);
-
-    // 1. Save application data to your database records safely
+    // 1. Keep saving the application to your database records safely
     const { error } = await supabase.from("applications").insert({
       name: parsed.data.name,
       email: parsed.data.email,
@@ -106,7 +105,7 @@ function ApplyPage() {
       track: isAccelerator ? "cohort" : track,
     });
 
-       // 2. Dispatch application profiles out to your Formspree backend dashboard repository channel
+    // 2. Send application details straight to Formspree for your school inbox!
     if (!error) {
       try {
         await fetch("https://formspree.io", {
@@ -126,69 +125,18 @@ function ApplyPage() {
             Track: isAccelerator ? "cohort" : track
           })
         });
-
-        // 🚀 DYNAMIC COMPILER BYPASS LOOKUP LOOP
-        const globalWindow = typeof window !== "undefined" ? (window as any) : null;
-
-        if (globalWindow && globalWindow.IntaSend) {
-          const intasendInstance = new globalWindow.IntaSend({
-            publicAPIKey: "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f",
-            live: false
-          });
-
-          intasendInstance.on("COMPLETE", (results: any) => {
-            console.log("IntaSend payment integration success:", results);
-            toast.success("Payment verified successfully!");
-            setSubmitted(true);
-          })
-          .on("FAILED", (results: any) => {
-            console.error("IntaSend interface transaction exception:", results);
-            toast.error("Payment authorization incomplete. Please check your balance and retry.");
-            setSubmitting(false);
-          });
-          
-          const cleanPhone = parsed.data.phone.replace(/[\s+]/g, "");
-          const nameParts = parsed.data.name.trim().split(" ");
-
-          intasendInstance.launch({
-            amount: 3999,
-            currency: "KES",
-            email: parsed.data.email,
-            phone_number: cleanPhone,
-            first_name: nameParts[0] || "Student",
-            last_name: nameParts[1] || "Enrolled",
-            api_ref: "ACCELERATOR-COHORT-1"
-          });
-        } else {
-          // If the script is still downloading, route them directly to the sandbox checkout portal natively!
-          toast.success("Form submitted successfully! Directing to payment checkout...");
-          const cleanEmail = encodeURIComponent(parsed.data.email);
-          globalWindow.location.href = `https://intasend.com{cleanEmail}`;
-        }
-
       } catch (formspreeError) {
-        console.error("Formspree data forward exception:", formspreeError);
-        setSubmitting(false);
+        console.error("Formspree forward failed", formspreeError);
       }
     }
-    } else {
-      setSubmitting(false);
-      toast.error("We couldn't submit that application. Please check fields and try again.");
-    }
-  }
-    // 🔐 SECURE PORTAL TIMELINE GATEWAY
-    const now = new Date();
-    const cohortLaunchDate = new Date("2026-10-28T00:00:00"); // ⏱️ Absolute lock down until October 28th at 12:00 AM midnight EAT
 
+    // Signed-in applicants are enrolled immediately so the portal unlocks.
     if (!error && user && !isAccelerator) {
       try {
-        // Safe logger placeholder - general course access requires payment completion above
-        console.log("Awaiting payment verification callback processing configuration pipeline.");
+        await enroll.mutateAsync({ courseSlug, track });
       } catch {
-        // Fallback logger
+        // Enrolment can be completed later from the portal.
       }
-    } else if (isAccelerator && now < cohortLaunchDate) {
-      console.log("Access status: Locked. Accelerator Cohort 1 contents scheduled release sequence: 12:00 AM Midnight.");
     }
 
     setSubmitting(false);
@@ -196,12 +144,10 @@ function ApplyPage() {
       toast.error("We couldn't submit that. Please try again.");
       return;
     }
-       setSubmitting(false);
-    if (error) {
-      toast.error("We couldn't submit that. Please try again.");
-      return;
-    }
-    // 😉 Clean space here! The submission screen now waits patiently for the checkout success payload callback.
+    
+    // 🎉 IMMEDIATE USER FEEDBACK: Show the confirmation layout instantly!
+    setSubmitted(true);
+    toast.success("Application received successfully.");
   }
 
   if (submitted) {
@@ -240,15 +186,18 @@ function ApplyPage() {
       <section className="mx-auto grid max-w-6xl gap-8 px-5 py-14 lg:grid-cols-[1.3fr_1fr]">
         <form onSubmit={handleSubmit} className="surface-card space-y-5 p-7" noValidate>
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Full name" error={errors["name"]}>
+            <div className="space-y-1.5">
+              <Label>Full name</Label>
               <Input
                 value={values.name}
                 maxLength={100}
                 onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
                 placeholder="Amina Otieno"
               />
-            </Field>
-            <Field label="Email" error={errors["email"]}>
+              {errors["name"] && <p className="text-xs font-medium text-destructive">{errors["name"]}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
               <Input
                 type="email"
                 value={values.email}
@@ -256,146 +205,67 @@ function ApplyPage() {
                 onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))}
                 placeholder="you@email.com"
               />
-            </Field>
+              {errors["email"] && <p className="text-xs font-medium text-destructive">{errors["email"]}</p>}
+            </div>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Phone / WhatsApp" error={errors["phone"]}>
+            <div className="space-y-1.5">
+              <Label>Phone / WhatsApp</Label>
               <Input
                 value={values.phone}
                 maxLength={30}
                 onChange={(e) => setValues((v) => ({ ...v, phone: e.target.value }))}
                 placeholder="+254 700 000 000"
               />
-            </Field>
-            <Field label="Experience level" error={errors["experience"]}>
+              {errors["phone"] && <p className="text-xs font-medium text-destructive">{errors["phone"]}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label>Experience level</Label>
               <select
                 value={values.experience}
                 onChange={(e) => setValues((v) => ({ ...v, experience: e.target.value }))}
                 className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
-                <option value="">Choose one…</option>
+                <option value="">Choose an option…</option>
                 {EXPERIENCE_LEVELS.map((level) => (
                   <option key={level} value={level}>
                     {level}
                   </option>
                 ))}
               </select>
-            </Field>
+              {errors["experience"] && <p className="text-xs font-medium text-destructive">{errors["experience"]}</p>}
+            </div>
           </div>
 
-          <Field label="Anything we should know? (optional)" error={errors["message"]}>
+          <div className="space-y-1.5">
+            <Label>Message (Optional)</Label>
             <Textarea
               rows={5}
               value={values.message}
               maxLength={1500}
               onChange={(e) => setValues((v) => ({ ...v, message: e.target.value }))}
-              placeholder="Where you are now, and what you want this course to change."
+              placeholder="Tell us about your background or any specific questions you have."
             />
-          </Field>
+            {errors["message"] && <p className="text-xs font-medium text-destructive">{errors["message"]}</p>}
+          </div>
 
           <Button type="submit" variant="brand" size="lg" disabled={submitting}>
-            {submitting ? "Submitting…" : "Submit application"}
-            <ArrowRight className="h-4 w-4" />
+            {submitting ? "Submitting…" : "Submit Application"}
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </form>
 
-        <aside className="space-y-4">
+        <aside className="space-y-6">
           <div className="surface-card p-6">
-            <Eyebrow>You're applying for</Eyebrow>
-            <p className="mt-3 font-display text-xl font-semibold text-primary">
-              {selectionTitle}
+            <Eyebrow>Selected Track</Eyebrow>
+            <h2 className="mt-3 text-2xl font-bold text-primary">{selectionTitle}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {isAccelerator 
+                ? "10 days of intensive live bootcamp tracking client acquisition, contract assembly, and professional portfolio positioning matrices alongside an exclusive peer cohort environment."
+                : `Tuition program mapped to your choice of learning pathways (${track === "coaching" ? "1-on-1 expert coaching review track" : "independent self-paced study layout"}).`
+              }
             </p>
-            {isAccelerator ? (
-              <p className="mt-2 text-sm text-muted-foreground">
-                {ACCELERATOR.length} · {ACCELERATOR.format}. Prerequisite:{" "}
-                {ACCELERATOR.prerequisite.toLowerCase()}.
-              </p>
-            ) : (
-              <p className="mt-2 text-sm text-muted-foreground">
-                Track:{" "}
-                <span className="font-medium text-accent-deep">
-                  {track === "coaching" ? "With added coaching" : "Self-taught"}
-                </span>
-              </p>
-            )}
-
-            <div className="mt-5 space-y-3 border-t border-border pt-5">
-              <Label className="text-sm font-medium text-primary">
-                Change your selection
-              </Label>
-              <select
-                value={courseSlug}
-                onChange={(e) =>
-                  navigate({
-                    to: "/apply",
-                    search: {
-                      course: e.target.value || undefined,
-                      track: e.target.value === ACCELERATOR.slug ? undefined : track,
-                    },
-                  })
-                }
-                className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
-              >
-                <option value="">Choose a course…</option>
-                <option value={ACCELERATOR.slug}>
-                  {ACCELERATOR.title} ({ACCELERATOR.cohort})
-                </option>
-                {COURSES.map((item) => (
-                  <option key={item.slug} value={item.slug}>
-                    {item.title}
-                  </option>
-                ))}
-              </select>
-
-              {course ? (
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={track === "self" ? "brand" : "outline"}
-                    onClick={() =>
-                      navigate({ to: "/apply", search: { course: courseSlug, track: "self" } })
-                    }
-                  >
-                    Self-taught
-                  </Button>
-                  {course.coaching ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={track === "coaching" ? "brand" : "outline"}
-                      onClick={() =>
-                        navigate({
-                          to: "/apply",
-                          search: { course: courseSlug, track: "coaching" },
-                        })
-                      }
-                    >
-                      With coaching
-                    </Button>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-accent/30 bg-mint/70 p-6 text-sm leading-relaxed text-primary">
-            {user ? (
-              <>
-                Signed in as{" "}
-                <strong className="font-medium">{user.email}</strong>. Submitting
-                this form enrols you and unlocks the course in your student portal.
-              </>
-            ) : (
-              <>
-                Already applied?{" "}
-                <Link to="/auth" className="font-medium underline underline-offset-4">
-                  Sign in
-                </Link>{" "}
-                to unlock your student portal and track progress.
-              </>
-            )}
           </div>
         </aside>
       </section>
@@ -403,20 +273,5 @@ function ApplyPage() {
   );
 }
 
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string | undefined;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-sm font-medium text-primary">{label}</Label>
-      {children}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
-    </div>
-  );
-}
+    
+
