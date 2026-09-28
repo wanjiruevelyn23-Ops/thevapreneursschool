@@ -3,6 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/brand/Section";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 
+// 🚀 CRITICAL FIX: The Route configuration must sit at the absolute top for TanStack Start compilation!
+export const Route = createFileRoute("/courses")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+    ],
+  }),
+  component: CoursesPage,
+});
+
 const TITLE = "Courses — Skill Tracks & Sustain Toolkit | The VApreneurs School";
 const DESCRIPTION =
   "Four self-taught VA skill tracks (social media, admin, project management, AI & automation) plus three Sustain Toolkit courses. Self-taught or with added coaching.";
@@ -112,18 +125,6 @@ function CourseCard({ course }: { course: Course }) {
     </div>
   );
 }
-
-export const Route = createFileRoute("/courses")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-    ],
-  }),
-  component: CoursesPage,
-});
 
 function CoursesPage() {
   return (
