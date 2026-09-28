@@ -81,6 +81,8 @@ export type CourseModule = {
 
 export type CourseCategory = "skill" | "toolkit";
 
+export type CourseAvailability = "waiting-list" | "available";
+
 export type Course = {
   slug: string;
   title: string;
@@ -91,6 +93,12 @@ export type Course = {
   tagline: string;
   description: string;
   outcomes: string[];
+  /** Course price displayed on the course card. */
+  price: string;
+  /** Controls whether students can access the course or join the waiting list. */
+  availability: CourseAvailability;
+  /** Date the course becomes available for enrolment/access. */
+  availableFrom?: string;
   /** Skill tracks offer an added-coaching option; toolkits are self-taught only. */
   coaching: boolean;
   modules: CourseModule[];
