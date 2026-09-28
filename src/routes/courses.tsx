@@ -8,77 +8,38 @@ const TITLE = "Courses — Skill Tracks & Sustain Toolkit | The VApreneurs Schoo
 const DESCRIPTION =
   "Four self-taught VA skill tracks (social media, admin, project management, AI & automation) plus three Sustain Toolkit courses. Self-taught or with added coaching.";
 
-export interface Course {
-  slug: string;
-  title: string;
-  priceKES: number;
-  isFree: boolean;
-  requiresWaitingList: boolean;
-  description: string;
-}
-
-// 🎓 Waypoint 1: Skill Tracks Tier Catalog Array
-export const SKILL_TRACKS: Course[] = [
+const SKILL_TRACKS = [
   {
-    slug: "admin-va",
-    title: "Administrative Virtual Assistant Core",
-    priceKES: 3499,
-    isFree: false,
-    requiresWaitingList: true,
-    description: "Master calendar optimization, inbox triaging pipelines, and professional corporate scheduling matrices."
+    slug: "social-media",
+    title: "Social Media Management Track",
   },
   {
-    slug: "smm-va",
-    title: "Social Media Management (SMM) Specialist",
-    priceKES: 6499,
-    isFree: false,
-    requiresWaitingList: true,
-    description: "Content scheduling calendars, audience engagement blueprints, and community growth mechanics."
+    slug: "admin",
+    title: "Administrative VA Track",
   },
   {
     slug: "project-management",
-    title: "Digital Project Management & Operations",
-    priceKES: 6499,
-    isFree: false,
-    requiresWaitingList: true,
-    description: "Structure cross-functional tasks using modern tools like Notion, Asana, and click-up sprint structures."
+    title: "Project Management Track",
   },
   {
     slug: "ai-automation",
-    title: "AI & Workflow Automation Architect",
-    priceKES: 6499,
-    isFree: false,
-    requiresWaitingList: true,
-    description: "Connect APIs with Make.com and Zapier to build self-running business infrastructure components."
-  }
+    title: "AI & Automation Track",
+  },
 ];
 
-// 🧰 Waypoint 3: Sustain Toolkit Course Tier Array
-export const TOOLKIT_COURSES: Course[] = [
+const TOOLKIT_COURSES = [
+  {
+    slug: "dilemma-assessment",
+    title: "The Dilemma Assessment",
+  },
   {
     slug: "finance-management",
-    title: "Financial Management for Digital Professionals",
-    priceKES: 2999,
-    isFree: false,
-    requiresWaitingList: true,
-    description: "Invoicing strategies, tax filing preparation loops, and multi-currency income allocation routines."
+    title: "Financial Management",
   },
   {
     slug: "imposter-syndrome",
-    title: "Overcoming Imposter Syndrome & Scaling Confidently",
-    priceKES: 2999,
-    isFree: false,
-    requiresWaitingList: true,
-    description: "Psychological framing toolkits to confidently talk to high-ticket foreign corporate decision makers."
+    title: "Imposter Syndrome",
   },
-  {
-    slug: "dilemma-assessment",
-    title: "The Dilemma Assessment & Strategy Guide",
-    priceKES: 0,
-    isFree: true,
-    requiresWaitingList: true,
-    description: "Identify client operation bottlenecks using our proprietary professional diagnostic mapping tool."
-  }
 ];
 
 export const Route = createFileRoute("/courses")({
