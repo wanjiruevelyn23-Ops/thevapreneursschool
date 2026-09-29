@@ -16,6 +16,7 @@ import { Route as ApplyRouteImport } from './routes/apply'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as WaitingListRouteImport } from './routes/waiting-list'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminInstructorRouteImport } from './routes/admin.instructor'
@@ -57,6 +58,11 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WaitingListRoute = WaitingListRouteImport.update({
+  id: '/waiting-list',
+  path: '/waiting-list',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortalRoute = PortalRouteImport.update({
   id: '/portal',
   path: '/portal',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
+  '/waiting-list': typeof WaitingListRoute
   '/portal': typeof PortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
+  '/waiting-list': typeof WaitingListRoute
   '/portal': typeof PortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
+  '/waiting-list': typeof WaitingListRoute
   '/portal': typeof PortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/courses'
+    | '/waiting-list'
     | '/portal'
     | '/admin/instructor'
     | '/admin/submissions'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/courses'
+    | '/waiting-list'
     | '/portal'
     | '/admin/instructor'
     | '/admin/submissions'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/courses'
+    | '/waiting-list'
     | '/portal'
     | '/admin/instructor'
     | '/admin/submissions'
@@ -179,6 +191,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   CoursesRoute: typeof CoursesRoute
+  WaitingListRoute: typeof WaitingListRoute
   PortalRoute: typeof PortalRoute
   AdminInstructorRoute: typeof AdminInstructorRoute
   AdminSubmissionsRoute: typeof AdminSubmissionsRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+  '/waiting-list': {
+  id: '/waiting-list'
+  path: '/waiting-list'
+  fullPath: '/waiting-list'
+  preLoaderRoute: typeof WaitingListRouteImport
+  parentRoute: typeof rootRouteImport
+}
     '/about': {
       id: '/about'
       path: '/about'
@@ -283,6 +303,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   CoursesRoute: CoursesRoute,
+  WaitingListRoute: WaitingListRoute,
   PortalRoute: PortalRoute,
   AdminInstructorRoute: AdminInstructorRoute,
   AdminSubmissionsRoute: AdminSubmissionsRoute,
