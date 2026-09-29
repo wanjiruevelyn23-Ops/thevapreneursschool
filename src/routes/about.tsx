@@ -49,9 +49,11 @@ function AboutPage() {
       <header className="bg-gradient-navy text-primary-foreground">
         <div className="mx-auto max-w-6xl px-5 py-16">
           <Eyebrow className="text-accent">Our why</Eyebrow>
+
           <h1 className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
             The gap isn't skill. It's readiness.
           </h1>
+
           <p className="mt-6 max-w-2xl text-primary-foreground/75">
             Thousands of virtual assistants finish a course every year and still
             can't answer three questions: who do I serve, what exactly do I sell,
@@ -108,7 +110,7 @@ function AboutPage() {
             <div>
               <Eyebrow>Built with purpose</Eyebrow>
 
-              <h2 className="mt-4 max-w-xl font-display text-3xl leading-tight text-primary sm:text-4xl">
+              <h2 className="mt-4 max-w-xl text-3xl leading-tight text-primary sm:text-4xl">
                 Built to close the gaps, challenge the status quo, and shape the
                 future VAs deserve.
               </h2>
@@ -178,7 +180,9 @@ function AboutPage() {
           {VALUES.map((value) => (
             <article key={value.title} className="surface-card p-6">
               <value.icon className="h-6 w-6 text-accent" />
+
               <h3 className="mt-4 text-lg text-primary">{value.title}</h3>
+
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {value.text}
               </p>
