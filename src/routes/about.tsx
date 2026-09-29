@@ -1,6 +1,6 @@
+```tsx
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Compass, HeartHandshake, Globe2, Target } from "lucide-react";
-import evePortrait from "@/assets/eve-wanjiru.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { SectionHeading, Eyebrow } from "@/components/brand/Section";
 
@@ -69,6 +69,7 @@ function AboutPage() {
             programme, updates a profile, sends a handful of applications, and
             then waits.
           </p>
+
           <p>
             The missing piece was never technical ability. It was business
             readiness: positioning, pricing, pitching, boundaries, money
@@ -76,6 +77,7 @@ function AboutPage() {
             Those things are treated as extras, when they are actually the
             difference between a skill and an income.
           </p>
+
           <p>
             The VApreneurs School was built to close that gap deliberately. The
             journey is mapped as three waypoints — learn the skill, position
@@ -83,6 +85,7 @@ function AboutPage() {
             which a VA career gets built. Skip the second waypoint and you stay
             invisible. Skip the third and you burn out.
           </p>
+
           <p className="border-l-2 border-accent pl-5 font-display text-xl leading-snug text-primary">
             "Map Your Skills, Scale Your Business" is not a slogan. It's the
             method: know exactly what you can do, then build a business around it
@@ -91,59 +94,74 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-mint/60 py-16">
-        <div className="mx-auto max-w-3xl px-5">
-          <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-            <img
-  src="/ceo.jpg"
-  alt="Eve Wanjiru, founder and CEO of The VApreneurs School"
-  className="h-28 w-28 shrink-0 rounded-full object-cover object-top shadow-md"
-/>
+      <section className="bg-mint/60 py-20">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="grid items-center gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-14">
+            <div>
+              <img
+                src="/ceo.jpg"
+                alt="Eve Wanjiru, Founder of The VApreneurs School"
+                className="aspect-[4/5] w-full max-w-md rounded-3xl object-cover object-top shadow-lift"
+              />
+            </div>
 
             <div>
-              <Eyebrow>Founder &amp; CEO</Eyebrow>
-              <h2 className="mt-2 text-3xl text-primary">Eve Wanjiru</h2>
-              <p className="mt-1 font-mono text-xs uppercase tracking-widest text-accent-deep">
-                Executive operations · Business systems · Process optimisation
-              </p>
-            </div>
-          </div>
-          <div>
+              <Eyebrow>Built with purpose</Eyebrow>
 
-            <div className="mt-6 space-y-4 text-sm leading-relaxed text-foreground/85">
-              <p>
-                Eve's background is in executive operations, business systems and
-                process optimisation — the work of making organisations run
-                cleanly behind the scenes. Years of building systems for
-                executives and teams gave her a clear view of what remote support
-                professionals are actually hired to do, and where most of them
-                fall short.
-              </p>
-              <p>
-                She founded The VApreneurs School to bridge the distance between
-                technical skills and real-world readiness: not just teaching VAs
-                how to use the tools, but how to think like operators, position
-                like professionals and price like business owners.
-              </p>
-              <p>
-                Her vision is a thriving community of world-class African virtual
-                assistants who are globally competitive — recognised for the
-                quality of their work, not chosen for the size of their invoice.
-              </p>
-            </div>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button asChild variant="navy">
-                <Link to="/courses">See the curriculum</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <a
-                  href="https://calendar.app.google/vtoGzuU1M1wzYUZw6"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Book a Pick My Brain session
-                </a>
-              </Button>
+              <h2 className="mt-4 max-w-xl font-display text-3xl leading-tight text-primary sm:text-4xl">
+                Built to close the gaps, challenge the status quo, and shape the
+                future VAs deserve.
+              </h2>
+
+              <div className="mt-7">
+                <p className="text-3xl font-semibold text-primary">
+                  Eve Wanjiru
+                </p>
+
+                <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-accent-deep">
+                  Founder
+                </p>
+              </div>
+
+              <div className="mt-7 space-y-4 text-sm leading-relaxed text-foreground/85">
+                <p>
+                  Eve's background is in executive operations, business systems
+                  and process optimisation — the work of making organisations run
+                  cleanly behind the scenes. Years of building systems for
+                  executives and teams gave her a clear view of what remote support
+                  professionals are actually hired to do, and where most of them
+                  fall short.
+                </p>
+
+                <p>
+                  She founded The VApreneurs School to bridge the distance between
+                  technical skills and real-world readiness: not just teaching VAs
+                  how to use the tools, but how to think like operators, position
+                  like professionals and price like business owners.
+                </p>
+
+                <p>
+                  Her vision is a thriving community of world-class African virtual
+                  assistants who are globally competitive — recognised for the
+                  quality of their work, not chosen for the size of their invoice.
+                </p>
+              </div>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Button asChild variant="navy">
+                  <Link to="/courses">See the curriculum</Link>
+                </Button>
+
+                <Button asChild variant="outline">
+                  <a
+                    href="https://calendar.app.google/vtoGzuU1M1wzYUZw6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Book a Pick My Brain session
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -155,6 +173,7 @@ function AboutPage() {
           title="Our values"
           intro="Four commitments that shape every module, cohort and conversation."
         />
+
         <div className="mt-10 grid gap-6 sm:grid-cols-2">
           {VALUES.map((value) => (
             <article key={value.title} className="surface-card p-6">
@@ -170,3 +189,4 @@ function AboutPage() {
     </>
   );
 }
+```
