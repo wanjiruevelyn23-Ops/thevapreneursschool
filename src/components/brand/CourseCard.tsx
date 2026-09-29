@@ -21,27 +21,6 @@ export function CourseCard({ course }: { course: Course }) {
         {course.description}
       </p>
 
-      {/* Price + availability */}
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <span className="font-display text-xl font-semibold text-primary">
-          {course.price}
-        </span>
-
-        {course.availableFrom ? (
-          <span
-            className={`rounded-full px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-widest ${
-              available
-                ? "bg-mint text-mint-foreground"
-                : "border border-accent/40 text-accent-deep"
-            }`}
-          >
-            {available
-              ? "Available now"
-              : `Starts ${course.availableFrom}`}
-          </span>
-        ) : null}
-      </div>
-
       <ul className="mt-5 space-y-2">
         {course.outcomes.slice(0, 3).map((outcome) => (
           <li key={outcome} className="flex gap-2.5 text-sm text-foreground/80">
@@ -65,6 +44,45 @@ export function CourseCard({ course }: { course: Course }) {
             <Lock className="h-3 w-3" /> No coaching track
           </span>
         )}
+      </div>
+
+      {/* Pricing + commencement */}
+      <div className="mt-6 rounded-xl border border-primary/10 bg-primary/5 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Investment
+            </span>
+
+            <span className="mt-0.5 text-xl font-extrabold tracking-tight text-primary">
+              {course.price}
+            </span>
+          </div>
+
+          {course.availableFrom ? (
+            <div className="flex flex-col sm:items-end">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Commences
+              </span>
+
+              <span className="mt-0.5 text-sm font-semibold text-primary">
+                {formatCourseDate(course.availableFrom)}
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-3 border-t border-primary/10 pt-3">
+          <span
+            className={`inline-flex rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${
+              available
+                ? "bg-mint text-mint-foreground"
+                : "bg-accent/10 text-accent-deep"
+            }`}
+          >
+            {available ? "Available now" : "Waiting list open"}
+          </span>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">
@@ -99,4 +117,19 @@ export function CourseCard({ course }: { course: Course }) {
       </div>
     </article>
   );
+}
+
+function formatCourseDate(date: string) {
+  const [year, month, day] = date.split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return date;
+  }
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Africa/Nairobi",
+  }).format(new Date(year, month - 1, day));
 }
