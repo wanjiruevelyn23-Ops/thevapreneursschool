@@ -44,7 +44,6 @@ export function Logo({
           )}
         >
           The VApreneurs School
-          Africa
         </span>
         <span
           className={cn(
@@ -52,6 +51,7 @@ export function Logo({
             tone === "light" ? "text-accent" : "text-accent-deep",
           )}
         >
+          Map your skills
         </span>
       </span>
     </span>
