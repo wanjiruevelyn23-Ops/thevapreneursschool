@@ -1,17 +1,46 @@
 import { Link } from "@tanstack/react-router";
 import { Check, Lock } from "lucide-react";
 import type { Course } from "@/content/types";
+import { isCourseAvailable } from "@/content/courses";
 import { Button } from "@/components/ui/button";
 
 export function CourseCard({ course }: { course: Course }) {
+  const available = isCourseAvailable(course);
+
   return (
     <article className="surface-card flex flex-col p-6 transition-shadow hover:shadow-lift">
       <p className="eyebrow text-accent-deep">{course.eyebrow}</p>
+
       <h3 className="mt-3 text-xl text-primary">{course.title}</h3>
-      <p className="mt-2 text-sm font-medium text-foreground/80">{course.tagline}</p>
+
+      <p className="mt-2 text-sm font-medium text-foreground/80">
+        {course.tagline}
+      </p>
+
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {course.description}
       </p>
+
+      {/* Price + availability */}
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <span className="font-display text-xl font-semibold text-primary">
+          {course.price}
+        </span>
+
+        {course.availableFrom ? (
+          <span
+            className={`rounded-full px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-widest ${
+              available
+                ? "bg-mint text-mint-foreground"
+                : "border border-accent/40 text-accent-deep"
+            }`}
+          >
+            {available
+              ? "Available now"
+              : `Starts ${course.availableFrom}`}
+          </span>
+        ) : null}
+      </div>
 
       <ul className="mt-5 space-y-2">
         {course.outcomes.slice(0, 3).map((outcome) => (
@@ -26,6 +55,7 @@ export function CourseCard({ course }: { course: Course }) {
         <span className="rounded-full bg-mint px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-widest text-mint-foreground">
           Self-taught
         </span>
+
         {course.coaching ? (
           <span className="rounded-full border border-accent/40 px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-widest text-accent-deep">
             + Add coaching
@@ -39,15 +69,33 @@ export function CourseCard({ course }: { course: Course }) {
 
       <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">
         <Button asChild variant="outline" size="sm">
-          <Link to="/syllabus/$courseSlug" params={{ courseSlug: course.slug }}>
+          <Link
+            to="/syllabus/$courseSlug"
+            params={{ courseSlug: course.slug }}
+          >
             View syllabus
           </Link>
         </Button>
-        <Button asChild variant="brand" size="sm">
-          <Link to="/apply" search={{ course: course.slug, track: "self" }}>
-            Apply
-          </Link>
-        </Button>
+
+        {available ? (
+          <Button asChild variant="brand" size="sm">
+            <Link
+              to="/apply"
+              search={{ course: course.slug, track: "self" }}
+            >
+              Apply
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild variant="brand" size="sm">
+            <Link
+              to="/waiting-list"
+              search={{ course: course.slug }}
+            >
+              Join Waiting List
+            </Link>
+          </Button>
+        )}
       </div>
     </article>
   );
