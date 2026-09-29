@@ -11,7 +11,7 @@ export const COURSES: Course[] = [
     eyebrow: "Skill track · 8 modules",
     price: "Ksh 6,499",
 availability: "waiting-list",
-availableFrom: "October 28",
+availableFrom: "2026-10-28",
     tagline: "Run client social accounts with a strategy behind every post.",
     description:
       "The full social media manager skill set, from goal setting and audience research through content systems, community management, paid basics and client reporting. Built for VAs who want to own a channel, not just schedule posts.",
@@ -33,7 +33,7 @@ availableFrom: "October 28",
     eyebrow: "Skill track · 5 modules",
     price: "Ksh 3,499",
 availability: "waiting-list",
-availableFrom: "October 28",
+availableFrom: "2026-10-28",
     tagline: "The core admin engine every busy founder pays for.",
     description:
       "Inbox and calendar control, document and data systems, research and reporting, plus the client communication habits that turn a one-off task into a long retainer.",
@@ -80,7 +80,7 @@ availableFrom: "October 28",
     eyebrow: "Skill track · 6 modules",
     price: "Ksh 6,499",
 availability: "waiting-list",
-availableFrom: "October 28",
+availableFrom: "2026-10-28",
     tagline: "Move from doing tasks to running the whole delivery.",
     description:
       "Scoping, planning, tool setup, team coordination, risk handling and closeout — the skill that takes a VA from executor to the person the client trusts with the whole project.",
@@ -133,7 +133,7 @@ availableFrom: "October 28",
     eyebrow: "Skill track · 6 modules",
     price: "Ksh 6,499",
 availability: "waiting-list",
-availableFrom: "October 28",
+availableFrom: "2026-10-28",
     tagline: "Deliver twice the output and charge for the system, not the hours.",
     description:
       "Practical AI and automation for virtual assistants: prompting that produces usable work, AI-assisted content and research, and automations that quietly run a client's back office.",
@@ -185,7 +185,7 @@ availableFrom: "October 28",
     eyebrow: "Sustain toolkit · 3 modules",
     price: "Ksh 2,999",
 availability: "waiting-list",
-availableFrom: "October 28",
+availableFrom: "2026-10-28",
     tagline: "Charge, pitch and show up without waiting to feel ready.",
     description:
       "A short, practical course on the self-doubt that keeps skilled VAs underpricing, over-explaining and hiding from the clients they are already qualified to serve.",
@@ -220,8 +220,8 @@ availableFrom: "October 28",
     category: "toolkit",
     eyebrow: "Sustain toolkit · 3 modules",
     price: "Free",
-availability: "available",
-availableFrom: "October 19",
+availability: "waiting-list",
+availableFrom: "2026-10-19",
     tagline: "A decision framework for the calls that keep you up at night.",
     description:
       "Fire the client or renegotiate? Raise rates or add value? Niche down or stay open? A structured way to assess business dilemmas instead of deciding by mood.",
@@ -257,7 +257,7 @@ availableFrom: "October 19",
     eyebrow: "Sustain toolkit · 4 modules",
     price: "Ksh 2,999",
 availability: "waiting-list",
-availableFrom: "October 28",
+availableFrom: "2026-10-28",
     tagline: "Irregular income, handled like a business.",
     description:
       "Money systems for remote freelancers: separating business and personal cash, pricing for profit, invoicing and getting paid across borders, and planning for tax and slow months.",
@@ -306,6 +306,30 @@ export function getModule(courseSlug: string, moduleSlug: string) {
   const index = course.modules.findIndex((m) => m.slug === moduleSlug);
   if (index === -1) return undefined;
   return { course, module: course.modules[index], index };
+}
+// Automatically determines whether a course is available
+export function isCourseAvailable(
+  course: Course,
+  now = new Date(),
+): boolean {
+  if (!course.availableFrom) {
+    return course.availability === "available";
+  }
+
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Africa/Nairobi",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+
+  const year = parts.find((p) => p.type === "year")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const day = parts.find((p) => p.type === "day")?.value;
+
+  const today = `${year}-${month}-${day}`;
+
+  return today >= course.availableFrom;
 }
 export const ACCELERATOR = {
   slug: "accelerator",
