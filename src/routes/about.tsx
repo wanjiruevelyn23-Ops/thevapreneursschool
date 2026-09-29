@@ -1,4 +1,3 @@
-```tsx
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Compass, HeartHandshake, Globe2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -193,4 +192,3 @@ function AboutPage() {
     </>
   );
 }
-```
