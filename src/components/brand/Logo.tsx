@@ -1,4 +1,4 @@
-yeah the logo text - import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 /**
  * Waypoint logo mark: navy node → emerald node, connected by an ascending line.
@@ -43,7 +43,7 @@ export function Logo({
             tone === "light" ? "text-primary-foreground" : "text-primary",
           )}
         >
-          The VApreneurs School
+         The VApreneurs School
         </span>
         <span
           className={cn(
@@ -51,7 +51,7 @@ export function Logo({
             tone === "light" ? "text-accent" : "text-accent-deep",
           )}
         >
-          Map your skills
+          Map your skills, Scale your business
         </span>
       </span>
     </span>
