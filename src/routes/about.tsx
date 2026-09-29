@@ -94,81 +94,79 @@ function AboutPage() {
           </p>
         </div>
       </section>
+<section className="bg-mint/60 py-20">
+  <div className="mx-auto max-w-5xl px-5">
+    <div className="flex flex-col items-center text-center">
+      <img
+        src="/ceo.jpg"
+        alt="Eve Wanjiru, Founder of The VApreneurs School"
+        className="aspect-[4/5] w-full max-w-sm rounded-3xl object-cover object-top shadow-lift"
+      />
 
-      <section className="bg-mint/60 py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <div className="grid items-center gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-14">
-            <div>
-              <img
-                src="/ceo.jpg"
-                alt="Eve Wanjiru, Founder of The VApreneurs School"
-                className="aspect-[4/5] w-full max-w-md rounded-3xl object-cover object-top shadow-lift"
-              />
-            </div>
+      <div className="mt-8 max-w-2xl">
+        <h2 className="font-display text-3xl leading-tight text-primary sm:text-4xl">
+          Built to close the gaps, challenge the status quo, and shape the
+          future VAs deserve.
+        </h2>
 
-            <div>
-              <Eyebrow>Built with purpose</Eyebrow>
+        <p className="mt-6 font-display text-4xl font-semibold leading-tight text-primary sm:text-5xl">
+          Eve Wanjiru
+        </p>
 
-              <h2 className="mt-4 max-w-xl text-3xl leading-tight text-primary sm:text-4xl">
-                Built to close the gaps, challenge the status quo, and shape the
-                future VAs deserve.
-              </h2>
+        <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-accent-deep">
+          Founder
+        </p>
+      </div>
+    </div>
 
-              <div className="mt-7">
-                <p className="text-3xl font-semibold text-primary">
-                  Eve Wanjiru
-                </p>
+    <div className="mx-auto mt-10 max-w-3xl space-y-4 text-sm leading-relaxed text-foreground/85">
+      <p>
+        Eve's background is in executive operations, business systems and
+        process optimisation — the work of making organisations run cleanly
+        behind the scenes. Years of building systems for executives and teams
+        gave her a clear view of what remote support professionals are actually
+        hired to do, and where most of them fall short.
+      </p>
 
-                <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-accent-deep">
-                  Founder
-                </p>
-              </div>
+      <p>
+        She founded The VApreneurs School to bridge the distance between
+        technical skills and real-world readiness: not just teaching VAs how to
+        use the tools, but how to think like operators, position like
+        professionals and price like business owners.
+      </p>
 
-              <div className="mt-7 space-y-4 text-sm leading-relaxed text-foreground/85">
-                <p>
-                  Eve's background is in executive operations, business systems
-                  and process optimisation — the work of making organisations run
-                  cleanly behind the scenes. Years of building systems for
-                  executives and teams gave her a clear view of what remote support
-                  professionals are actually hired to do, and where most of them
-                  fall short.
-                </p>
+      <p>
+        Her vision is a thriving community of world-class African virtual
+        assistants who are globally competitive — recognised for the quality
+        of their work, not chosen for the size of their invoice.
+      </p>
 
-                <p>
-                  She founded The VApreneurs School to bridge the distance between
-                  technical skills and real-world readiness: not just teaching VAs
-                  how to use the tools, but how to think like operators, position
-                  like professionals and price like business owners.
-                </p>
+      <div className="mt-8 border-l-2 border-accent pl-5 text-left">
+        <p className="font-display text-xl leading-snug text-primary">
+          "Map Your Skills, Scale Your Business" is not a slogan. It's the
+          method: know exactly what you can do, then build a business around it
+          on purpose.
+        </p>
+      </div>
 
-                <p>
-                  Her vision is a thriving community of world-class African virtual
-                  assistants who are globally competitive — recognised for the
-                  quality of their work, not chosen for the size of their invoice.
-                </p>
-              </div>
+      <div className="mt-7 flex flex-wrap justify-center gap-3">
+        <Button asChild variant="navy">
+          <Link to="/courses">See the curriculum</Link>
+        </Button>
 
-              <div className="mt-7 flex flex-wrap gap-3">
-                <Button asChild variant="navy">
-                  <Link to="/courses">See the curriculum</Link>
-                </Button>
-
-                <Button asChild variant="outline">
-                  <a
-                    href="https://calendar.app.google/vtoGzuU1M1wzYUZw6"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Book a Pick My Brain session
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-16">
+        <Button asChild variant="outline">
+          <a
+            href="https://calendar.app.google/vtoGzuU1M1wzYUZw6"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Book a Pick My Brain session
+          </a>
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
         <SectionHeading
           eyebrow="What we stand on"
           title="Our values"
