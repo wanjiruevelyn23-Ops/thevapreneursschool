@@ -43,7 +43,7 @@ export function Logo({
             tone === "light" ? "text-primary-foreground" : "text-primary",
           )}
         >
-          VApreneurs School
+         The VApreneurs School
         </span>
         <span
           className={cn(
@@ -51,7 +51,7 @@ export function Logo({
             tone === "light" ? "text-accent" : "text-accent-deep",
           )}
         >
-          Map your skills
+          Map your skills, Scale your business
         </span>
       </span>
     </span>
