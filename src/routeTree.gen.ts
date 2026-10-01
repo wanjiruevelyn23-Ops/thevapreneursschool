@@ -14,10 +14,11 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AcceleratorRouteImport } from './routes/accelerator'
 import { Route as ApplyRouteImport } from './routes/apply'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoursesRouteImport } from './routes/courses'
-import { Route as WaitingListRouteImport } from './routes/waiting-list'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as WaitingListRouteImport } from './routes/waiting-list'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminInstructorRouteImport } from './routes/admin.instructor'
 import { Route as AdminSubmissionsRouteImport } from './routes/admin.submissions'
@@ -48,6 +49,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -58,14 +64,14 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WaitingListRoute = WaitingListRouteImport.update({
-  id: '/waiting-list',
-  path: '/waiting-list',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PortalRoute = PortalRouteImport.update({
   id: '/portal',
   path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WaitingListRoute = WaitingListRouteImport.update({
+  id: '/waiting-list',
+  path: '/waiting-list',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -95,10 +101,11 @@ export interface FileRoutesByFullPath {
   '/accelerator': typeof AcceleratorRoute
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
-  '/waiting-list': typeof WaitingListRoute
   '/portal': typeof PortalRoute
+  '/waiting-list': typeof WaitingListRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
@@ -110,10 +117,11 @@ export interface FileRoutesByTo {
   '/accelerator': typeof AcceleratorRoute
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
-  '/waiting-list': typeof WaitingListRoute
   '/portal': typeof PortalRoute
+  '/waiting-list': typeof WaitingListRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
@@ -126,10 +134,11 @@ export interface FileRoutesById {
   '/accelerator': typeof AcceleratorRoute
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
-  '/waiting-list': typeof WaitingListRoute
   '/portal': typeof PortalRoute
+  '/waiting-list': typeof WaitingListRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
@@ -143,10 +152,11 @@ export interface FileRouteTypes {
     | '/accelerator'
     | '/apply'
     | '/auth'
+    | '/checkout'
     | '/contact'
     | '/courses'
-    | '/waiting-list'
     | '/portal'
+    | '/waiting-list'
     | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
@@ -158,10 +168,11 @@ export interface FileRouteTypes {
     | '/accelerator'
     | '/apply'
     | '/auth'
+    | '/checkout'
     | '/contact'
     | '/courses'
-    | '/waiting-list'
     | '/portal'
+    | '/waiting-list'
     | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
@@ -173,10 +184,11 @@ export interface FileRouteTypes {
     | '/accelerator'
     | '/apply'
     | '/auth'
+    | '/checkout'
     | '/contact'
     | '/courses'
-    | '/waiting-list'
     | '/portal'
+    | '/waiting-list'
     | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
@@ -189,10 +201,11 @@ export interface RootRouteChildren {
   AcceleratorRoute: typeof AcceleratorRoute
   ApplyRoute: typeof ApplyRoute
   AuthRoute: typeof AuthRoute
+  CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   CoursesRoute: typeof CoursesRoute
-  WaitingListRoute: typeof WaitingListRoute
   PortalRoute: typeof PortalRoute
+  WaitingListRoute: typeof WaitingListRoute
   AdminInstructorRoute: typeof AdminInstructorRoute
   AdminSubmissionsRoute: typeof AdminSubmissionsRoute
   SyllabusCourseSlugRoute: typeof SyllabusCourseSlugRoute
@@ -208,13 +221,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-  '/waiting-list': {
-  id: '/waiting-list'
-  path: '/waiting-list'
-  fullPath: '/waiting-list'
-  preLoaderRoute: typeof WaitingListRouteImport
-  parentRoute: typeof rootRouteImport
-}
     '/about': {
       id: '/about'
       path: '/about'
@@ -243,6 +249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -262,6 +275,13 @@ declare module '@tanstack/react-router' {
       path: '/portal'
       fullPath: '/portal'
       preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/waiting-list': {
+      id: '/waiting-list'
+      path: '/waiting-list'
+      fullPath: '/waiting-list'
+      preLoaderRoute: typeof WaitingListRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -301,10 +321,11 @@ const rootRouteChildren: RootRouteChildren = {
   AcceleratorRoute: AcceleratorRoute,
   ApplyRoute: ApplyRoute,
   AuthRoute: AuthRoute,
+  CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   CoursesRoute: CoursesRoute,
-  WaitingListRoute: WaitingListRoute,
   PortalRoute: PortalRoute,
+  WaitingListRoute: WaitingListRoute,
   AdminInstructorRoute: AdminInstructorRoute,
   AdminSubmissionsRoute: AdminSubmissionsRoute,
   SyllabusCourseSlugRoute: SyllabusCourseSlugRoute,
