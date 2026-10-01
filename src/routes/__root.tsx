@@ -90,6 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Training and mentorship for virtual assistants. Map Your Skills, Scale Your Business.",
       },
       { name: "author", content: "The VApreneurs School" },
+      { property: "og:site_name", content: "The VApreneurs School" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -101,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
   shellComponent: RootShell,
@@ -111,10 +112,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const canonical = `https://thevapreneursschool.com${pathname === "/" ? "/" : pathname.replace(/\/$/, "")}`;
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <link rel="canonical" href={canonical} />
       </head>
                       <body>
         {children}
