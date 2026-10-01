@@ -34,7 +34,7 @@ const contactSchema = z.object({
 });
 
 // 🟩 MOVING THIS OUTSIDE FIXES THE CURSOR LOSING FOCUS BUG PERFECTLY!
-const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
+const Field = ({ label, error, children }: { label: string; error?: string | undefined; children: React.ReactNode }) => (
   <div className="space-y-1.5">
     <Label>{label}</Label>
     {children}
