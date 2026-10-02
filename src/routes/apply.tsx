@@ -105,30 +105,37 @@ function ApplyPage() {
       track: isAccelerator ? "cohort" : track,
     });
 
-    // 2. Send application details straight to Formspree for your school inbox!
-    if (!error) {
-      try {
-        await fetch("https://formspree.io", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            Form: "School Application Form",
-            Name: parsed.data.name,
-            Email: parsed.data.email,
-            Phone: parsed.data.phone,
-            Experience: parsed.data.experience,
-            Message: parsed.data.message ?? "No additional message",
-            Applied_For: selectionTitle,
-            Track: isAccelerator ? "cohort" : track
-          })
-        });
-      } catch (formspreeError) {
-        console.error("Formspree forward failed", formspreeError);
-      }
+    // 2. Send application details to Formspree
+if (!error) {
+  try {
+    const formspreeResponse = await fetch("https://formspree.io/f/mnpnzgpb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({
+        Form: "School Application Form",
+        Name: parsed.data.name,
+        Email: parsed.data.email,
+        Phone: parsed.data.phone,
+        Experience: parsed.data.experience,
+        Message: parsed.data.message ?? "No additional message",
+        Applied_For: selectionTitle,
+        Track: isAccelerator ? "cohort" : track,
+      }),
+    });
+
+    if (!formspreeResponse.ok) {
+      throw new Error(`Formspree submission failed: ${formspreeResponse.status}`);
     }
+  } catch (formspreeError) {
+    console.error("Formspree submission failed", formspreeError);
+    toast.error("We couldn't send your application. Please try again.");
+    setSubmitting(false);
+    return;
+  }
+}
 
     // Signed-in applicants are enrolled immediately so the portal unlocks.
     if (!error && user && !isAccelerator) {
