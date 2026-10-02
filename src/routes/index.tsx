@@ -13,13 +13,20 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-    ],
-  }),
+  meta: [
+    { title: TITLE },
+    { name: "description", content: DESCRIPTION },
+    { property: "og:title", content: TITLE },
+    { property: "og:description", content: DESCRIPTION },
+  ],
+  links: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/favicon-32x32.png",
+    },
+  ],
+}),
   component: Index,
 });
 
