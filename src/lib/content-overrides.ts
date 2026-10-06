@@ -132,11 +132,46 @@ export function useModuleOverrides(userId: string | undefined) {
   return { rows, map, loading, reload: load };
 }
 
-/** Built-in + published/draft content merged, for use anywhere in the portal. */
+/** Built-in + published/draft content merged — instructor studio only. */
 export function useCourses(userId: string | undefined) {
   const { map, loading, reload } = useModuleOverrides(userId);
   const courses = useMemo(() => mergeCourses(map), [map]);
   return { courses, overrides: map, loading, reload };
+}
+
+/**
+ * Student view: the database only returns published modules for courses the
+ * student has an ACTIVE enrollment in, with quiz answers stripped out.
+ */
+export function useStudentCourses(userId: string | undefined) {
+  const [rows, setRows] = useState<ModuleContentRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const load = useCallback(async () => {
+    const { data, error } = await supabase.rpc("student_modules");
+    if (!error && data) {
+      setRows(
+        (data as unknown as Record<string, unknown>[]).map((raw) =>
+          toRow({ ...raw, id: `${raw['course_slug']}::${raw['module_slug']}`, published: true }),
+        ),
+      );
+    }
+    setLoading(false);
+  }, []);
+  useEffect(() => {
+    if (!userId) {
+      setRows([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    void load();
+  }, [userId, load]);
+  const courses = useMemo(() => {
+    const map: OverrideMap = new Map();
+    for (const row of rows) map.set(overrideKey(row.course_slug, row.module_slug), row);
+    return mergeCourses(map);
+  }, [rows]);
+  return { courses, loading, reload: load };
 }
 
 /**

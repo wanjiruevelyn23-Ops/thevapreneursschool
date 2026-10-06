@@ -2,11 +2,22 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Course, TrackKey } from "@/content/types";
 
+export type EnrollmentStatus =
+  | "pending"
+  | "approved"
+  | "active"
+  | "suspended"
+  | "completed"
+  | "cancelled";
+
 export type Enrollment = {
   id: string;
   course_slug: string;
   track: TrackKey;
   created_at: string;
+  enrollment_status: EnrollmentStatus;
+  payment_status: "unpaid" | "paid" | "waived";
+  access_status: "locked" | "active";
 };
 
 export type ProgressRow = {
@@ -25,7 +36,8 @@ export function useEnrollments(userId: string | undefined) {
     queryFn: async (): Promise<Enrollment[]> => {
       const { data, error } = await supabase
         .from("enrollments")
-        .select("id, course_slug, track, created_at")
+        .select("id, course_slug, track, created_at, enrollment_status, payment_status, access_status")
+        .eq("user_id", userId!)
         .order("created_at", { ascending: true });
       if (error) throw error;
       return (data ?? []) as Enrollment[];
@@ -40,65 +52,45 @@ export function useProgress(userId: string | undefined) {
     queryFn: async (): Promise<ProgressRow[]> => {
       const { data, error } = await supabase
         .from("module_progress")
-        .select("id, course_slug, module_slug, completed, score, total");
+        .select("id, course_slug, module_slug, completed, score, total")
+        .eq("user_id", userId!);
       if (error) throw error;
       return (data ?? []) as ProgressRow[];
     },
   });
 }
 
-export function useEnroll(userId: string | undefined) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      courseSlug,
-      track,
-    }: {
-      courseSlug: string;
-      track: TrackKey;
-    }) => {
-      if (!userId) throw new Error("You need to be signed in to enrol.");
-      const { error } = await supabase
-        .from("enrollments")
-        .upsert(
-          { user_id: userId, course_slug: courseSlug, track },
-          { onConflict: "user_id,course_slug" },
-        );
-      if (error) throw error;
-    },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["enrollments", userId] }),
-  });
-}
+export type SubmitResult = {
+  score: number;
+  total: number;
+  completed: boolean;
+  key: Record<string, { answerIndex: number; explanation?: string | null }>;
+};
 
+/** Grading and progress writes happen in the database, never in the browser. */
 export function useCompleteModule(userId: string | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       courseSlug,
       moduleSlug,
-      score,
-      total,
+      answers,
+      force,
     }: {
       courseSlug: string;
       moduleSlug: string;
-      score: number | null;
-      total: number | null;
-    }) => {
+      answers: Record<string, number>;
+      force?: boolean;
+    }): Promise<SubmitResult> => {
       if (!userId) throw new Error("You need to be signed in.");
-      const { error } = await supabase.from("module_progress").upsert(
-        {
-          user_id: userId,
-          course_slug: courseSlug,
-          module_slug: moduleSlug,
-          completed: true,
-          score,
-          total,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,course_slug,module_slug" },
-      );
+      const { data, error } = await supabase.rpc("submit_module", {
+        _course_slug: courseSlug,
+        _module_slug: moduleSlug,
+        _answers: answers,
+        _force: Boolean(force),
+      });
       if (error) throw error;
+      return data as unknown as SubmitResult;
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["module_progress", userId] }),
