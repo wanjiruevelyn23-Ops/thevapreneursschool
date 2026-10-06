@@ -82,27 +82,56 @@ export type Database = {
       }
       enrollments: {
         Row: {
+          access_status: string
+          application_id: string | null
+          completed_at: string | null
           course_slug: string
           created_at: string
+          enrolled_at: string | null
+          enrollment_status: string
           id: string
+          payment_status: string
           track: string
+          updated_at: string
           user_id: string
         }
         Insert: {
+          access_status?: string
+          application_id?: string | null
+          completed_at?: string | null
           course_slug: string
           created_at?: string
+          enrolled_at?: string | null
+          enrollment_status?: string
           id?: string
+          payment_status?: string
           track?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
+          access_status?: string
+          application_id?: string | null
+          completed_at?: string | null
           course_slug?: string
           created_at?: string
+          enrolled_at?: string | null
+          enrollment_status?: string
           id?: string
+          payment_status?: string
           track?: string
+          updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       module_content: {
         Row: {
@@ -161,8 +190,10 @@ export type Database = {
       module_progress: {
         Row: {
           completed: boolean
+          completed_at: string | null
           course_slug: string
           id: string
+          last_accessed: string | null
           module_slug: string
           score: number | null
           total: number | null
@@ -171,8 +202,10 @@ export type Database = {
         }
         Insert: {
           completed?: boolean
+          completed_at?: string | null
           course_slug: string
           id?: string
+          last_accessed?: string | null
           module_slug: string
           score?: number | null
           total?: number | null
@@ -181,8 +214,10 @@ export type Database = {
         }
         Update: {
           completed?: boolean
+          completed_at?: string | null
           course_slug?: string
           id?: string
+          last_accessed?: string | null
           module_slug?: string
           score?: number | null
           total?: number | null
@@ -193,19 +228,31 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           created_at: string
+          email: string | null
           full_name: string | null
           id: string
+          phone: string | null
+          updated_at: string
         }
         Insert: {
+          account_status?: string
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id: string
+          phone?: string | null
+          updated_at?: string
         }
         Update: {
+          account_status?: string
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id?: string
+          phone?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -235,12 +282,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_active_enrollment: {
+        Args: { _course_slug: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      student_modules: {
+        Args: never
+        Returns: {
+          assignment: Json
+          course_slug: string
+          duration: string
+          lesson: Json
+          module_slug: string
+          notes: Json
+          quiz: Json
+          resources: Json
+          summary: string
+          title: string
+        }[]
+      }
+      submit_module: {
+        Args: {
+          _answers: Json
+          _course_slug: string
+          _force?: boolean
+          _module_slug: string
+        }
+        Returns: Json
       }
     }
     Enums: {
