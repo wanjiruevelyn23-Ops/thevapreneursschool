@@ -1060,8 +1060,12 @@ function SettingsView({ email, userId }: { email: string; userId: string }) {
           size="sm"
           className="mt-4"
           onClick={async () => {
+            await queryClient.cancelQueries();
+            queryClient.clear();
             await supabase.auth.signOut();
+            localStorage.removeItem("vaps-session-only");
             toast.success("Signed out.");
+            void navigate({ to: "/auth", replace: true });
           }}
         >
           Sign out
