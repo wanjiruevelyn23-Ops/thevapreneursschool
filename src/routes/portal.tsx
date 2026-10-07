@@ -194,12 +194,7 @@ function PortalPage() {
               enrolledSlugs={enrolledSlugs}
               rows={rows}
               onOpen={(slug) => setOpenCourse(slug)}
-              onEnrol={(slug, title) =>
-                enroll.mutate(
-                  { courseSlug: slug, track: "self" },
-                  { onSuccess: () => toast.success(`Enrolled in ${title}`) },
-                )
-              }
+              onEnrol={requestAccess}
             />
           ) : null}
 
@@ -233,12 +228,7 @@ function PortalPage() {
                 setNav("courses");
                 setOpenCourse(slug);
               }}
-              onEnrol={(slug, title) =>
-                enroll.mutate(
-                  { courseSlug: slug, track: "self" },
-                  { onSuccess: () => toast.success(`Enrolled in ${title}`) },
-                )
-              }
+              onEnrol={requestAccess}
             />
           ) : null}
           {nav === "settings" ? <SettingsView email={user.email ?? ""} userId={user.id} /> : null}
