@@ -6,8 +6,6 @@ import { z } from "zod";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useEnroll } from "@/lib/lms";
 import { COURSES, getCourse, ACCELERATOR } from "@/content/courses";
 import type { TrackKey } from "@/content/types";
 import { Button } from "@/components/ui/button";
@@ -54,8 +52,6 @@ export const Route = createFileRoute("/apply")({
 function ApplyPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const enroll = useEnroll(user?.id);
   const sendNotification = useServerFn(notifyApplication);
 
   const courseSlug = search.course ?? "";
@@ -137,14 +133,8 @@ if (!error) {
   }
 }
 
-    // Signed-in applicants are enrolled immediately so the portal unlocks.
-    if (!error && user && !isAccelerator) {
-      try {
-        await enroll.mutateAsync({ courseSlug, track });
-      } catch {
-        // Enrolment can be completed later from the portal.
-      }
-    }
+    // Access is granted only after an admin approves the application.
+
 
     setSubmitting(false);
     if (error) {

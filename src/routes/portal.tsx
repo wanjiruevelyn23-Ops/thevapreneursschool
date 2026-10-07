@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   BookOpen,
@@ -18,13 +18,13 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   useEnrollments,
   useProgress,
-  useEnroll,
   useCompleteModule,
   useResetProgress,
   courseState,
+  type SubmitResult,
 } from "@/lib/lms";
 import { TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
-import { useCourses, getModuleFileUrl, formatFileSize } from "@/lib/content-overrides";
+import { useStudentCourses, getModuleFileUrl, formatFileSize } from "@/lib/content-overrides";
 import type { Course, CourseModule, LessonBlock, ModuleResource } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -61,14 +61,14 @@ const NAV: { key: NavKey; label: string; icon: typeof BookOpen }[] = [
 
 function PortalPage() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [nav, setNav] = useState<NavKey>("courses");
   const [openCourse, setOpenCourse] = useState<string | null>(null);
   const [openModule, setOpenModule] = useState<string | null>(null);
 
   const enrollments = useEnrollments(user?.id);
   const progress = useProgress(user?.id);
-  const enroll = useEnroll(user?.id);
-  const { courses: allCourses } = useCourses(user?.id);
+  const { courses: allCourses } = useStudentCourses(user?.id);
 
   if (loading) {
     return <Shell><p className="text-sm text-muted-foreground">Loading your portal…</p></Shell>;
@@ -79,10 +79,10 @@ function PortalPage() {
       <Shell>
         <LockedCard
           title="Sign in to reach your portal"
-          text="Your student portal holds your modules, quizzes, notes and progress. Sign in or create your student account to continue."
+          text="Your student portal holds your modules, quizzes, notes and progress. Sign in to continue."
         >
           <Button asChild variant="brand">
-            <Link to="/auth">Sign in / create account</Link>
+            <Link to="/auth">Sign in</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/courses">Browse courses</Link>
@@ -92,9 +92,47 @@ function PortalPage() {
     );
   }
 
+  if (!user.email_confirmed_at) {
+    return (
+      <Shell email={user.email}>
+        <LockedCard
+          title="Please verify your email"
+          text="Open the confirmation link we emailed you, then sign in again to reach your portal."
+        >
+          <Button
+            variant="brand"
+            onClick={async () => {
+              const { error } = await supabase.auth.resend({ type: "signup", email: user.email ?? "" });
+              if (error) toast.error(error.message);
+              else toast.success("Confirmation email sent.");
+            }}
+          >
+            Resend email
+          </Button>
+        </LockedCard>
+      </Shell>
+    );
+  }
+
   const enrolled = enrollments.data ?? [];
-  const enrolledSlugs = new Set(enrolled.map((e) => e.course_slug));
+  const enrolledSlugs = new Set(
+    enrolled.filter((e) => e.access_status === "active").map((e) => e.course_slug),
+  );
+  const statusBySlug = new Map(enrolled.map((e) => [e.course_slug, e.enrollment_status]));
   const rows = progress.data ?? [];
+
+  function requestAccess(slug: string, title: string) {
+    const status = statusBySlug.get(slug);
+    if (status === "pending" || status === "approved") {
+      toast.info(`Your enrolment in ${title} is awaiting approval or payment.`);
+      return;
+    }
+    if (status === "suspended" || status === "cancelled") {
+      toast.error(`Access to ${title} is paused. Contact info@thevapreneursschool.com.`);
+      return;
+    }
+    void navigate({ to: "/apply", search: { course: slug, track: "self" } });
+  }
 
 
 
@@ -156,12 +194,7 @@ function PortalPage() {
               enrolledSlugs={enrolledSlugs}
               rows={rows}
               onOpen={(slug) => setOpenCourse(slug)}
-              onEnrol={(slug, title) =>
-                enroll.mutate(
-                  { courseSlug: slug, track: "self" },
-                  { onSuccess: () => toast.success(`Enrolled in ${title}`) },
-                )
-              }
+              onEnrol={requestAccess}
             />
           ) : null}
 
@@ -195,12 +228,7 @@ function PortalPage() {
                 setNav("courses");
                 setOpenCourse(slug);
               }}
-              onEnrol={(slug, title) =>
-                enroll.mutate(
-                  { courseSlug: slug, track: "self" },
-                  { onSuccess: () => toast.success(`Enrolled in ${title}`) },
-                )
-              }
+              onEnrol={requestAccess}
             />
           ) : null}
           {nav === "settings" ? <SettingsView email={user.email ?? ""} userId={user.id} /> : null}
@@ -602,21 +630,21 @@ function ModuleView({
   const complete = useCompleteModule(userId);
   const [tab, setTab] = useState<"notes" | "quiz" | "assignment">("notes");
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [result, setResult] = useState<{ score: number; total: number } | null>(null);
+  const [result, setResult] = useState<SubmitResult | null>(null);
 
   const hasLesson = module.lesson.length > 0;
 
-
   function submitQuiz() {
-    const total = module.quiz.length;
-    const score = module.quiz.filter((q) => answers[q.id] === q.answerIndex).length;
-    setResult({ score, total });
-    if (score === total) {
-      complete.mutate(
-        { courseSlug: course.slug, moduleSlug: module.slug, score, total },
-        { onSuccess: () => toast.success("Perfect score — next module unlocked!") },
-      );
-    }
+    complete.mutate(
+      { courseSlug: course.slug, moduleSlug: module.slug, answers },
+      {
+        onSuccess: (res) => {
+          setResult(res);
+          if (res.score === res.total) toast.success("Perfect score — next module unlocked!");
+        },
+        onError: (err) => toast.error(err.message),
+      },
+    );
   }
 
   return (
@@ -713,7 +741,7 @@ function ModuleView({
                 size="lg"
                 onClick={() =>
                   complete.mutate(
-                    { courseSlug: course.slug, moduleSlug: module.slug, score: null, total: null },
+                    { courseSlug: course.slug, moduleSlug: module.slug, answers: {} },
                     { onSuccess: () => toast.success("Module marked complete.") },
                   )
                 }
@@ -787,7 +815,7 @@ function ModuleView({
                 <div className="mt-3 space-y-2">
                   {question.options.map((option, optionIndex) => {
                     const selected = answers[question.id] === optionIndex;
-                    const isRight = result && optionIndex === question.answerIndex;
+                    const isRight = result && optionIndex === result.key[question.id]?.answerIndex;
                     const isWrongPick = result && selected && !isRight;
                     return (
                       <label
@@ -814,9 +842,9 @@ function ModuleView({
                     );
                   })}
                 </div>
-                {result && question.explanation ? (
+                {result?.key[question.id]?.explanation ? (
                   <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                    {question.explanation}
+                    {result.key[question.id]?.explanation}
                   </p>
                 ) : null}
               </fieldset>
@@ -870,8 +898,8 @@ function ModuleView({
                           {
                             courseSlug: course.slug,
                             moduleSlug: module.slug,
-                            score: result.score,
-                            total: result.total,
+                            answers,
+                            force: true,
                           },
                           {
                             onSuccess: () => {
