@@ -64,7 +64,10 @@ export function EnrollmentsPanel({ prefill }: { prefill?: { email: string; cours
         { onConflict: "user_id,course_slug" },
       );
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Enrolment approved. Mark it paid and active to unlock content.");
     setEmail("");
     void load();
@@ -72,7 +75,10 @@ export function EnrollmentsPanel({ prefill }: { prefill?: { email: string; cours
 
   async function update(id: string, patch: Partial<Row>) {
     const { error } = await supabase.from("enrollments").update(patch).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Enrolment updated.");
     void load();
   }
