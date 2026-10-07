@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WaitingListRouteImport } from './routes/waiting-list'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
@@ -70,6 +71,11 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/waiting-list': typeof WaitingListRoute
   '/portal': typeof AuthenticatedPortalRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/waiting-list': typeof WaitingListRoute
   '/portal': typeof AuthenticatedPortalRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/waiting-list': typeof WaitingListRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/courses'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/waiting-list'
     | '/portal'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/courses'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/waiting-list'
     | '/portal'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/courses'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/waiting-list'
     | '/_authenticated/portal'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   CoursesRoute: typeof CoursesRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WaitingListRoute: typeof WaitingListRoute
   AdminInstructorRoute: typeof AdminInstructorRoute
@@ -295,6 +308,13 @@ declare module '@tanstack/react-router' {
       path: '/courses'
       fullPath: '/courses'
       preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   CoursesRoute: CoursesRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WaitingListRoute: WaitingListRoute,
   AdminInstructorRoute: AdminInstructorRoute,
