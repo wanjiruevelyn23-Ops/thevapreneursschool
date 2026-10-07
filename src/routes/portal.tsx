@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   BookOpen,
@@ -18,13 +18,13 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   useEnrollments,
   useProgress,
-  useEnroll,
   useCompleteModule,
   useResetProgress,
   courseState,
+  type SubmitResult,
 } from "@/lib/lms";
 import { TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
-import { useCourses, getModuleFileUrl, formatFileSize } from "@/lib/content-overrides";
+import { useStudentCourses, getModuleFileUrl, formatFileSize } from "@/lib/content-overrides";
 import type { Course, CourseModule, LessonBlock, ModuleResource } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -61,14 +61,14 @@ const NAV: { key: NavKey; label: string; icon: typeof BookOpen }[] = [
 
 function PortalPage() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [nav, setNav] = useState<NavKey>("courses");
   const [openCourse, setOpenCourse] = useState<string | null>(null);
   const [openModule, setOpenModule] = useState<string | null>(null);
 
   const enrollments = useEnrollments(user?.id);
   const progress = useProgress(user?.id);
-  const enroll = useEnroll(user?.id);
-  const { courses: allCourses } = useCourses(user?.id);
+  const { courses: allCourses } = useStudentCourses(user?.id);
 
   if (loading) {
     return <Shell><p className="text-sm text-muted-foreground">Loading your portal…</p></Shell>;
@@ -79,10 +79,10 @@ function PortalPage() {
       <Shell>
         <LockedCard
           title="Sign in to reach your portal"
-          text="Your student portal holds your modules, quizzes, notes and progress. Sign in or create your student account to continue."
+          text="Your student portal holds your modules, quizzes, notes and progress. Sign in to continue."
         >
           <Button asChild variant="brand">
-            <Link to="/auth">Sign in / create account</Link>
+            <Link to="/auth">Sign in</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/courses">Browse courses</Link>
@@ -92,9 +92,47 @@ function PortalPage() {
     );
   }
 
+  if (!user.email_confirmed_at) {
+    return (
+      <Shell email={user.email}>
+        <LockedCard
+          title="Please verify your email"
+          text="Open the confirmation link we emailed you, then sign in again to reach your portal."
+        >
+          <Button
+            variant="brand"
+            onClick={async () => {
+              const { error } = await supabase.auth.resend({ type: "signup", email: user.email ?? "" });
+              if (error) toast.error(error.message);
+              else toast.success("Confirmation email sent.");
+            }}
+          >
+            Resend email
+          </Button>
+        </LockedCard>
+      </Shell>
+    );
+  }
+
   const enrolled = enrollments.data ?? [];
-  const enrolledSlugs = new Set(enrolled.map((e) => e.course_slug));
+  const enrolledSlugs = new Set(
+    enrolled.filter((e) => e.access_status === "active").map((e) => e.course_slug),
+  );
+  const statusBySlug = new Map(enrolled.map((e) => [e.course_slug, e.enrollment_status]));
   const rows = progress.data ?? [];
+
+  function requestAccess(slug: string, title: string) {
+    const status = statusBySlug.get(slug);
+    if (status === "pending" || status === "approved") {
+      toast.info(`Your enrolment in ${title} is awaiting approval or payment.`);
+      return;
+    }
+    if (status === "suspended" || status === "cancelled") {
+      toast.error(`Access to ${title} is paused. Contact info@thevapreneursschool.com.`);
+      return;
+    }
+    void navigate({ to: "/apply", search: { course: slug, track: "self" } });
+  }
 
 
 
