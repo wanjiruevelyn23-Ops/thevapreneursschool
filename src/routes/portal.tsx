@@ -630,21 +630,21 @@ function ModuleView({
   const complete = useCompleteModule(userId);
   const [tab, setTab] = useState<"notes" | "quiz" | "assignment">("notes");
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [result, setResult] = useState<{ score: number; total: number } | null>(null);
+  const [result, setResult] = useState<SubmitResult | null>(null);
 
   const hasLesson = module.lesson.length > 0;
 
-
   function submitQuiz() {
-    const total = module.quiz.length;
-    const score = module.quiz.filter((q) => answers[q.id] === q.answerIndex).length;
-    setResult({ score, total });
-    if (score === total) {
-      complete.mutate(
-        { courseSlug: course.slug, moduleSlug: module.slug, score, total },
-        { onSuccess: () => toast.success("Perfect score — next module unlocked!") },
-      );
-    }
+    complete.mutate(
+      { courseSlug: course.slug, moduleSlug: module.slug, answers },
+      {
+        onSuccess: (res) => {
+          setResult(res);
+          if (res.score === res.total) toast.success("Perfect score — next module unlocked!");
+        },
+        onError: (err) => toast.error(err.message),
+      },
+    );
   }
 
   return (
@@ -741,7 +741,7 @@ function ModuleView({
                 size="lg"
                 onClick={() =>
                   complete.mutate(
-                    { courseSlug: course.slug, moduleSlug: module.slug, score: null, total: null },
+                    { courseSlug: course.slug, moduleSlug: module.slug, answers: {} },
                     { onSuccess: () => toast.success("Module marked complete.") },
                   )
                 }
@@ -815,7 +815,7 @@ function ModuleView({
                 <div className="mt-3 space-y-2">
                   {question.options.map((option, optionIndex) => {
                     const selected = answers[question.id] === optionIndex;
-                    const isRight = result && optionIndex === question.answerIndex;
+                    const isRight = result && optionIndex === result.key[question.id]?.answerIndex;
                     const isWrongPick = result && selected && !isRight;
                     return (
                       <label
@@ -842,9 +842,9 @@ function ModuleView({
                     );
                   })}
                 </div>
-                {result && question.explanation ? (
+                {result?.key[question.id]?.explanation ? (
                   <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                    {question.explanation}
+                    {result.key[question.id]?.explanation}
                   </p>
                 ) : null}
               </fieldset>
@@ -898,8 +898,8 @@ function ModuleView({
                           {
                             courseSlug: course.slug,
                             moduleSlug: module.slug,
-                            score: result.score,
-                            total: result.total,
+                            answers,
+                            force: true,
                           },
                           {
                             onSuccess: () => {
