@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/brand/Section";
 import { cn } from "@/lib/utils";
+import { EnrollmentsPanel } from "@/components/admin/EnrollmentsPanel";
 
 const TITLE = "Submissions | The VApreneurs School";
 const DESCRIPTION =
@@ -57,7 +58,8 @@ function formatDate(value: string) {
 function SubmissionsPage() {
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"applications" | "messages">("applications");
+  const [tab, setTab] = useState<"applications" | "enrollments" | "messages">("applications");
+  const [prefill, setPrefill] = useState<{ email: string; course: string } | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [busy, setBusy] = useState(false);
@@ -145,9 +147,12 @@ function SubmissionsPage() {
         </p>
       ) : null}
 
-      <div className="mt-8 flex gap-2">
+      <div className="mt-8 flex flex-wrap gap-2">
         <TabButton active={tab === "applications"} onClick={() => setTab("applications")}>
           Applications ({applications.length})
+        </TabButton>
+        <TabButton active={tab === "enrollments"} onClick={() => setTab("enrollments")}>
+          Enrolments
         </TabButton>
         <TabButton active={tab === "messages"} onClick={() => setTab("messages")}>
           Contact messages ({messages.length})
@@ -155,7 +160,9 @@ function SubmissionsPage() {
       </div>
 
       <div className="mt-6 space-y-4">
-        {tab === "applications" ? (
+        {tab === "enrollments" ? (
+          <EnrollmentsPanel prefill={prefill} />
+        ) : tab === "applications" ? (
           applications.length === 0 ? (
             <Empty text="No applications yet." />
           ) : (
@@ -173,6 +180,17 @@ function SubmissionsPage() {
                   <Field label="Experience" value={row.experience ?? "—"} />
                 </dl>
                 {row.message ? <Note>{row.message}</Note> : null}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => {
+                    setPrefill({ email: row.email, course: row.course_slug ?? "" });
+                    setTab("enrollments");
+                  }}
+                >
+                  Approve this applicant
+                </Button>
               </Card>
             ))
           )
