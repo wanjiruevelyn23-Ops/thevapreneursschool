@@ -16,6 +16,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/brand/SiteHeader";
 import { SiteFooter } from "@/components/brand/SiteFooter";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -149,8 +150,26 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const isPortal = pathname.startsWith("/portal") || pathname.startsWith("/auth");
+  const isPortal =
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/reset-password");
+
+  useEffect(() => {
+    // "Remember me" unticked: end the session once the browser has been closed.
+    if (localStorage.getItem("vaps-session-only") && !sessionStorage.getItem("vaps-alive")) {
+      localStorage.removeItem("vaps-session-only");
+      void supabase.auth.signOut();
+    }
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      void router.invalidate();
+      if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+    });
+    return () => data.subscription.unsubscribe();
+  }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
