@@ -28,10 +28,11 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -40,11 +41,44 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/portal" });
   }, [loading, user, navigate]);
 
+  function rememberChoice() {
+    sessionStorage.setItem("vaps-alive", "1");
+    if (remember) localStorage.removeItem("vaps-session-only");
+    else localStorage.setItem("vaps-session-only", "1");
+  }
+
+  async function handleGoogle() {
+    setError(null);
+    rememberChoice();
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin + "/auth",
+    });
+    if (result.error) {
+      setError("Google sign-in didn't complete. Please try again.");
+      return;
+    }
+    if (!result.redirected) navigate({ to: "/portal" });
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setError(null);
     setNotice(null);
+
+    if (mode === "forgot") {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setBusy(false);
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+      setNotice("If that email has an account, a password reset link is on its way.");
+      setMode("signin");
+      return;
+    }
 
     if (mode === "signup") {
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -52,7 +86,7 @@ function AuthPage() {
         password,
         options: {
           data: { full_name: fullName.trim() },
-          emailRedirectTo: `${window.location.origin}/portal`,
+          emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
       setBusy(false);
@@ -65,19 +99,19 @@ function AuthPage() {
         return;
       }
       if (data.session) {
-        toast.success("Account created — you're signed in.");
+        rememberChoice();
         navigate({ to: "/portal" });
         return;
       }
       setMode("signin");
       setPassword("");
       setNotice(
-        "Account created. Please check your email and confirm your address, then sign in below.",
+        "Account created. Check your email and click the confirmation link, then sign in. Course access opens once the school approves your enrolment.",
       );
-      toast.success("Account created. Confirm your email, then sign in.");
       return;
     }
 
+    rememberChoice();
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
