@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -188,21 +189,61 @@ function AuthPage() {
                 placeholder="you@email.com"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-primary">Password</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                placeholder="At least 6 characters"
-              />
-            </div>
+            {mode !== "forgot" ? (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-primary">Password</Label>
+                  {mode === "signin" ? (
+                    <button
+                      type="button"
+                      className="text-xs text-accent-deep underline underline-offset-4"
+                      onClick={() => {
+                        setError(null);
+                        setNotice(null);
+                        setMode("forgot");
+                      }}
+                    >
+                      Forgot password?
+                    </button>
+                  ) : null}
+                </div>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  placeholder="At least 6 characters"
+                />
+              </div>
+            ) : null}
+            {mode === "signin" ? (
+              <label className="flex items-center gap-2 text-sm text-foreground/80">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="h-4 w-4 accent-[oklch(0.5642_0.1207_161.75)]"
+                />
+                Remember me
+              </label>
+            ) : null}
             <Button type="submit" variant="brand" className="w-full" disabled={busy}>
-              {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+              {busy
+                ? "Please wait…"
+                : mode === "signin"
+                  ? "Sign in"
+                  : mode === "signup"
+                    ? "Create account"
+                    : "Send reset link"}
             </Button>
           </form>
+
+          {mode !== "forgot" ? (
+            <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => void handleGoogle()}>
+              Continue with Google
+            </Button>
+          ) : null}
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
             {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
