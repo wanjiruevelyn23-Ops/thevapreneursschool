@@ -1047,6 +1047,8 @@ function ToolkitView({
 
 function SettingsView({ email, userId }: { email: string; userId: string }) {
   const reset = useResetProgress(userId);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   return (
     <div>
       <Eyebrow>Account</Eyebrow>
