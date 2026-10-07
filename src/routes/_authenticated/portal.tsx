@@ -36,7 +36,7 @@ const TITLE = "Student Portal | The VApreneurs School";
 const DESCRIPTION =
   "Your VApreneurs School student portal: modules, quizzes, notes and progress across every course you're enrolled in.";
 
-export const Route = createFileRoute("/portal")({
+export const Route = createFileRoute("/_authenticated/portal")({
   head: () => ({
     meta: [
       { title: TITLE },
