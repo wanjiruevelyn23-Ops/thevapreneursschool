@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AcceleratorRouteImport } from './routes/accelerator'
 import { Route as ApplyRouteImport } from './routes/apply'
@@ -17,9 +18,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoursesRouteImport } from './routes/courses'
-import { Route as PortalRouteImport } from './routes/portal'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WaitingListRouteImport } from './routes/waiting-list'
+import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminInstructorRouteImport } from './routes/admin.instructor'
 import { Route as AdminSubmissionsRouteImport } from './routes/admin.submissions'
@@ -28,6 +30,10 @@ import { Route as SyllabusCourseSlugRouteImport } from './routes/syllabus.$cours
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -65,9 +71,9 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PortalRoute = PortalRouteImport.update({
-  id: '/portal',
-  path: '/portal',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -79,6 +85,11 @@ const WaitingListRoute = WaitingListRouteImport.update({
   id: '/waiting-list',
   path: '/waiting-list',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedPortalRoute = AuthenticatedPortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
@@ -110,9 +121,10 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
-  '/portal': typeof PortalRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/waiting-list': typeof WaitingListRoute
+  '/portal': typeof AuthenticatedPortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
@@ -127,9 +139,10 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
-  '/portal': typeof PortalRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/waiting-list': typeof WaitingListRoute
+  '/portal': typeof AuthenticatedPortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
@@ -138,6 +151,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/accelerator': typeof AcceleratorRoute
   '/apply': typeof ApplyRoute
@@ -145,9 +159,10 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/courses': typeof CoursesRoute
-  '/portal': typeof PortalRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/waiting-list': typeof WaitingListRoute
+  '/_authenticated/portal': typeof AuthenticatedPortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
   '/admin/submissions': typeof AdminSubmissionsRoute
   '/syllabus/$courseSlug': typeof SyllabusCourseSlugRoute
@@ -164,9 +179,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/courses'
-    | '/portal'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/waiting-list'
+    | '/portal'
     | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
@@ -181,9 +197,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/courses'
-    | '/portal'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/waiting-list'
+    | '/portal'
     | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
@@ -191,6 +208,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/accelerator'
     | '/apply'
@@ -198,9 +216,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/courses'
-    | '/portal'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/waiting-list'
+    | '/_authenticated/portal'
     | '/admin/instructor'
     | '/admin/submissions'
     | '/syllabus/$courseSlug'
@@ -209,6 +228,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AcceleratorRoute: typeof AcceleratorRoute
   ApplyRoute: typeof ApplyRoute
@@ -216,7 +236,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   CoursesRoute: typeof CoursesRoute
-  PortalRoute: typeof PortalRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WaitingListRoute: typeof WaitingListRoute
   AdminInstructorRoute: typeof AdminInstructorRoute
@@ -232,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -283,11 +310,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/portal': {
-      id: '/portal'
-      path: '/portal'
-      fullPath: '/portal'
-      preLoaderRoute: typeof PortalRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -303,6 +330,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/waiting-list'
       preLoaderRoute: typeof WaitingListRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/portal': {
+      id: '/_authenticated/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof AuthenticatedPortalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -335,8 +369,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPortalRoute: typeof AuthenticatedPortalRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPortalRoute: AuthenticatedPortalRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AcceleratorRoute: AcceleratorRoute,
   ApplyRoute: ApplyRoute,
@@ -344,7 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   CoursesRoute: CoursesRoute,
-  PortalRoute: PortalRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WaitingListRoute: WaitingListRoute,
   AdminInstructorRoute: AdminInstructorRoute,

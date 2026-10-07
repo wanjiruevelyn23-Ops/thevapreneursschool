@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,10 +29,11 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -40,11 +42,44 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/portal" });
   }, [loading, user, navigate]);
 
+  function rememberChoice() {
+    sessionStorage.setItem("vaps-alive", "1");
+    if (remember) localStorage.removeItem("vaps-session-only");
+    else localStorage.setItem("vaps-session-only", "1");
+  }
+
+  async function handleGoogle() {
+    setError(null);
+    rememberChoice();
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin + "/auth",
+    });
+    if (result.error) {
+      setError("Google sign-in didn't complete. Please try again.");
+      return;
+    }
+    if (!result.redirected) navigate({ to: "/portal" });
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setError(null);
     setNotice(null);
+
+    if (mode === "forgot") {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setBusy(false);
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+      setNotice("If that email has an account, a password reset link is on its way.");
+      setMode("signin");
+      return;
+    }
 
     if (mode === "signup") {
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -52,7 +87,7 @@ function AuthPage() {
         password,
         options: {
           data: { full_name: fullName.trim() },
-          emailRedirectTo: `${window.location.origin}/portal`,
+          emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
       setBusy(false);
@@ -65,19 +100,19 @@ function AuthPage() {
         return;
       }
       if (data.session) {
-        toast.success("Account created — you're signed in.");
+        rememberChoice();
         navigate({ to: "/portal" });
         return;
       }
       setMode("signin");
       setPassword("");
       setNotice(
-        "Account created. Please check your email and confirm your address, then sign in below.",
+        "Account created. Check your email and click the confirmation link, then sign in. Course access opens once the school approves your enrolment.",
       );
-      toast.success("Account created. Confirm your email, then sign in.");
       return;
     }
 
+    rememberChoice();
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
@@ -154,21 +189,61 @@ function AuthPage() {
                 placeholder="you@email.com"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-primary">Password</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                placeholder="At least 6 characters"
-              />
-            </div>
+            {mode !== "forgot" ? (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-primary">Password</Label>
+                  {mode === "signin" ? (
+                    <button
+                      type="button"
+                      className="text-xs text-accent-deep underline underline-offset-4"
+                      onClick={() => {
+                        setError(null);
+                        setNotice(null);
+                        setMode("forgot");
+                      }}
+                    >
+                      Forgot password?
+                    </button>
+                  ) : null}
+                </div>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  placeholder="At least 6 characters"
+                />
+              </div>
+            ) : null}
+            {mode === "signin" ? (
+              <label className="flex items-center gap-2 text-sm text-foreground/80">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="h-4 w-4 accent-[oklch(0.5642_0.1207_161.75)]"
+                />
+                Remember me
+              </label>
+            ) : null}
             <Button type="submit" variant="brand" className="w-full" disabled={busy}>
-              {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+              {busy
+                ? "Please wait…"
+                : mode === "signin"
+                  ? "Sign in"
+                  : mode === "signup"
+                    ? "Create account"
+                    : "Send reset link"}
             </Button>
           </form>
+
+          {mode !== "forgot" ? (
+            <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => void handleGoogle()}>
+              Continue with Google
+            </Button>
+          ) : null}
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
             {mode === "signin" ? "New here?" : "Already have an account?"}{" "}

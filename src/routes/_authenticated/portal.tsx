@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -36,7 +37,7 @@ const TITLE = "Student Portal | The VApreneurs School";
 const DESCRIPTION =
   "Your VApreneurs School student portal: modules, quizzes, notes and progress across every course you're enrolled in.";
 
-export const Route = createFileRoute("/portal")({
+export const Route = createFileRoute("/_authenticated/portal")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -1047,6 +1048,8 @@ function ToolkitView({
 
 function SettingsView({ email, userId }: { email: string; userId: string }) {
   const reset = useResetProgress(userId);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   return (
     <div>
       <Eyebrow>Account</Eyebrow>
@@ -1060,8 +1063,12 @@ function SettingsView({ email, userId }: { email: string; userId: string }) {
           size="sm"
           className="mt-4"
           onClick={async () => {
+            await queryClient.cancelQueries();
+            queryClient.clear();
             await supabase.auth.signOut();
+            localStorage.removeItem("vaps-session-only");
             toast.success("Signed out.");
+            void navigate({ to: "/auth", replace: true });
           }}
         >
           Sign out
