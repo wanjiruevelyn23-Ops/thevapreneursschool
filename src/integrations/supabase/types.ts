@@ -53,6 +53,65 @@ export type Database = {
         }
         Relationships: []
       }
+      assignment_submissions: {
+        Row: {
+          course_slug: string
+          feedback: string | null
+          feedback_released: boolean
+          file_name: string | null
+          file_path: string | null
+          grade: string | null
+          id: string
+          module_slug: string
+          response: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          course_slug: string
+          feedback?: string | null
+          feedback_released?: boolean
+          file_name?: string | null
+          file_path?: string | null
+          grade?: string | null
+          id?: string
+          module_slug: string
+          response?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          course_slug?: string
+          feedback?: string | null
+          feedback_released?: boolean
+          file_name?: string | null
+          file_path?: string | null
+          grade?: string | null
+          id?: string
+          module_slug?: string
+          response?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_submissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -79,6 +138,35 @@ export type Database = {
           topic?: string
         }
         Relationships: []
+      }
+      course_instructors: {
+        Row: {
+          course_slug: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_instructors_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       enrollments: {
         Row: {
@@ -229,6 +317,8 @@ export type Database = {
       profiles: {
         Row: {
           account_status: string
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -238,6 +328,8 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -247,6 +339,8 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -255,6 +349,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          answers: Json
+          course_slug: string
+          created_at: string
+          id: string
+          module_slug: string
+          score: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          course_slug: string
+          created_at?: string
+          id?: string
+          module_slug: string
+          score: number
+          total: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          course_slug?: string
+          created_at?: string
+          id?: string
+          module_slug?: string
+          score?: number
+          total?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -282,6 +417,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_users: {
+        Args: never
+        Returns: {
+          account_status: string
+          created_at: string
+          email: string
+          email_verified: boolean
+          full_name: string
+          id: string
+          last_sign_in_at: string
+          provider: string
+          roles: Json
+        }[]
+      }
       has_active_enrollment: {
         Args: { _course_slug: string; _user_id: string }
         Returns: boolean
@@ -292,6 +441,25 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_course_staff: {
+        Args: { _course_slug: string; _user_id: string }
+        Returns: boolean
+      }
+      my_access: { Args: never; Returns: Json }
+      my_submissions: {
+        Args: never
+        Returns: {
+          course_slug: string
+          feedback: string
+          file_name: string
+          grade: string
+          id: string
+          module_slug: string
+          response: string
+          status: string
+          submitted_at: string
+        }[]
       }
       student_modules: {
         Args: never
@@ -316,6 +484,10 @@ export type Database = {
           _module_slug: string
         }
         Returns: Json
+      }
+      touch_module: {
+        Args: { _course_slug: string; _module_slug: string }
+        Returns: undefined
       }
     }
     Enums: {
