@@ -15,6 +15,13 @@
       "when": 1791373560991,
       "tag": "0001_revoke_anon_definer_exec",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791569186695,
+      "tag": "0002_add_instructor_role",
+      "breakpoints": true
     }
   ]
 }
