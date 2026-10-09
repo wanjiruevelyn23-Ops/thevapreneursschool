@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AcceleratorRouteImport } from './routes/accelerator'
+import { Route as AccountStatusRouteImport } from './routes/account-status'
 import { Route as ApplyRouteImport } from './routes/apply'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -20,6 +21,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as WaitingListRouteImport } from './routes/waiting-list'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -44,6 +46,11 @@ const AboutRoute = AboutRouteImport.update({
 const AcceleratorRoute = AcceleratorRouteImport.update({
   id: '/accelerator',
   path: '/accelerator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountStatusRoute = AccountStatusRouteImport.update({
+  id: '/account-status',
+  path: '/account-status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplyRoute = ApplyRouteImport.update({
@@ -81,6 +88,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WaitingListRoute = WaitingListRouteImport.update({
   id: '/waiting-list',
   path: '/waiting-list',
@@ -116,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/accelerator': typeof AcceleratorRoute
+  '/account-status': typeof AccountStatusRoute
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
@@ -123,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/courses': typeof CoursesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/waiting-list': typeof WaitingListRoute
   '/portal': typeof AuthenticatedPortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
@@ -134,6 +148,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/accelerator': typeof AcceleratorRoute
+  '/account-status': typeof AccountStatusRoute
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
@@ -141,6 +156,7 @@ export interface FileRoutesByTo {
   '/courses': typeof CoursesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/waiting-list': typeof WaitingListRoute
   '/portal': typeof AuthenticatedPortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
@@ -154,6 +170,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/accelerator': typeof AcceleratorRoute
+  '/account-status': typeof AccountStatusRoute
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
@@ -161,6 +178,7 @@ export interface FileRoutesById {
   '/courses': typeof CoursesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/waiting-list': typeof WaitingListRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRoute
   '/admin/instructor': typeof AdminInstructorRoute
@@ -174,6 +192,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/accelerator'
+    | '/account-status'
     | '/apply'
     | '/auth'
     | '/checkout'
@@ -181,6 +200,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/verify-email'
     | '/waiting-list'
     | '/portal'
     | '/admin/instructor'
@@ -192,6 +212,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/accelerator'
+    | '/account-status'
     | '/apply'
     | '/auth'
     | '/checkout'
@@ -199,6 +220,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/verify-email'
     | '/waiting-list'
     | '/portal'
     | '/admin/instructor'
@@ -211,6 +233,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/accelerator'
+    | '/account-status'
     | '/apply'
     | '/auth'
     | '/checkout'
@@ -218,6 +241,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/verify-email'
     | '/waiting-list'
     | '/_authenticated/portal'
     | '/admin/instructor'
@@ -231,6 +255,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AcceleratorRoute: typeof AcceleratorRoute
+  AccountStatusRoute: typeof AccountStatusRoute
   ApplyRoute: typeof ApplyRoute
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
@@ -238,6 +263,7 @@ export interface RootRouteChildren {
   CoursesRoute: typeof CoursesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   WaitingListRoute: typeof WaitingListRoute
   AdminInstructorRoute: typeof AdminInstructorRoute
   AdminSubmissionsRoute: typeof AdminSubmissionsRoute
@@ -273,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/accelerator'
       fullPath: '/accelerator'
       preLoaderRoute: typeof AcceleratorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-status': {
+      id: '/account-status'
+      path: '/account-status'
+      fullPath: '/account-status'
+      preLoaderRoute: typeof AccountStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apply': {
@@ -322,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/waiting-list': {
@@ -385,6 +425,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AcceleratorRoute: AcceleratorRoute,
+  AccountStatusRoute: AccountStatusRoute,
   ApplyRoute: ApplyRoute,
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
@@ -392,6 +433,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoursesRoute: CoursesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   WaitingListRoute: WaitingListRoute,
   AdminInstructorRoute: AdminInstructorRoute,
   AdminSubmissionsRoute: AdminSubmissionsRoute,
