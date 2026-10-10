@@ -32,6 +32,7 @@ import { Progress } from "@/components/ui/progress";
 import { Logo } from "@/components/brand/Logo";
 import { Eyebrow } from "@/components/brand/Section";
 import { cn } from "@/lib/utils";
+import { AssignmentSubmit } from "@/components/portal/AssignmentSubmit";
 
 const TITLE = "Student Portal | The VApreneurs School";
 const DESCRIPTION =
@@ -788,6 +789,7 @@ function ModuleView({
                   </ul>
                 </div>
               ) : null}
+              <AssignmentSubmit userId={userId} courseSlug={course.slug} moduleSlug={module.slug} />
             </>
           ) : (
             <p className="text-sm text-muted-foreground">

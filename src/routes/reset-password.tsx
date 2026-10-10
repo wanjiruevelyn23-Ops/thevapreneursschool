@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/brand/Logo";
 
@@ -62,8 +63,8 @@ function ResetPasswordPage() {
             <form onSubmit={submit} className="mt-6 space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-primary">New password</Label>
-                <Input
-                  type="password"
+                <PasswordInput
+                  
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

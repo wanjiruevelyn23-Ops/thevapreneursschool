@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/brand/Section";
 import { cn } from "@/lib/utils";
 import { EnrollmentsPanel } from "@/components/admin/EnrollmentsPanel";
+import { GradingPanel } from "@/components/admin/GradingPanel";
 import { AccountsPanel } from "@/components/admin/AccountsPanel";
 
 const TITLE = "Submissions | The VApreneurs School";
@@ -59,7 +60,7 @@ function formatDate(value: string) {
 function SubmissionsPage() {
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"applications" | "enrollments" | "messages" | "accounts">("accounts");
+  const [tab, setTab] = useState<"applications" | "enrollments" | "messages" | "accounts" | "grading">("accounts");
   const [prefill, setPrefill] = useState<{ email: string; course: string } | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -158,13 +159,18 @@ function SubmissionsPage() {
         <TabButton active={tab === "messages"} onClick={() => setTab("messages")}>
           Contact messages ({messages.length})
         </TabButton>
+        <TabButton active={tab === "grading"} onClick={() => setTab("grading")}>
+          Assignments
+        </TabButton>
         <TabButton active={tab === "accounts"} onClick={() => setTab("accounts")}>
           Accounts
         </TabButton>
       </div>
 
       <div className="mt-6 space-y-4">
-        {tab === "accounts" ? (
+        {tab === "grading" ? (
+          <GradingPanel />
+        ) : tab === "accounts" ? (
           <AccountsPanel />
         ) : tab === "enrollments" ? (
           <EnrollmentsPanel prefill={prefill} />
