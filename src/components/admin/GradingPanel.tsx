@@ -63,7 +63,7 @@ export function GradingPanel() {
   );
 }
 
-function Item({ row, profile, onSaved }: { row: Row; profile?: Profile; onSaved: () => void }) {
+function Item({ row, profile, onSaved }: { row: Row; profile: Profile | undefined; onSaved: () => void }) {
   const [grade, setGrade] = useState(row.grade ?? "");
   const [feedback, setFeedback] = useState(row.feedback ?? "");
   const [busy, setBusy] = useState(false);
