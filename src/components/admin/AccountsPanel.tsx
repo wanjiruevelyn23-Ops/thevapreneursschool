@@ -49,18 +49,6 @@ export function AccountsPanel() {
     void load();
   }
 
-  async function toggleInstructor(a: Account) {
-    setBusy(a.id);
-    const has = a.roles.includes("instructor");
-    const { error } = has
-      ? await supabase.from("user_roles").delete().eq("user_id", a.id).eq("role", "instructor")
-      : await supabase.from("user_roles").insert({ user_id: a.id, role: "instructor" });
-    setBusy(null);
-    if (error) return void toast.error(error.message);
-    toast.success(has ? "Instructor role removed." : "Instructor role granted.");
-    void load();
-  }
-
   const shown = filter === "all" ? rows : rows.filter((r) => r.account_status === filter);
 
   return (
@@ -118,11 +106,6 @@ export function AccountsPanel() {
               {a.account_status === "approved" && !a.roles.includes("admin") && (
                 <Button size="sm" variant="outline" disabled={busy === a.id} onClick={() => void setStatus(a.id, "suspended")}>
                   Suspend
-                </Button>
-              )}
-              {!a.roles.includes("admin") && (
-                <Button size="sm" variant="ghost" disabled={busy === a.id} onClick={() => void toggleInstructor(a)}>
-                  {a.roles.includes("instructor") ? "Remove instructor" : "Make instructor"}
                 </Button>
               )}
             </div>

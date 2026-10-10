@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/brand/Logo";
 import { Eyebrow } from "@/components/brand/Section";
@@ -207,8 +208,8 @@ function AuthPage() {
                     </button>
                   ) : null}
                 </div>
-                <Input
-                  type="password"
+                <PasswordInput
+                  
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
