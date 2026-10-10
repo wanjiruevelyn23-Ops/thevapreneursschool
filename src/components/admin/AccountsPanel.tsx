@@ -45,7 +45,7 @@ export function AccountsPanel() {
     const { error } = await supabase.from("profiles").update({ account_status }).eq("id", id);
     setBusy(null);
     if (error) return void toast.error(error.message);
-    toast.success(`Account ${LABEL[account_status].toLowerCase()}.`);
+    toast.success(`Account ${(LABEL[account_status] ?? account_status).toLowerCase()}.`);
     void load();
   }
 
