@@ -52,6 +52,34 @@ function AuthPage() {
   async function handleGoogle() {
     setError(null);
     rememberChoice();
+
+    // The managed Google flow needs Lovable's OAuth proxy (/~oauth) in front of
+    // the domain. On other hosts that path serves the app's 404 page, so probe
+    // it first and tell the person plainly instead of landing them on a 404.
+    const onLovableDomain =
+      window.location.hostname.endsWith(".lovable.app") ||
+      window.self !== window.top ||
+      window.location.hostname === "localhost";
+    if (!onLovableDomain) {
+      const probe = await fetch(
+        `/~oauth/initiate?provider=google&redirect_uri=${encodeURIComponent(
+          window.location.origin + "/auth",
+        )}`,
+        { redirect: "manual" },
+      ).catch(() => null);
+      const proxied =
+        !probe ||
+        probe.type === "opaqueredirect" ||
+        probe.status === 0 ||
+        probe.status === 302;
+      if (!proxied) {
+        setError(
+          "Google sign-in isn't available on this address yet. Please sign in with your email and password, or open the school at thevapreneursschool.lovable.app to use Google.",
+        );
+        return;
+      }
+    }
+
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin + "/auth",
     });

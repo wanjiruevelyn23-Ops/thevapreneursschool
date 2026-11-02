@@ -36,9 +36,7 @@ function WaitingListPage() {
     ? getCourse(search.course)
     : undefined;
 
-  const waitlistCourses = COURSES.filter(
-    (course) => course.availability === "waiting-list",
-  );
+  const waitlistCourses = COURSES;
 
   const [courseSlug, setCourseSlug] = useState(search.course ?? "");
   const [name, setName] = useState("");

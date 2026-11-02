@@ -55,7 +55,7 @@ function AcceleratorPage() {
             <div className="flex flex-col">
               <span className="text-[10px] font-bold uppercase tracking-wider text-accent">Next Kick-off</span>
               <span className="text-lg font-bold text-white mt-0.5 flex items-center gap-1.5">
-                <CalendarDays className="h-4 w-4 text-accent" /> October 28th
+                <CalendarDays className="h-4 w-4 text-accent" /> November 18th
               </span>
             </div>
             <span className="text-[10px] font-bold px-2 py-1 bg-accent text-accent-foreground rounded-md uppercase tracking-wide">
@@ -156,7 +156,7 @@ function AcceleratorPage() {
               <div className="flex flex-col sm:items-end">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Commences</span>
                 <span className="text-sm font-semibold text-primary mt-0.5">
-                  October 28th
+                  November 18th
                 </span>
               </div>
             </div>
