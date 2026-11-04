@@ -101,7 +101,7 @@ function AcceleratorPage() {
           {ACCELERATOR.pillars.map((pillar) => (
             <article key={pillar.number} className="surface-card p-6">
               <span className="font-mono text-xs text-accent-deep">
-                Pillar 0{pillar.number}
+                Pillar {String(pillar.number).padStart(2, "0")}
               </span>
               <h3 className="mt-3 text-xl text-primary">{pillar.title}</h3>
               <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
