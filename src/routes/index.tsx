@@ -79,7 +79,7 @@ function Index() {
               track.
             </p>
             <div className="mt-6 grid gap-3 border-t border-primary-foreground/15 pt-5 text-sm text-primary-foreground/75">
-              <p>4 pillars: branding, positioning, client acquisition, pricing</p>
+              <p>10 pillars: branding, positioning, client acquisition, pricing and more</p>
               <p>7 courses across 3 waypoints</p>
               <p>Portfolio-ready deliverable in every module</p>
             </div>

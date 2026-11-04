@@ -997,7 +997,9 @@ function AcceleratorView() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {ACCELERATOR.pillars.map((pillar) => (
           <div key={pillar.number} className="surface-card p-5">
-            <span className="font-mono text-xs text-accent-deep">Pillar 0{pillar.number}</span>
+            <span className="font-mono text-xs text-accent-deep">
+              Pillar {String(pillar.number).padStart(2, "0")}
+            </span>
             <p className="mt-2 font-display text-base font-semibold text-primary">{pillar.title}</p>
             <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{pillar.text}</p>
           </div>
