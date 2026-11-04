@@ -94,14 +94,14 @@ function AcceleratorPage() {
       <section className="mx-auto max-w-6xl px-5 py-16">
         <SectionHeading
           eyebrow="Curriculum"
-          title="Seven pillars over ten days"
+          title="Ten pillars over ten days"
           intro="Each pillar is taught live, then applied to your own business before the next one starts."
         />
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           {ACCELERATOR.pillars.map((pillar) => (
             <article key={pillar.number} className="surface-card p-6">
               <span className="font-mono text-xs text-accent-deep">
-                Pillar 0{pillar.number}
+                Pillar {String(pillar.number).padStart(2, "0")}
               </span>
               <h3 className="mt-3 text-xl text-primary">{pillar.title}</h3>
               <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
