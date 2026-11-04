@@ -94,7 +94,7 @@ function AcceleratorPage() {
       <section className="mx-auto max-w-6xl px-5 py-16">
         <SectionHeading
           eyebrow="Curriculum"
-          title="Seven pillars over ten days"
+          title="Ten pillars over ten days"
           intro="Each pillar is taught live, then applied to your own business before the next one starts."
         />
         <div className="mt-10 grid gap-6 md:grid-cols-2">
