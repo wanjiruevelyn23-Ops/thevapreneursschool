@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - robots.txt and sitemap.xml are server routes that build URLs from the request host — the site is served on more than one domain, and each must point at itself.
+- Accelerator learning modules live in a private LMS-only course catalog entry, use `module_content`, and are exposed to students only through active-enrollment-filtered reads; lesson video embeds must be provider-allowlisted.
