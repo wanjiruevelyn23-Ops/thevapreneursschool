@@ -29,6 +29,13 @@
       "when": 1791569346706,
       "tag": "0003_approval_gate_and_lms",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794306394932,
+      "tag": "0004_accelerator_video_content",
+      "breakpoints": true
     }
   ]
 }
