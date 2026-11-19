@@ -36,6 +36,13 @@
       "when": 1794306394932,
       "tag": "0004_accelerator_video_content",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795100676272,
+      "tag": "0005_validate_public_form_inserts",
+      "breakpoints": true
     }
   ]
 }
