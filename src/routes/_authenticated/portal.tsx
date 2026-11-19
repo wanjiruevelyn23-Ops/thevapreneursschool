@@ -197,6 +197,9 @@ function PortalPage() {
                 status: e.enrollment_status,
                 payment: e.payment_status,
               }))}
+              others={allCourses.filter(
+                (c) => !enrolledSlugs.has(c.slug) && !waiting.some((w) => w.course_slug === c.slug),
+              )}
               rows={rows}
               availability={availability}
               onOpen={(slug) => setOpenCourse(slug)}
@@ -319,11 +322,13 @@ function lessonStates(course: Course, rows: Rows, availability: Availability): L
 function MyCourses({
   courses,
   waiting,
+  others,
   rows,
   availability,
   onOpen,
 }: {
   courses: Course[];
+  others: Course[];
   waiting: { slug: string; title: string; status: string; payment: string }[];
   rows: Rows;
   availability: Availability;
@@ -393,6 +398,30 @@ function MyCourses({
           </div>
         ))}
       </div>
+
+      {others.length ? (
+        <section className="mt-14 border-t border-border pt-8">
+          <Eyebrow>Explore more</Eyebrow>
+          <h2 className="mt-3 text-2xl text-primary">Other courses</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Not part of your enrolment. Open one to read its syllabus and apply.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {others.map((c) => (
+              <Link
+                key={c.slug}
+                to={c.slug === "accelerator" ? "/accelerator" : "/syllabus/$courseSlug"}
+                params={{ courseSlug: c.slug }}
+                className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-accent/60"
+              >
+                <p className="eyebrow text-muted-foreground">{c.eyebrow}</p>
+                <p className="mt-1.5 font-display text-base font-semibold text-primary">{c.title}</p>
+                <p className="mt-2 text-sm text-accent-deep">View course →</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }
@@ -638,7 +667,16 @@ function ModuleView({
 
   // Record that the student opened this lesson (ignored by the database if not released).
   useEffect(() => {
-    void supabase.rpc("touch_module", { _course_slug: course.slug, _module_slug: module.slug });
+    void supabase
+      .rpc("touch_module", { _course_slug: course.slug, _module_slug: module.slug })
+      .then(({ error }) => {
+        if (!error) {
+          window.__lovableEvents?.track?.("project.lesson_accessed", {
+            course_slug: course.slug,
+            module_slug: module.slug,
+          });
+        }
+      });
   }, [course.slug, module.slug]);
   const embed = videoEmbedUrl(module.videoUrl);
   const unit = course.category === "cohort" ? "Day" : "Module";
@@ -653,6 +691,18 @@ function ModuleView({
       {
         onSuccess: (res) => {
           setResult(res);
+          window.__lovableEvents?.track?.("project.quiz_completed", {
+            course_slug: course.slug,
+            module_slug: module.slug,
+            ...(res.score != null ? { score: res.score } : {}),
+            ...(res.total != null ? { total: res.total } : {}),
+          });
+          if (res.completed) {
+            window.__lovableEvents?.track?.("project.module_completed", {
+              course_slug: course.slug,
+              module_slug: module.slug,
+            });
+          }
           if (res.completed) toast.success("Quiz complete — well done!");
           else toast.success("Answers submitted.");
         },

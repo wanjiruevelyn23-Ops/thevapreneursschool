@@ -68,6 +68,11 @@ export function AssignmentSubmit({
     });
     setBusy(false);
     if (error) return void toast.error(error.message);
+    window.__lovableEvents?.track?.("project.assignment_submitted", {
+      course_slug: courseSlug,
+      module_slug: moduleSlug,
+      has_file: Boolean(file_path),
+    });
     toast.success("Assignment submitted. Your instructor will review it.");
     setText("");
     setFile(null);

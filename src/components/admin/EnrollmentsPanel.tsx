@@ -68,16 +68,25 @@ export function EnrollmentsPanel({ prefill }: { prefill?: { email: string; cours
       toast.error(error.message);
       return;
     }
+    window.__lovableEvents?.track?.("project.enrollment_approved", { course_slug: course });
     toast.success("Enrolment approved. Mark it paid and active to unlock content.");
     setEmail("");
     void load();
   }
 
   async function update(id: string, patch: Partial<Row>) {
-    const { error } = await supabase.from("enrollments").update(patch).eq("id", id);
+    const { data, error } = await supabase
+      .from("enrollments")
+      .update(patch)
+      .eq("id", id)
+      .select("course_slug")
+      .maybeSingle();
     if (error) {
       toast.error(error.message);
       return;
+    }
+    if (patch.access_status === "active" && data) {
+      window.__lovableEvents?.track?.("project.enrollment_activated", { course_slug: data.course_slug });
     }
     toast.success("Enrolment updated.");
     void load();

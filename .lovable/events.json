@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "events": {
+    "project.assignment_submitted": {
+      "event_schema_version": 1,
+      "description": "A student handed in an assignment.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug",
+          "module_slug",
+          "has_file"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          },
+          "module_slug": {
+            "type": "string"
+          },
+          "has_file": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "project.enrollment_activated": {
+      "event_schema_version": 1,
+      "description": "The instructor set a student's course access to Active.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "project.enrollment_approved": {
+      "event_schema_version": 1,
+      "description": "The instructor approved a student's enrolment for a course.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "project.lesson_accessed": {
+      "event_schema_version": 1,
+      "description": "A student opened a released lesson in the portal.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug",
+          "module_slug"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          },
+          "module_slug": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "project.module_completed": {
+      "event_schema_version": 1,
+      "description": "A student's quiz submission marked a module/day complete.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug",
+          "module_slug"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          },
+          "module_slug": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "project.quiz_completed": {
+      "event_schema_version": 1,
+      "description": "A student submitted a lesson quiz and it was graded.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug",
+          "module_slug"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          },
+          "module_slug": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}
