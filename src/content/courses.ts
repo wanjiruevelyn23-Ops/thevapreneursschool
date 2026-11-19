@@ -395,3 +395,34 @@ export const ACCELERATOR = {
     "You want structure, accountability and peers for 10 focused days",
   ],
 };
+
+/**
+ * The Accelerator as a portal course: ten release-gated days. Not part of COURSES,
+ * so it never appears in public course listings; all day content comes from the
+ * instructor studio (module_content), released on the instructor's schedule.
+ */
+export const ACCELERATOR_LMS_COURSE: Course = {
+  slug: "accelerator",
+  title: "10-Day VA Positioning & Branding Accelerator",
+  waypoint: 2,
+  category: "cohort",
+  eyebrow: "Waypoint 2 · Position yourself",
+  tagline: "Ten pillars over ten days.",
+  description:
+    "A cohort-based programme that turns your skills into a positioned, priced and pitch-ready VA business — one pillar a day, with a video lesson, slides, an assignment and a quiz for each day.",
+  outcomes: [],
+  price: ACCELERATOR.price,
+  availability: "available",
+  coaching: true,
+  modules: ACCELERATOR.pillars.map((pillar, index) => ({
+    slug: `day-${index + 1}`,
+    number: index + 1,
+    title: `Day ${index + 1}: ${pillar.title}`,
+    summary: pillar.text,
+    lesson: [],
+    quiz: [],
+  })),
+};
+
+/** Every course the portal and instructor studio know about. */
+export const LMS_COURSES: Course[] = [ACCELERATOR_LMS_COURSE, ...COURSES];

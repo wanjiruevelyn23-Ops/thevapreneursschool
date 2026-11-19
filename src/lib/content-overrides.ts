@@ -8,7 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { COURSES } from "@/content/courses";
+import { LMS_COURSES } from "@/content/courses";
 import type {
   Course,
   CourseModule,
@@ -16,6 +16,7 @@ import type {
   ModuleAssignment,
   ModuleNotes,
   ModuleResource,
+  QuizFeedback,
   QuizQuestion,
 } from "@/content/types";
 
@@ -31,6 +32,10 @@ export type ModuleContentRow = {
   quiz: QuizQuestion[];
   assignment: ModuleAssignment | null;
   resources: ModuleResource[];
+  slides: ModuleResource[];
+  video_url: string | null;
+  release_at: string | null;
+  quiz_feedback: QuizFeedback;
   published: boolean;
   updated_at: string;
 };
@@ -54,6 +59,10 @@ function toRow(raw: Record<string, unknown>): ModuleContentRow {
     quiz: (raw['quiz'] as QuizQuestion[] | null) ?? [],
     assignment: (raw['assignment'] as ModuleAssignment | null) ?? null,
     resources: (raw['resources'] as ModuleResource[] | null) ?? [],
+    slides: (raw['slides'] as ModuleResource[] | null) ?? [],
+    video_url: (raw['video_url'] as string | null) ?? null,
+    release_at: (raw['release_at'] as string | null) ?? null,
+    quiz_feedback: ((raw['quiz_feedback'] as QuizFeedback | null) ?? "full"),
     published: Boolean(raw['published']),
 
     updated_at: String(raw['updated_at'] ?? ""),
@@ -80,13 +89,16 @@ export function mergeModule(
   const assignment = row.assignment ?? base.assignment;
   if (assignment) merged.assignment = assignment;
   if (row.resources.length) merged.resources = row.resources;
+  if (row.slides.length) merged.slides = row.slides;
+  if (row.video_url) merged.videoUrl = row.video_url;
+  if (row.release_at) merged.releaseAt = row.release_at;
+  merged.quizFeedback = row.quiz_feedback;
   return merged;
 
 }
 
 export function mergeCourses(overrides: OverrideMap): Course[] {
-  if (overrides.size === 0) return COURSES;
-  return COURSES.map((course) => ({
+  return LMS_COURSES.map((course) => ({
     ...course,
     modules: course.modules.map((module) =>
       mergeModule(module, overrides.get(overrideKey(course.slug, module.slug))),
@@ -146,12 +158,23 @@ export function useCourses(userId: string | undefined) {
 export function useStudentCourses(userId: string | undefined) {
   const [rows, setRows] = useState<ModuleContentRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [upcoming, setUpcoming] = useState<Map<string, string>>(new Map());
   const load = useCallback(async () => {
-    const { data, error } = await supabase.rpc("student_modules");
-    if (!error && data) {
+    const [content, schedule] = await Promise.all([
+      supabase.rpc("student_modules_v2"),
+      supabase.rpc("student_schedule"),
+    ]);
+    if (!content.error && content.data) {
       setRows(
-        (data as unknown as Record<string, unknown>[]).map((raw) =>
+        (content.data as unknown as Record<string, unknown>[]).map((raw) =>
           toRow({ ...raw, id: `${raw['course_slug']}::${raw['module_slug']}`, published: true }),
+        ),
+      );
+    }
+    if (!schedule.error && schedule.data) {
+      setUpcoming(
+        new Map(
+          schedule.data.map((r) => [overrideKey(r.course_slug, r.module_slug), r.release_at]),
         ),
       );
     }
@@ -171,12 +194,17 @@ export function useStudentCourses(userId: string | undefined) {
     for (const row of rows) map.set(overrideKey(row.course_slug, row.module_slug), row);
     return mergeCourses(map);
   }, [rows]);
-  return { courses, loading, reload: load };
+  /** Keys of modules whose released content the student actually received. */
+  const released = useMemo(
+    () => new Set(rows.map((r) => overrideKey(r.course_slug, r.module_slug))),
+    [rows],
+  );
+  return { courses, released, upcoming, loading, reload: load };
 }
 
 /**
  * Instructor uploads live in a private bucket, so downloads go through a
- * short-lived signed link. Any signed-in student may open module files.
+ * short-lived signed link. Only enrolled students of released lessons may open them.
  */
 export async function getModuleFileUrl(path: string): Promise<string | null> {
   const { data } = await supabase.storage.from("module-files").createSignedUrl(path, 60 * 10);

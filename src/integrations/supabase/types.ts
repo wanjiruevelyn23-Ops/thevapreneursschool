@@ -233,7 +233,10 @@ export type Database = {
           notes: Json | null
           published: boolean
           quiz: Json
+          quiz_feedback: string
+          release_at: string | null
           resources: Json
+          slides: Json
           summary: string | null
           title: string | null
           updated_at: string
@@ -251,7 +254,10 @@ export type Database = {
           notes?: Json | null
           published?: boolean
           quiz?: Json
+          quiz_feedback?: string
+          release_at?: string | null
           resources?: Json
+          slides?: Json
           summary?: string | null
           title?: string | null
           updated_at?: string
@@ -269,7 +275,10 @@ export type Database = {
           notes?: Json | null
           published?: boolean
           quiz?: Json
+          quiz_feedback?: string
+          release_at?: string | null
           resources?: Json
+          slides?: Json
           summary?: string | null
           title?: string | null
           updated_at?: string
@@ -449,6 +458,10 @@ export type Database = {
         Args: { _course_slug: string; _user_id: string }
         Returns: boolean
       }
+      module_available: {
+        Args: { _course_slug: string; _module_slug: string }
+        Returns: boolean
+      }
       my_access: { Args: never; Returns: Json }
       my_submissions: {
         Args: never
@@ -479,6 +492,25 @@ export type Database = {
           title: string
         }[]
       }
+      student_modules_v2: {
+        Args: never
+        Returns: {
+          assignment: Json
+          course_slug: string
+          duration: string
+          lesson: Json
+          module_slug: string
+          notes: Json
+          quiz: Json
+          quiz_feedback: string
+          release_at: string
+          resources: Json
+          slides: Json
+          summary: string
+          title: string
+          video_url: string
+        }[]
+      }
       student_modules_with_video: {
         Args: never
         Returns: {
@@ -493,6 +525,15 @@ export type Database = {
           summary: string
           title: string
           video_url: string
+        }[]
+      }
+      student_schedule: {
+        Args: never
+        Returns: {
+          course_slug: string
+          module_slug: string
+          release_at: string
+          title: string
         }[]
       }
       submit_module: {

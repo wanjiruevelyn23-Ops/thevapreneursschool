@@ -61,8 +61,10 @@ export function useProgress(userId: string | undefined) {
 }
 
 export type SubmitResult = {
-  score: number;
-  total: number;
+  /** Null when the instructor hides quiz scores. */
+  score: number | null;
+  total: number | null;
+  feedback?: "full" | "score" | "none";
   completed: boolean;
   key: Record<string, { answerIndex: number; explanation?: string | null }>;
 };

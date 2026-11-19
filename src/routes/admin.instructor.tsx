@@ -5,15 +5,17 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { COURSES } from "@/content/courses";
+import { LMS_COURSES as COURSES } from "@/content/courses";
 import type {
   CourseModule,
   LessonBlock,
   ModuleAssignment,
   ModuleNotes,
   ModuleResource,
+  QuizFeedback,
   QuizQuestion,
 } from "@/content/types";
+import { videoEmbedUrl } from "@/lib/video";
 import {
   formatFileSize,
   getModuleFileUrl,
@@ -57,7 +59,19 @@ type Draft = {
   quiz: QuizQuestion[];
   assignment: ModuleAssignment;
   resources: ModuleResource[];
+  slides: ModuleResource[];
+  videoUrl: string;
+  /** datetime-local value in the instructor's timezone, "" = open on publish. */
+  releaseAt: string;
+  quizFeedback: QuizFeedback;
 };
+
+function toLocalInput(iso: string | null | undefined) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 
 const emptyNotes = (title: string): ModuleNotes => ({
@@ -131,7 +145,8 @@ function InstructorPage() {
     );
   }
 
-  async function save(publish: boolean) {
+  /** publish: true = go live, false = take offline, undefined = keep current state. */
+  async function save(publish?: boolean) {
     if (!draft || !builtIn) return;
     setSaving(true);
     const payload = {
@@ -147,7 +162,11 @@ function InstructorPage() {
         ? draft.assignment
         : null,
       resources: draft.resources,
-      published: publish,
+      slides: draft.slides,
+      video_url: draft.videoUrl.trim() || null,
+      release_at: draft.releaseAt ? new Date(draft.releaseAt).toISOString() : null,
+      quiz_feedback: draft.quizFeedback,
+      published: publish ?? stored?.published ?? false,
 
       updated_by: user!.id,
     };
@@ -159,7 +178,15 @@ function InstructorPage() {
       toast.error("Could not save", { description: error.message });
       return;
     }
-    toast.success(publish ? "Published to students" : "Draft saved");
+    toast.success(
+      publish === true
+        ? draft.releaseAt && new Date(draft.releaseAt) > new Date()
+          ? `Scheduled — opens ${new Date(draft.releaseAt).toLocaleString()}`
+          : "Published to students"
+        : publish === false
+          ? "Unpublished — hidden from students"
+          : "Changes saved",
+    );
     await reload();
   }
 
@@ -277,9 +304,11 @@ function InstructorPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             {stored
               ? stored.published
-                ? "Live for students. Any change you publish replaces what they see."
-                : "Saved as a draft — students still see the previous version."
-              : "No instructor version yet. Write it below, then publish."}
+                ? stored.release_at && new Date(stored.release_at) > new Date()
+                  ? `Scheduled — students get it on ${new Date(stored.release_at).toLocaleString()}.`
+                  : "Live for students. Saved changes show to them straight away."
+                : "Draft — hidden from students until you publish."
+              : "No instructor version yet. Write it below, then save or publish."}
             {loadingContent ? " Loading saved content…" : ""}
           </p>
 
@@ -299,6 +328,17 @@ function InstructorPage() {
                     onChange={(e) => setDraft({ ...draft, duration: e.target.value })}
                   />
                 </Field>
+                <Field label="Release date & time (optional)">
+                  <Input
+                    type="datetime-local"
+                    value={draft.releaseAt}
+                    onChange={(e) => setDraft({ ...draft, releaseAt: e.target.value })}
+                  />
+                </Field>
+                <p className="self-end pb-2 text-xs text-muted-foreground">
+                  Leave empty to open as soon as you publish. Until this time, students see the
+                  lesson as Upcoming and can't open it.
+                </p>
                 <div className="sm:col-span-2">
                   <Field label="Short summary">
                     <Textarea
@@ -310,15 +350,61 @@ function InstructorPage() {
                 </div>
               </div>
 
-              <Tabs defaultValue="notes" className="mt-8">
-                <TabsList>
+              <Tabs defaultValue="video" className="mt-8">
+                <TabsList className="h-auto flex-wrap">
+                  <TabsTrigger value="video">Video</TabsTrigger>
+                  <TabsTrigger value="slides">Slides</TabsTrigger>
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                   <TabsTrigger value="lesson">Lesson</TabsTrigger>
                   <TabsTrigger value="quiz">Quiz</TabsTrigger>
                   <TabsTrigger value="assignment">Assignment</TabsTrigger>
-                  <TabsTrigger value="files">Downloads</TabsTrigger>
+                  <TabsTrigger value="files">Resources</TabsTrigger>
 
                 </TabsList>
+
+                <TabsContent value="video" className="mt-6 space-y-4">
+                  <Field label="Video link">
+                    <Input
+                      value={draft.videoUrl}
+                      placeholder="https://www.youtube.com/watch?v=… (YouTube, Vimeo, Loom or Google Drive)"
+                      onChange={(e) => setDraft({ ...draft, videoUrl: e.target.value })}
+                    />
+                  </Field>
+                  {draft.videoUrl.trim() ? (
+                    videoEmbedUrl(draft.videoUrl) ? (
+                      <div className="aspect-video overflow-hidden rounded-lg border bg-muted">
+                        <iframe
+                          src={videoEmbedUrl(draft.videoUrl) ?? undefined}
+                          title="Video preview"
+                          className="h-full w-full"
+                          allow="fullscreen; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-sm text-destructive">
+                        This link can't be played inside the portal. Use a YouTube, Vimeo, Loom or
+                        Google Drive (shared "anyone with the link") video link.
+                      </p>
+                    )
+                  ) : (
+                    <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+                      No video yet. Upload your video to YouTube (unlisted), Vimeo, Loom or Google
+                      Drive and paste the link here. Students see a placeholder until then.
+                    </p>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="slides" className="mt-6">
+                  <FileManager
+                    courseSlug={courseSlug}
+                    moduleSlug={moduleSlug}
+                    label="Presentation slides"
+                    empty="No slides yet. Upload a PDF or PowerPoint deck (up to 50 MB)."
+                    resources={draft.slides}
+                    onChange={(slides) => setDraft({ ...draft, slides })}
+                  />
+                </TabsContent>
 
                 <TabsContent value="notes" className="mt-6 space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -366,7 +452,20 @@ function InstructorPage() {
                   />
                 </TabsContent>
 
-                <TabsContent value="quiz" className="mt-6">
+                <TabsContent value="quiz" className="mt-6 space-y-4">
+                  <Field label="After submitting, students see">
+                    <select
+                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                      value={draft.quizFeedback}
+                      onChange={(e) =>
+                        setDraft({ ...draft, quizFeedback: e.target.value as QuizFeedback })
+                      }
+                    >
+                      <option value="full">Their score and the correct answers</option>
+                      <option value="score">Their score only</option>
+                      <option value="none">Nothing — just "submitted"</option>
+                    </select>
+                  </Field>
                   <QuizEditor
                     quiz={draft.quiz}
                     onChange={(quiz) => setDraft({ ...draft, quiz })}
@@ -377,6 +476,8 @@ function InstructorPage() {
                   <FileManager
                     courseSlug={courseSlug}
                     moduleSlug={moduleSlug}
+                    label="Lesson resources"
+                    empty="No resources yet. Upload extra reading, templates or documents — up to 50 MB each."
                     resources={draft.resources}
                     onChange={(resources) => setDraft({ ...draft, resources })}
                   />
@@ -453,17 +554,26 @@ function InstructorPage() {
               </Tabs>
 
               <div className="sticky bottom-0 mt-10 -mx-5 flex flex-wrap items-center gap-3 border-t bg-background/95 px-5 py-4 backdrop-blur lg:-mx-10 lg:px-10">
-                <Button variant="brand" onClick={() => save(true)} disabled={saving}>
-                  {saving ? (
-                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Check className="mr-1.5 h-4 w-4" />
-                  )}
-                  Publish to students
+                {!stored?.published ? (
+                  <Button variant="brand" onClick={() => save(true)} disabled={saving}>
+                    {saving ? (
+                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="mr-1.5 h-4 w-4" />
+                    )}
+                    {draft.releaseAt && new Date(draft.releaseAt) > new Date()
+                      ? "Schedule release"
+                      : "Publish to students"}
+                  </Button>
+                ) : null}
+                <Button variant="outline" onClick={() => save()} disabled={saving}>
+                  <Save className="mr-1.5 h-4 w-4" /> {stored?.published ? "Save changes" : "Save draft"}
                 </Button>
-                <Button variant="outline" onClick={() => save(false)} disabled={saving}>
-                  <Save className="mr-1.5 h-4 w-4" /> Save draft
-                </Button>
+                {stored?.published ? (
+                  <Button variant="ghost" onClick={() => save(false)} disabled={saving}>
+                    Unpublish
+                  </Button>
+                ) : null}
                 <span className="text-xs text-muted-foreground">
                   {stored?.updated_at
                     ? `Last saved ${new Date(stored.updated_at).toLocaleString()}`
@@ -491,6 +601,10 @@ function fromSources(
     notes: stored?.notes ?? builtIn.notes ?? emptyNotes(builtIn.title),
     assignment: stored?.assignment ?? builtIn.assignment ?? emptyAssignment(),
     resources: stored?.resources ?? builtIn.resources ?? [],
+    slides: stored?.slides ?? builtIn.slides ?? [],
+    videoUrl: stored?.video_url ?? builtIn.videoUrl ?? "",
+    releaseAt: toLocalInput(stored?.release_at),
+    quizFeedback: stored?.quiz_feedback ?? "full",
   };
 }
 
@@ -500,9 +614,13 @@ function FileManager({
   moduleSlug,
   resources,
   onChange,
+  label,
+  empty,
 }: {
   courseSlug: string;
   moduleSlug: string;
+  label: string;
+  empty: string;
   resources: ModuleResource[];
   onChange: (next: ModuleResource[]) => void;
 }) {
@@ -554,7 +672,7 @@ function FileManager({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Label className="font-mono text-[11px] tracking-[0.12em] uppercase">
-          Student downloads
+          {label}
         </Label>
         <Button
           type="button"
@@ -581,8 +699,7 @@ function FileManager({
 
       {resources.length === 0 ? (
         <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-          No files attached yet. Upload a PDF, Word document or slide deck — up to 50 MB each — and
-          students will see it on the module's Notes tab once you publish.
+          {empty}
         </p>
       ) : (
         <ul className="space-y-2">
@@ -729,6 +846,17 @@ function QuizEditor({
               Select the radio button next to the correct answer.
             </p>
           </div>
+          <Field label="Marks for a correct answer">
+            <Input
+              type="number"
+              min={1}
+              className="w-28"
+              value={question.marks ?? 1}
+              onChange={(e) =>
+                update(index, { ...question, marks: Math.max(1, Number(e.target.value) || 1) })
+              }
+            />
+          </Field>
           <Field label="Explanation shown after answering (optional)">
             <Textarea
               rows={2}

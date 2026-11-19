@@ -1,12 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BookOpen,
   Map as MapIcon,
-  Rocket,
-  LifeBuoy,
   Settings as SettingsIcon,
+  CalendarClock,
+  PlayCircle,
   Lock,
   Check,
   ArrowLeft,
@@ -24,8 +24,13 @@ import {
   courseState,
   type SubmitResult,
 } from "@/lib/lms";
-import { TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
-import { useStudentCourses, getModuleFileUrl, formatFileSize } from "@/lib/content-overrides";
+import {
+  useStudentCourses,
+  getModuleFileUrl,
+  formatFileSize,
+  overrideKey,
+} from "@/lib/content-overrides";
+import { videoEmbedUrl } from "@/lib/video";
 import type { Course, CourseModule, LessonBlock, ModuleResource } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -51,26 +56,30 @@ export const Route = createFileRoute("/_authenticated/portal")({
   component: PortalPage,
 });
 
-type NavKey = "courses" | "route-map" | "accelerator" | "toolkit" | "settings";
+type NavKey = "courses" | "route-map" | "settings";
 
 const NAV: { key: NavKey; label: string; icon: typeof BookOpen }[] = [
   { key: "courses", label: "My courses", icon: BookOpen },
-  { key: "route-map", label: "My route map", icon: MapIcon },
-  { key: "accelerator", label: "Accelerator", icon: Rocket },
-  { key: "toolkit", label: "Sustain toolkit", icon: LifeBuoy },
+  { key: "route-map", label: "My progress", icon: MapIcon },
   { key: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
+/** Per-course lesson availability, as decided by the database. */
+export type Availability = {
+  released: Set<string>;
+  upcoming: Map<string, string>;
+};
+
 function PortalPage() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const [nav, setNav] = useState<NavKey>("courses");
   const [openCourse, setOpenCourse] = useState<string | null>(null);
   const [openModule, setOpenModule] = useState<string | null>(null);
 
   const enrollments = useEnrollments(user?.id);
   const progress = useProgress(user?.id);
-  const { courses: allCourses } = useStudentCourses(user?.id);
+  const { courses: allCourses, released, upcoming } = useStudentCourses(user?.id);
+  const availability: Availability = { released, upcoming };
 
   if (loading) {
     return <Shell><p className="text-sm text-muted-foreground">Loading your portal…</p></Shell>;
@@ -120,27 +129,17 @@ function PortalPage() {
   const enrolledSlugs = new Set(
     enrolled.filter((e) => e.access_status === "active").map((e) => e.course_slug),
   );
-  const statusBySlug = new Map(enrolled.map((e) => [e.course_slug, e.enrollment_status]));
   const rows = progress.data ?? [];
-
-  function requestAccess(slug: string, title: string) {
-    const status = statusBySlug.get(slug);
-    if (status === "pending" || status === "approved") {
-      toast.info(`Your enrolment in ${title} is awaiting approval or payment.`);
-      return;
-    }
-    if (status === "suspended" || status === "cancelled") {
-      toast.error(`Access to ${title} is paused. Contact info@thevapreneursschool.com.`);
-      return;
-    }
-    void navigate({ to: "/apply", search: { course: slug, track: "self" } });
-  }
-
+  // Only courses this student is actually enrolled in ever reach the dashboard.
+  const myCourses = allCourses.filter((course) => enrolledSlugs.has(course.slug));
+  const waiting = enrolled.filter(
+    (e) => e.access_status !== "active" && e.enrollment_status !== "cancelled",
+  );
 
 
 
   const activeCourse = openCourse
-    ? allCourses.find((course) => course.slug === openCourse)
+    ? myCourses.find((course) => course.slug === openCourse)
     : undefined;
   const activeModule =
     activeCourse && openModule
@@ -192,11 +191,16 @@ function PortalPage() {
         <div className="mx-auto max-w-4xl">
           {nav === "courses" && !activeCourse ? (
             <MyCourses
-              courses={allCourses}
-              enrolledSlugs={enrolledSlugs}
+              courses={myCourses}
+              waiting={waiting.map((e) => ({
+                slug: e.course_slug,
+                title: allCourses.find((c) => c.slug === e.course_slug)?.title ?? e.course_slug,
+                status: e.enrollment_status,
+                payment: e.payment_status,
+              }))}
               rows={rows}
+              availability={availability}
               onOpen={(slug) => setOpenCourse(slug)}
-              onEnrol={requestAccess}
             />
           ) : null}
 
@@ -204,6 +208,7 @@ function PortalPage() {
             <CourseView
               course={activeCourse}
               rows={rows}
+              availability={availability}
               onBack={() => setOpenCourse(null)}
               onOpenModule={(slug) => setOpenModule(slug)}
             />
@@ -219,19 +224,7 @@ function PortalPage() {
           ) : null}
 
           {nav === "route-map" ? (
-            <RouteMapView courses={allCourses} rows={rows} enrolledSlugs={enrolledSlugs} />
-          ) : null}
-          {nav === "accelerator" ? <AcceleratorView /> : null}
-          {nav === "toolkit" ? (
-            <ToolkitView
-              rows={rows}
-              enrolledSlugs={enrolledSlugs}
-              onOpen={(slug) => {
-                setNav("courses");
-                setOpenCourse(slug);
-              }}
-              onEnrol={requestAccess}
-            />
+            <RouteMapView courses={myCourses} rows={rows} />
           ) : null}
           {nav === "settings" ? <SettingsView email={user.email ?? ""} userId={user.id} /> : null}
         </div>
@@ -285,141 +278,142 @@ function LockedCard({
   );
 }
 
-function CourseRow({
-  course,
-  rows,
-  isEnrolled,
-  onOpen,
-  onEnrol,
-}: {
-  course: Course;
-  rows: Rows;
-  isEnrolled: boolean;
-  onOpen: (slug: string) => void;
-  onEnrol: (slug: string, title: string) => void;
-}) {
+/** Release-gated courses open lessons on the instructor's schedule, not one-by-one. */
+const isScheduled = (course: Course) => course.category === "cohort";
+
+type LessonState = {
+  module: CourseModule;
+  isCompleted: boolean;
+  isUnlocked: boolean;
+  label: string;
+};
+
+function lessonStates(course: Course, rows: Rows, availability: Availability): LessonState[] {
   const state = courseState(course, rows);
-  return (
-    <div className="surface-card p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="eyebrow text-accent-deep">Waypoint {course.waypoint} · {course.category === "skill" ? "Skill track" : "Sustain toolkit"}</p>
-          <h3 className="mt-2 font-display text-lg font-semibold text-primary">{course.title}</h3>
-        </div>
-        {isEnrolled ? (
-          <Button size="sm" variant="brand" onClick={() => onOpen(course.slug)}>
-            {state.completedCount ? "Continue" : "Start"}
-          </Button>
-        ) : (
-          <Button size="sm" variant="outline" onClick={() => onEnrol(course.slug, course.title)}>
-            Enrol
-          </Button>
-        )}
-      </div>
-      <div className="mt-4 flex items-center gap-3">
-        <Progress value={state.percent} className="h-2 flex-1" />
-        <span className="font-mono text-[0.6875rem] text-muted-foreground">
-          {state.completedCount}/{state.total}
-        </span>
-      </div>
-    </div>
-  );
+  return state.modules.map(({ module, isCompleted, isUnlocked, isCurrent }) => {
+    const key = overrideKey(course.slug, module.slug);
+    if (!isScheduled(course)) {
+      return {
+        module,
+        isCompleted,
+        isUnlocked,
+        label: isCompleted ? "Completed" : isCurrent ? "Current module" : "Locked — finish the previous module",
+      };
+    }
+    const open = availability.released.has(key);
+    const opensAt = availability.upcoming.get(key);
+    return {
+      module,
+      isCompleted,
+      isUnlocked: open,
+      label: isCompleted
+        ? "Completed"
+        : open
+          ? "Available"
+          : opensAt
+            ? `Upcoming · opens ${new Date(opensAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}`
+            : "Upcoming",
+    };
+  });
 }
 
 function MyCourses({
   courses,
-  enrolledSlugs,
+  waiting,
   rows,
+  availability,
   onOpen,
-  onEnrol,
 }: {
   courses: Course[];
-  enrolledSlugs: Set<string>;
+  waiting: { slug: string; title: string; status: string; payment: string }[];
   rows: Rows;
+  availability: Availability;
   onOpen: (slug: string) => void;
-  onEnrol: (slug: string, title: string) => void;
 }) {
-  const enrolledCourses = courses.filter((course) => enrolledSlugs.has(course.slug));
-  const otherCourses = courses.filter((course) => !enrolledSlugs.has(course.slug));
-
   return (
     <div>
       <Eyebrow>Student portal</Eyebrow>
       <h1 className="mt-3 text-3xl text-primary">My courses</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Modules unlock one at a time. Finish a module's quiz to open the next waypoint.
-      </p>
-      {enrolledCourses.length === 0 ? (
+
+      {courses.length === 0 && waiting.length === 0 ? (
         <div className="mt-6 rounded-lg border border-accent/30 bg-mint p-5">
           <p className="font-display text-base font-semibold text-primary">
-            You're not enrolled in a course yet
+            You don't have an active course enrolment yet
           </p>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Enrol in a course below to open its modules, quizzes and notes. Course content stays
-            locked until you enrol.
+            Once your application is approved and your place is confirmed, your course will appear
+            here.
           </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Button asChild size="sm" variant="brand">
-              <Link to="/courses">Browse courses</Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link to="/accelerator">Accelerator Cohort 1</Link>
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-8 space-y-3">
-          {enrolledCourses.map((course) => (
-            <CourseRow
-              key={course.slug}
-              course={course}
-              rows={rows}
-              isEnrolled
-              onOpen={onOpen}
-              onEnrol={onEnrol}
-            />
-          ))}
-        </div>
-      )}
-
-      {otherCourses.length ? (
-        <div className="mt-12 border-t border-border pt-8">
-          <Eyebrow>Not enrolled yet</Eyebrow>
-          <h2 className="mt-3 text-xl text-primary">Other courses available</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enrol to add any of these to your route map.
-          </p>
-          <div className="mt-6 space-y-3">
-            {otherCourses.map((course) => (
-              <CourseRow
-                key={course.slug}
-                course={course}
-                rows={rows}
-                isEnrolled={false}
-                onOpen={onOpen}
-                onEnrol={onEnrol}
-              />
-            ))}
-          </div>
+          <Button asChild size="sm" variant="brand" className="mt-4">
+            <Link to="/courses">Browse courses</Link>
+          </Button>
         </div>
       ) : null}
+
+      <div className="mt-8 space-y-3">
+        {courses.map((course) => {
+          const state = courseState(course, rows);
+          const next = lessonStates(course, rows, availability).find(
+            (l) => l.isUnlocked && !l.isCompleted,
+          );
+          return (
+            <button
+              key={course.slug}
+              type="button"
+              onClick={() => onOpen(course.slug)}
+              className="surface-card block w-full p-5 text-left transition-colors hover:border-accent/60"
+            >
+              <p className="eyebrow text-accent-deep">{course.eyebrow}</p>
+              <h2 className="mt-2 font-display text-lg font-semibold text-primary">{course.title}</h2>
+              <div className="mt-4 flex items-center gap-3">
+                <Progress value={state.percent} className="h-2 flex-1" />
+                <span className="font-mono text-[0.6875rem] text-muted-foreground">
+                  {state.completedCount}/{state.total}
+                </span>
+              </div>
+              <p className="mt-3 text-sm text-accent-deep">
+                {next ? `Continue: ${next.module.title} →` : state.isFinished ? "Course complete" : "Open course →"}
+              </p>
+            </button>
+          );
+        })}
+
+        {waiting.map((w) => (
+          <div key={w.slug} className="rounded-xl border border-dashed border-border bg-card p-5">
+            <p className="eyebrow text-muted-foreground">
+              {w.status === "suspended" ? "Access paused" : "Awaiting confirmation"}
+            </p>
+            <p className="mt-2 font-display text-base font-semibold text-primary">{w.title}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {w.status === "suspended"
+                ? "Contact info@thevapreneursschool.com to restore access."
+                : w.payment === "unpaid"
+                  ? "Your place opens once your enrolment is approved and payment is confirmed."
+                  : "Your place is being activated — check back soon."}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-
 function CourseView({
   course,
   rows,
+  availability,
   onBack,
   onOpenModule,
 }: {
   course: Course;
   rows: Rows;
+  availability: Availability;
   onBack: () => void;
   onOpenModule: (slug: string) => void;
 }) {
   const state = courseState(course, rows);
+  const lessons = lessonStates(course, rows, availability);
+  const unit = isScheduled(course) ? "day" : "module";
   return (
     <div>
       <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-accent-deep">
@@ -427,15 +421,24 @@ function CourseView({
       </button>
       <Eyebrow>{course.eyebrow}</Eyebrow>
       <h1 className="mt-3 text-3xl text-primary">{course.title}</h1>
-      <div className="mt-4 flex items-center gap-3">
-        <Progress value={state.percent} className="h-2 max-w-sm flex-1" />
-        <span className="font-mono text-[0.6875rem] text-muted-foreground">
-          {state.percent}% complete
-        </span>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{course.description}</p>
+      <div className="mt-5 surface-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="eyebrow text-accent-deep">Your progress</p>
+          <span className="font-mono text-[0.6875rem] text-muted-foreground">
+            {state.completedCount} of {state.total} {unit}s complete · {state.percent}%
+          </span>
+        </div>
+        <Progress value={state.percent} className="mt-3 h-2" />
+        {isScheduled(course) ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            New days open on the programme schedule. You can revisit any released day at any time.
+          </p>
+        ) : null}
       </div>
 
       <ol className="mt-8 space-y-3">
-        {state.modules.map(({ module, isCompleted, isUnlocked, isCurrent }) => (
+        {lessons.map(({ module, isCompleted, isUnlocked, label }) => (
           <li key={module.slug}>
             <button
               type="button"
@@ -453,7 +456,7 @@ function CourseView({
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-mono text-xs",
                   isCompleted
                     ? "bg-accent text-accent-foreground"
-                    : isCurrent
+                    : isUnlocked
                       ? "bg-mint text-mint-foreground"
                       : "bg-muted text-muted-foreground",
                 )}
@@ -466,14 +469,16 @@ function CourseView({
                 </span>
                 <span className="mt-1 block text-sm text-muted-foreground">{module.summary}</span>
                 <span className="mt-2 block font-mono text-[0.625rem] uppercase tracking-widest text-accent-deep">
-                  {isCompleted
-                    ? "Completed"
-                    : isCurrent
-                      ? "Current module"
-                      : "Locked — finish the previous module"}
+                  {label}
                 </span>
               </span>
-              {!isUnlocked ? <Lock className="mt-1 h-4 w-4 text-muted-foreground" /> : null}
+              {!isUnlocked ? (
+                isScheduled(course) ? (
+                  <CalendarClock className="mt-1 h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <Lock className="mt-1 h-4 w-4 text-muted-foreground" />
+                )
+              ) : null}
             </button>
           </li>
         ))}
@@ -630,7 +635,14 @@ function ModuleView({
   onBack: () => void;
 }) {
   const complete = useCompleteModule(userId);
-  const [tab, setTab] = useState<"notes" | "quiz" | "assignment">("notes");
+  const [tab, setTab] = useState<"lesson" | "slides" | "resources" | "quiz" | "assignment">("lesson");
+
+  // Record that the student opened this lesson (ignored by the database if not released).
+  useEffect(() => {
+    void supabase.rpc("touch_module", { _course_slug: course.slug, _module_slug: module.slug });
+  }, [course.slug, module.slug]);
+  const embed = videoEmbedUrl(module.videoUrl);
+  const unit = course.category === "cohort" ? "Day" : "Module";
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<SubmitResult | null>(null);
 
@@ -642,7 +654,8 @@ function ModuleView({
       {
         onSuccess: (res) => {
           setResult(res);
-          if (res.score === res.total) toast.success("Perfect score — next module unlocked!");
+          if (res.completed) toast.success("Quiz complete — well done!");
+          else toast.success("Answers submitted.");
         },
         onError: (err) => toast.error(err.message),
       },
@@ -654,15 +667,17 @@ function ModuleView({
       <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-accent-deep">
         <ArrowLeft className="h-4 w-4" /> {course.title}
       </button>
-      <Eyebrow>Module {module.number}{module.duration ? ` · ${module.duration}` : ""}</Eyebrow>
+      <Eyebrow>{unit} {module.number}{module.duration ? ` · ${module.duration}` : ""}</Eyebrow>
       <h1 className="mt-3 text-3xl text-primary">{module.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{module.summary}</p>
 
       <div className="mt-6 flex flex-wrap gap-1 border-b border-border">
         {([
-          { key: "notes" as const, label: "Notes" },
-          { key: "quiz" as const, label: "Quiz" },
+          { key: "lesson" as const, label: "Lesson" },
+          { key: "slides" as const, label: "Slides" },
+          { key: "resources" as const, label: "Resources" },
           { key: "assignment" as const, label: "Assignment" },
+          { key: "quiz" as const, label: "Quiz" },
         ]).map((item) => (
           <button
             key={item.key}
@@ -680,8 +695,59 @@ function ModuleView({
         ))}
       </div>
 
-      {tab === "notes" ? (
+      {tab === "slides" ? (
+        <div className="mt-8">
+          {module.slides?.length ? (
+            <ModuleDownloads title="Presentation slides" resources={module.slides} />
+          ) : (
+            <p className="surface-card p-6 text-sm text-muted-foreground">
+              Slides for this lesson haven't been shared yet.
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {tab === "resources" ? (
+        <div className="mt-8">
+          {module.resources?.length ? (
+            <ModuleDownloads title="Lesson resources" resources={module.resources} />
+          ) : (
+            <p className="surface-card p-6 text-sm text-muted-foreground">
+              No extra resources for this lesson.
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {tab === "lesson" ? (
         <>
+          <div className="mt-8">
+            {embed ? (
+              <div className="aspect-video overflow-hidden rounded-xl border border-border bg-muted">
+                <iframe
+                  src={embed}
+                  title={`${module.title} video`}
+                  className="h-full w-full"
+                  allow="fullscreen; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : module.videoUrl ? (
+              <a
+                href={module.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-xl border border-border bg-card p-5 text-sm text-primary hover:border-accent"
+              >
+                <PlayCircle className="h-5 w-5 text-accent" /> Watch the video lesson
+              </a>
+            ) : course.category === "cohort" ? (
+              <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 text-center">
+                <PlayCircle className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">The video for this day will appear here.</p>
+              </div>
+            ) : null}
+          </div>
           {module.notes ? (
             <div className="mt-8">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -729,13 +795,10 @@ function ModuleView({
             </div>
           )}
 
-          <ModuleDownloads resources={module.resources ?? []} />
-
-
           <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6">
             {module.quiz.length ? (
               <Button variant="brand" size="lg" onClick={() => setTab("quiz")}>
-                Take the module quiz
+                Take the quiz
               </Button>
             ) : (
               <Button
@@ -759,7 +822,7 @@ function ModuleView({
         <div className="mt-8 surface-card p-6">
           {module.assignment ? (
             <>
-              <Eyebrow>Module {module.number} assignment</Eyebrow>
+              <Eyebrow>{unit} {module.number} assignment</Eyebrow>
               <h2 className="mt-3 text-xl text-primary">{module.assignment.title}</h2>
               {module.assignment.intro ? (
                 <p className="mt-3 text-[0.9375rem] leading-relaxed text-foreground/85">
@@ -803,17 +866,26 @@ function ModuleView({
       {tab === "quiz" ? (
 
         <div className="mt-8 surface-card p-6">
-          <Eyebrow>Module {module.number} quiz</Eyebrow>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {module.quiz.length} questions. A perfect score completes the module and unlocks
-            the next one.
-          </p>
+          <Eyebrow>{unit} {module.number} quiz</Eyebrow>
+          {module.quiz.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">There's no quiz for this lesson.</p>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {module.quiz.length} questions ·{" "}
+              {module.quiz.reduce((sum, q) => sum + (q.marks ?? 1), 0)} marks.
+            </p>
+          )}
 
           <div className="mt-6 space-y-6">
             {module.quiz.map((question, questionIndex) => (
               <fieldset key={question.id}>
                 <legend className="text-sm font-medium text-primary">
                   {questionIndex + 1}. {question.question}
+                  {(question.marks ?? 1) > 1 ? (
+                    <span className="ml-2 font-mono text-[0.625rem] text-muted-foreground">
+                      {question.marks} marks
+                    </span>
+                  ) : null}
                 </legend>
                 <div className="mt-3 space-y-2">
                   {question.options.map((option, optionIndex) => {
@@ -854,7 +926,7 @@ function ModuleView({
             ))}
           </div>
 
-          {!result ? (
+          {module.quiz.length === 0 ? null : !result ? (
             <Button
               variant="brand"
               size="lg"
@@ -867,12 +939,16 @@ function ModuleView({
           ) : (
             <div className="mt-8 rounded-xl border border-accent/30 bg-mint/70 p-5">
               <p className="font-display text-lg font-semibold text-primary">
-                You scored {result.score} / {result.total}
+                {result.score === null
+                  ? "Answers submitted"
+                  : `You scored ${result.score} / ${result.total}`}
               </p>
-              {result.score === result.total ? (
+              {result.completed ? (
                 <>
                   <p className="mt-1 text-sm text-primary">
-                    Perfect score. This module is complete and the next one is unlocked.
+                    {result.score === null
+                      ? "Your instructor will review your results."
+                      : "Full marks — this lesson is complete."}
                   </p>
                   <Button variant="brand" className="mt-4" onClick={onBack}>
                     Back to modules
@@ -927,15 +1003,7 @@ function ModuleView({
   );
 }
 
-function RouteMapView({
-  courses,
-  rows,
-  enrolledSlugs,
-}: {
-  courses: Course[];
-  rows: Rows;
-  enrolledSlugs: Set<string>;
-}) {
+function RouteMapView({ courses, rows }: { courses: Course[]; rows: Rows }) {
   const totals = courses.reduce(
     (acc, course) => {
       const state = courseState(course, rows);
@@ -951,7 +1019,7 @@ function RouteMapView({
   return (
     <div>
       <Eyebrow>Overall progress</Eyebrow>
-      <h1 className="mt-3 text-3xl text-primary">My route map</h1>
+      <h1 className="mt-3 text-3xl text-primary">My progress</h1>
       <div className="mt-6 surface-card p-6">
         <p className="font-display text-4xl font-semibold text-primary">{percent}%</p>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -967,84 +1035,19 @@ function RouteMapView({
             <div key={course.slug} className="surface-card p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="eyebrow text-accent-deep">Waypoint {course.waypoint}</p>
+                  <p className="eyebrow text-accent-deep">{course.eyebrow}</p>
                   <p className="mt-1.5 font-display text-base font-semibold text-primary">
                     {course.title}
                   </p>
                 </div>
                 <span className="font-mono text-[0.6875rem] text-muted-foreground">
-                  {enrolledSlugs.has(course.slug) ? `${state.percent}%` : "Not enrolled"}
+                  {state.percent}%
                 </span>
               </div>
               <Progress value={state.percent} className="mt-3 h-2" />
             </div>
           );
         })}
-      </div>
-    </div>
-  );
-}
-
-function AcceleratorView() {
-  return (
-    <div>
-      <Eyebrow>Waypoint 2 · Position yourself</Eyebrow>
-      <h1 className="mt-3 text-3xl text-primary">{ACCELERATOR.title}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {ACCELERATOR.cohort} · {ACCELERATOR.length} · {ACCELERATOR.format}. Prerequisite:{" "}
-        {ACCELERATOR.prerequisite.toLowerCase()}. {ACCELERATOR.seats}.
-      </p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {ACCELERATOR.pillars.map((pillar) => (
-          <div key={pillar.number} className="surface-card p-5">
-            <span className="font-mono text-xs text-accent-deep">
-              Pillar {String(pillar.number).padStart(2, "0")}
-            </span>
-            <p className="mt-2 font-display text-base font-semibold text-primary">{pillar.title}</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{pillar.text}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Button asChild variant="brand">
-          <Link to="/apply" search={{ course: "accelerator", track: "coaching" }}>
-            Apply to Cohort 1
-          </Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link to="/accelerator">Full cohort details</Link>
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function ToolkitView({
-  rows,
-  enrolledSlugs,
-  onOpen,
-  onEnrol,
-}: {
-  rows: Rows;
-  enrolledSlugs: Set<string>;
-  onOpen: (slug: string) => void;
-  onEnrol: (slug: string, title: string) => void;
-}) {
-  return (
-    <div>
-      <Eyebrow>Waypoint 3 · Sustain the business</Eyebrow>
-      <h1 className="mt-3 text-3xl text-primary">Sustain toolkit</h1>
-      <div className="mt-8 space-y-3">
-        {TOOLKIT_COURSES.map((course) => (
-          <CourseRow
-            key={course.slug}
-            course={course}
-            rows={rows}
-            isEnrolled={enrolledSlugs.has(course.slug)}
-            onOpen={onOpen}
-            onEnrol={onEnrol}
-          />
-        ))}
       </div>
     </div>
   );
@@ -1104,7 +1107,7 @@ function SettingsView({ email, userId }: { email: string; userId: string }) {
 }
 
 /** Instructor-uploaded files students can download for a module. */
-function ModuleDownloads({ resources }: { resources: ModuleResource[] }) {
+function ModuleDownloads({ resources, title = "Downloads" }: { resources: ModuleResource[]; title?: string }) {
   if (resources.length === 0) return null;
 
   async function open(resource: ModuleResource) {
@@ -1117,9 +1120,9 @@ function ModuleDownloads({ resources }: { resources: ModuleResource[] }) {
   }
 
   return (
-    <div className="mt-8 border-t border-border pt-6">
+    <div>
       <p className="font-mono text-[0.6875rem] uppercase tracking-widest text-muted-foreground">
-        Downloads
+        {title}
       </p>
       <ul className="mt-3 space-y-2">
         {resources.map((resource) => (

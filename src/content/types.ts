@@ -23,6 +23,8 @@ export type QuizQuestion = {
   /** Index into `options` of the correct answer. */
   answerIndex: number;
   explanation?: string;
+  /** Marks for a correct answer (default 1). */
+  marks?: number;
 };
 
 /**
@@ -75,11 +77,21 @@ export type CourseModule = {
   assignment?: ModuleAssignment;
   /** Instructor-uploaded downloads (PDF, Word, slides…). */
   resources?: ModuleResource[];
+  /** Video lesson link (YouTube, Vimeo, Loom or Google Drive). */
+  videoUrl?: string;
+  /** Presentation slides students can view/download. */
+  slides?: ModuleResource[];
+  /** When the lesson opens to students (ISO). Unset = as soon as it's published. */
+  releaseAt?: string;
+  /** What students see after a quiz: score + answers, score only, or nothing. */
+  quizFeedback?: QuizFeedback;
 };
 
+export type QuizFeedback = "full" | "score" | "none";
 
 
-export type CourseCategory = "skill" | "toolkit";
+
+export type CourseCategory = "skill" | "toolkit" | "cohort";
 
 export type CourseAvailability = "waiting-list" | "available";
 

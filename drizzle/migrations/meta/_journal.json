@@ -43,6 +43,13 @@
       "when": 1795100676272,
       "tag": "0005_validate_public_form_inserts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795101150905,
+      "tag": "0006_accelerator_release_schedule",
+      "breakpoints": true
     }
   ]
 }
