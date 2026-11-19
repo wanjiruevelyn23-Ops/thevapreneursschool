@@ -298,7 +298,7 @@ function InstructorPage() {
           </div>
 
           <Eyebrow className="mt-6">
-            {course?.title} · Module {builtIn?.number}
+            {course?.title} · {course?.category === "cohort" ? "Day" : "Module"} {builtIn?.number}
           </Eyebrow>
           <h1 className="mt-3 text-3xl text-primary">{draft?.title || builtIn?.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -315,7 +315,7 @@ function InstructorPage() {
           {draft ? (
             <>
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <Field label="Module title">
+                <Field label="Title">
                   <Input
                     value={draft.title}
                     onChange={(e) => setDraft({ ...draft, title: e.target.value })}
