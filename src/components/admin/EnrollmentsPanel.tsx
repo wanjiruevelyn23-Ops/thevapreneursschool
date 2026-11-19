@@ -85,7 +85,7 @@ export function EnrollmentsPanel({ prefill }: { prefill?: { email: string; cours
       toast.error(error.message);
       return;
     }
-    if (patch.access_status === "active" && data) {
+    if (patch.enrollment_status === "active" && data) {
       window.__lovableEvents?.track?.("project.enrollment_activated", { course_slug: data.course_slug });
     }
     toast.success("Enrolment updated.");
