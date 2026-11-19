@@ -334,7 +334,7 @@ export const ACCELERATOR = {
   seats: "Limited seats",
   originalPrice: "Ksh 4,500",
   price: "Ksh 3,999",
-  startDate: "November 18",
+  startDate: "November 23rd",
   pillars: [
     {
       number: 1,

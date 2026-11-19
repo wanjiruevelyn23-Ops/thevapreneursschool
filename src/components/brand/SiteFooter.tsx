@@ -38,6 +38,7 @@ export function SiteFooter() {
 
           <FooterColumn title="School">
             <FooterLink to="/about">About &amp; our why</FooterLink>
+            <FooterLink to="/faq">FAQs</FooterLink>
             <FooterLink to="/contact">Contact</FooterLink>
             <FooterLink to="/portal">Student portal</FooterLink>
             <FooterLink to="/apply">Apply</FooterLink>

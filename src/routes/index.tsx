@@ -6,6 +6,7 @@ import { RouteMap, WaypointStrip } from "@/components/brand/RouteMap";
 import { SectionHeading, Eyebrow } from "@/components/brand/Section";
 import { CourseCard } from "@/components/brand/CourseCard";
 import { SKILL_TRACKS, TOOLKIT_COURSES, ACCELERATOR } from "@/content/courses";
+import learningPath from "@/assets/learning-path.webp.asset.json";
 
 const TITLE = "The VApreneurs School — Map Your Skills, Scale Your Business";
 const DESCRIPTION =
@@ -89,11 +90,21 @@ function Index() {
       </section>
 
       <section className="mx-auto max-w-6xl px-5 py-20">
-        <SectionHeading
-          eyebrow="The route"
-          title="Three waypoints from skilled to self-sufficient"
-          intro="Every part of the school sits on one of three waypoints. Start where you are, and follow the line."
-        />
+        <div className="grid items-center gap-8 md:grid-cols-[1.3fr_1fr]">
+          <SectionHeading
+            eyebrow="The route"
+            title="Three waypoints from skilled to self-sufficient"
+            intro="Every part of the school sits on one of three waypoints. Start where you are, and follow the line."
+          />
+          <img
+            src={learningPath.url}
+            alt="Illustration of a path with waypoints climbing a hill to a flag"
+            width={1536}
+            height={1024}
+            loading="lazy"
+            className="mx-auto w-full max-w-sm rounded-2xl"
+          />
+        </div>
         <div className="mt-10">
           <WaypointStrip />
         </div>

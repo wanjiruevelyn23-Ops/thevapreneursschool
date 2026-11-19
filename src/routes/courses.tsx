@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading, Eyebrow } from "@/components/brand/Section";
 import { CourseCard } from "@/components/brand/CourseCard";
 import { SKILL_TRACKS, TOOLKIT_COURSES } from "@/content/courses";
+import vaAtWork from "@/assets/va-at-work.webp.asset.json";
 
 const TITLE = "Courses — Skill Tracks & Sustain Toolkit | The VApreneurs School";
 const DESCRIPTION =
@@ -24,7 +25,8 @@ function CoursesPage() {
   return (
     <>
       <header className="bg-gradient-navy text-primary-foreground">
-        <div className="mx-auto max-w-6xl px-5 py-16">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-[1.4fr_1fr]">
+          <div>
           <Eyebrow className="text-accent">Waypoint 1 &amp; Waypoint 3</Eyebrow>
           <h1 className="mt-4 max-w-3xl text-4xl leading-tight sm:text-5xl">
             Pick your track. Learn it properly.
@@ -34,6 +36,14 @@ function CoursesPage() {
             feedback, accountability and portfolio review. The Sustain Toolkit
             courses are short, standalone and self-taught.
           </p>
+          </div>
+          <img
+            src={vaAtWork.url}
+            alt="Illustration of a virtual assistant working on a laptop"
+            width={1536}
+            height={1024}
+            className="hidden w-full rounded-2xl md:block"
+          />
         </div>
       </header>
 

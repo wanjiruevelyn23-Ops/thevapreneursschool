@@ -20,7 +20,6 @@ import {
   useEnrollments,
   useProgress,
   useCompleteModule,
-  useResetProgress,
   courseState,
   type SubmitResult,
 } from "@/lib/lms";
@@ -226,7 +225,7 @@ function PortalPage() {
           {nav === "route-map" ? (
             <RouteMapView courses={myCourses} rows={rows} />
           ) : null}
-          {nav === "settings" ? <SettingsView email={user.email ?? ""} userId={user.id} /> : null}
+          {nav === "settings" ? <SettingsView email={user.email ?? ""} /> : null}
         </div>
       </div>
     </div>
@@ -1053,8 +1052,7 @@ function RouteMapView({ courses, rows }: { courses: Course[]; rows: Rows }) {
   );
 }
 
-function SettingsView({ email, userId }: { email: string; userId: string }) {
-  const reset = useResetProgress(userId);
+function SettingsView({ email }: { email: string }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   return (
@@ -1082,26 +1080,6 @@ function SettingsView({ email, userId }: { email: string; userId: string }) {
         </Button>
       </div>
 
-      <div className="mt-4 surface-card p-6">
-        <p className="eyebrow text-accent-deep">Testing tools</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Reset progress clears every completed module and locks all courses back to module 1.
-          Enrolments stay in place.
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-4"
-          disabled={reset.isPending}
-          onClick={() =>
-            reset.mutate(undefined, {
-              onSuccess: () => toast.success("Progress reset."),
-            })
-          }
-        >
-          {reset.isPending ? "Resetting…" : "Reset all progress"}
-        </Button>
-      </div>
     </div>
   );
 }
