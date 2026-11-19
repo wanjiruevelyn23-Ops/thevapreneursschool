@@ -951,7 +951,7 @@ function ModuleView({
                       : "Full marks — this lesson is complete."}
                   </p>
                   <Button variant="brand" className="mt-4" onClick={onBack}>
-                    Back to modules
+                    Back to lessons
                   </Button>
                 </>
               ) : (
