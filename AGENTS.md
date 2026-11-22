@@ -15,3 +15,5 @@
 - Student notes and the instructor saved-notes preview share NotesView and LessonBody — keep formatting identical without exposing drafts to student reads.
 - Student assignment instructions and downloads share AssignmentView and ModuleDownloads with saved instructor previews — previews never submit work or record student progress.
 - Instructor module saves compare the loaded updated_at in the write and reject stale revisions — an older open editor must not erase imported or newer saved content.
+- Instructor file operations update only the latest draft's file list and are scoped to the selected module; draft removal does not delete saved storage files — asynchronous uploads and unsaved removals must not erase lesson edits or break saved downloads.
+- Stored lesson, quiz and file arrays are authoritative even when empty — intentionally removed content must not reappear from built-in defaults.

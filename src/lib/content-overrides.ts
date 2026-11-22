@@ -79,8 +79,8 @@ export function mergeModule(
     ...base,
     title: row.title?.trim() ? row.title : base.title,
     summary: row.summary?.trim() ? row.summary : base.summary,
-    lesson: row.lesson.length ? row.lesson : base.lesson,
-    quiz: row.quiz.length ? row.quiz : base.quiz,
+    lesson: row.lesson,
+    quiz: row.quiz,
   };
   const duration = row.duration?.trim() ? row.duration : base.duration;
   if (duration) merged.duration = duration;
@@ -88,8 +88,8 @@ export function mergeModule(
   if (notes) merged.notes = notes;
   const assignment = row.assignment ?? base.assignment;
   if (assignment) merged.assignment = assignment;
-  if (row.resources.length) merged.resources = row.resources;
-  if (row.slides.length) merged.slides = row.slides;
+  merged.resources = row.resources;
+  merged.slides = row.slides;
   if (row.video_url) merged.videoUrl = row.video_url;
   if (row.release_at) merged.releaseAt = row.release_at;
   merged.quizFeedback = row.quiz_feedback;

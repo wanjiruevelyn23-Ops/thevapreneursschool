@@ -211,10 +211,15 @@ function InstructorPage() {
   }
 
   async function removeOverride() {
-    if (!stored) return;
-    const { error } = await supabase.from("module_content").delete().eq("id", stored.id);
+    if (!stored || loadingContent || saving) return;
+    const { data, error } = await supabase.from("module_content").delete().eq("id", stored.id).eq("updated_at", stored.updated_at).select("id");
     if (error) {
       toast.error("Could not reset", { description: error.message });
+      return;
+    }
+    if (!data?.length) {
+      toast.error("Newer saved content found", { description: "The module was not reset. Review the latest saved content first." });
+      await reload();
       return;
     }
     toast.success("Reset to the built-in version");
@@ -434,12 +439,13 @@ function InstructorPage() {
 
                 <TabsContent value="slides" className="mt-6">
                   <FileManager
+                    key={`${courseSlug}:${moduleSlug}:slides`}
                     courseSlug={courseSlug}
                     moduleSlug={moduleSlug}
                     label="Presentation slides"
                     empty="No slides yet. Upload a PDF or PowerPoint deck (up to 50 MB)."
                     resources={draft.slides}
-                    onChange={(slides) => setDraft({ ...draft, slides })}
+                    onChange={(update) => setDraft((current) => current ? { ...current, slides: update(current.slides) } : current)}
                   />
                 </TabsContent>
 
@@ -539,12 +545,13 @@ function InstructorPage() {
                     </Dialog>
                   </div>
                   <FileManager
+                    key={`${courseSlug}:${moduleSlug}:resources`}
                     courseSlug={courseSlug}
                     moduleSlug={moduleSlug}
                     label="Lesson resources"
                     empty="No resources yet. Upload extra reading, templates or documents — up to 50 MB each."
                     resources={draft.resources}
-                    onChange={(resources) => setDraft({ ...draft, resources })}
+                    onChange={(update) => setDraft((current) => current ? { ...current, resources: update(current.resources) } : current)}
                   />
                 </TabsContent>
 
@@ -676,8 +683,8 @@ function fromSources(
     title: stored?.title ?? builtIn.title,
     summary: stored?.summary ?? builtIn.summary,
     duration: stored?.duration ?? builtIn.duration ?? "",
-    lesson: stored?.lesson.length ? stored.lesson : builtIn.lesson,
-    quiz: stored?.quiz.length ? stored.quiz : builtIn.quiz,
+    lesson: stored?.lesson ?? builtIn.lesson,
+    quiz: stored?.quiz ?? builtIn.quiz,
     notes: stored?.notes ?? builtIn.notes ?? emptyNotes(builtIn.title),
     assignment: stored?.assignment ?? builtIn.assignment ?? emptyAssignment(),
     resources: stored?.resources ?? builtIn.resources ?? [],
@@ -702,9 +709,14 @@ function FileManager({
   label: string;
   empty: string;
   resources: ModuleResource[];
-  onChange: (next: ModuleResource[]) => void;
+  onChange: (update: (current: ModuleResource[]) => ModuleResource[]) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const [busy, setBusy] = useState(false);
 
   async function upload(files: FileList | null) {
@@ -723,10 +735,11 @@ function FileManager({
       }
       added.push({ path, name: file.name, size: file.size });
     }
+    if (!mounted.current) return;
     setBusy(false);
     if (inputRef.current) inputRef.current.value = "";
     if (added.length) {
-      onChange([...resources, ...added]);
+      onChange((current) => [...current, ...added]);
       toast.success(
         `${added.length} file${added.length === 1 ? "" : "s"} uploaded — publish to show students`,
       );
@@ -734,9 +747,9 @@ function FileManager({
   }
 
   async function remove(resource: ModuleResource) {
-    await supabase.storage.from("module-files").remove([resource.path]);
-    onChange(resources.filter((r) => r.path !== resource.path));
-    toast.success("File removed — publish to update students");
+    // Removing from a draft must not break the currently saved student's link.
+    onChange((current) => current.filter((r) => r.path !== resource.path));
+    toast.success("File removed from this draft — save to update students");
   }
 
   async function open(resource: ModuleResource) {
