@@ -24,6 +24,8 @@ import {
 } from "@/lib/content-overrides";
 import { BlockEditor } from "@/components/instructor/BlockEditor";
 import { NotesView } from "@/components/portal/NotesView";
+import { AssignmentView } from "@/components/portal/AssignmentView";
+import { ModuleDownloads } from "@/components/portal/ModuleDownloads";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -492,6 +494,19 @@ function InstructorPage() {
                 </TabsContent>
 
                 <TabsContent value="files" className="mt-6">
+                  <div className="mb-4 flex justify-end">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" disabled={loadingContent || !stored?.resources.length}>
+                          <Eye className="mr-1.5 h-4 w-4" /> Preview saved resources
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto" aria-describedby={undefined}>
+                        <DialogHeader><DialogTitle className="pr-8">{stored?.title ?? builtIn?.title} — Resources preview</DialogTitle></DialogHeader>
+                        <ModuleDownloads resources={stored?.resources ?? []} title="Lesson resources" />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   <FileManager
                     courseSlug={courseSlug}
                     moduleSlug={moduleSlug}
@@ -504,6 +519,21 @@ function InstructorPage() {
 
 
                 <TabsContent value="assignment" className="mt-6 space-y-4">
+                  <div className="flex justify-end">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" disabled={loadingContent || !stored?.assignment}>
+                          <Eye className="mr-1.5 h-4 w-4" /> Preview saved assignment
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto" aria-describedby={undefined}>
+                        <DialogHeader><DialogTitle className="pr-8">{stored?.title ?? builtIn?.title} — Assignment preview</DialogTitle></DialogHeader>
+                        <div className="mt-8 surface-card p-6">
+                          {stored?.assignment && builtIn ? <AssignmentView assignment={stored.assignment} unit={course?.category === "cohort" ? "Day" : "Module"} number={builtIn.number} /> : null}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   <Field label="Assignment title">
                     <Input
                       value={draft.assignment.title}

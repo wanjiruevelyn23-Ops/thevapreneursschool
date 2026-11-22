@@ -10,7 +10,6 @@ import {
   Lock,
   Check,
   ArrowLeft,
-  FileDown,
   NotebookPen,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,18 +24,18 @@ import {
 } from "@/lib/lms";
 import {
   useStudentCourses,
-  getModuleFileUrl,
-  formatFileSize,
   overrideKey,
 } from "@/lib/content-overrides";
 import { videoEmbedUrl } from "@/lib/video";
-import type { Course, CourseModule, ModuleResource } from "@/content/types";
+import type { Course, CourseModule } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Logo } from "@/components/brand/Logo";
 import { Eyebrow } from "@/components/brand/Section";
 import { cn } from "@/lib/utils";
 import { LessonBody, NotesView } from "@/components/portal/NotesView";
+import { AssignmentView } from "@/components/portal/AssignmentView";
+import { ModuleDownloads } from "@/components/portal/ModuleDownloads";
 import { AssignmentSubmit } from "@/components/portal/AssignmentSubmit";
 
 const TITLE = "Student Portal | The VApreneurs School";
@@ -712,37 +711,9 @@ function ModuleView({
         <div className="mt-8 surface-card p-6">
           {module.assignment ? (
             <>
-              <Eyebrow>{unit} {module.number} assignment</Eyebrow>
-              <h2 className="mt-3 text-xl text-primary">{module.assignment.title}</h2>
-              {module.assignment.intro ? (
-                <p className="mt-3 text-[0.9375rem] leading-relaxed text-foreground/85">
-                  {module.assignment.intro}
-                </p>
-              ) : null}
-              <ol className="mt-5 list-decimal space-y-2 pl-6 text-[0.9375rem] text-foreground/85">
-                {module.assignment.tasks.map((task) => (
-                  <li key={task}>{task}</li>
-                ))}
-              </ol>
-              {module.assignment.deliverable ? (
-                <div className="mt-6 rounded-xl border border-accent/30 bg-mint/70 p-5">
-                  <p className="eyebrow text-accent-deep">What to hand in</p>
-                  <p className="mt-2 text-sm leading-relaxed text-primary">
-                    {module.assignment.deliverable}
-                  </p>
-                </div>
-              ) : null}
-              {module.assignment.criteria?.length ? (
-                <div className="mt-6 border-t border-border pt-5">
-                  <p className="eyebrow text-accent-deep">How it's marked</p>
-                  <ul className="mt-3 list-disc space-y-2 pl-6 text-sm text-foreground/85">
-                    {module.assignment.criteria.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
+              <AssignmentView assignment={module.assignment} unit={unit} number={module.number}>
               <AssignmentSubmit userId={userId} courseSlug={course.slug} moduleSlug={module.slug} />
+              </AssignmentView>
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
@@ -976,40 +947,3 @@ function SettingsView({ email }: { email: string }) {
 }
 
 /** Instructor-uploaded files students can download for a module. */
-function ModuleDownloads({ resources, title = "Downloads" }: { resources: ModuleResource[]; title?: string }) {
-  if (resources.length === 0) return null;
-
-  async function open(resource: ModuleResource) {
-    const url = await getModuleFileUrl(resource.path);
-    if (!url) {
-      toast.error("That file couldn't be opened. Please try again.");
-      return;
-    }
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-
-  return (
-    <div>
-      <p className="font-mono text-[0.6875rem] uppercase tracking-widest text-muted-foreground">
-        {title}
-      </p>
-      <ul className="mt-3 space-y-2">
-        {resources.map((resource) => (
-          <li key={resource.path}>
-            <button
-              type="button"
-              onClick={() => void open(resource)}
-              className="flex w-full items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-primary transition-colors hover:border-accent"
-            >
-              <FileDown className="h-4 w-4 shrink-0 text-accent" />
-              <span className="min-w-0 flex-1 truncate">{resource.name}</span>
-              <span className="shrink-0 text-xs text-muted-foreground">
-                {formatFileSize(resource.size)}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
