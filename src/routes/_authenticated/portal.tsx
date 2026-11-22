@@ -799,11 +799,34 @@ function ModuleView({
             </Button>
           ) : (
             <div className="mt-8 rounded-xl border border-accent/30 bg-mint/70 p-5">
-              <p className="font-display text-lg font-semibold text-primary">
-                {result.score === null
-                  ? "Answers submitted"
-                  : `You scored ${result.score} / ${result.total}`}
-              </p>
+              {(() => {
+                const pct =
+                  result.score !== null && result.total
+                    ? Math.round((result.score / result.total) * 100)
+                    : null;
+                const feedbackLine =
+                  pct === null
+                    ? null
+                    : pct === 100
+                      ? "Excellent — full marks."
+                      : pct >= 80
+                        ? "Great work — you have a strong grasp of this lesson."
+                        : pct >= 50
+                          ? "Good effort — review the notes and retake the quiz to improve your score."
+                          : "Worth another look — go back through the lesson and notes, then retake the quiz.";
+                return (
+                  <>
+                    <p className="font-display text-lg font-semibold text-primary">
+                      {pct === null
+                        ? "Answers submitted"
+                        : `You scored ${pct}% (${result.score} / ${result.total})`}
+                    </p>
+                    {feedbackLine ? (
+                      <p className="mt-1 text-sm text-primary">{feedbackLine}</p>
+                    ) : null}
+                  </>
+                );
+              })()}
               {result.completed ? (
                 <>
                   <p className="mt-1 text-sm text-primary">
