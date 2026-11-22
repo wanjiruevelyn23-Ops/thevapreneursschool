@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, Eye, FileDown, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Check, Eye, FileDown, Loader2, Plus, RefreshCw, Save, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -153,7 +153,7 @@ function InstructorPage() {
 
   /** publish: true = go live, false = take offline, undefined = keep current state. */
   async function save(publish?: boolean) {
-    if (!draft || !builtIn) return;
+    if (!draft || !builtIn || !user || loadingContent) return;
     setSaving(true);
     const payload = {
       course_slug: courseSlug,
@@ -174,14 +174,28 @@ function InstructorPage() {
       quiz_feedback: draft.quizFeedback,
       published: publish ?? stored?.published ?? false,
 
-      updated_by: user!.id,
+      updated_by: user.id,
     };
-    const { error } = await supabase
-      .from("module_content")
-      .upsert(payload as never, { onConflict: "course_slug,module_slug" });
+    // Compare-and-save atomically: an older open editor must never erase
+    // content imported or saved elsewhere after it loaded.
+    const { data, error } = stored
+      ? await supabase
+          .from("module_content")
+          .update(payload as never)
+          .eq("id", stored.id)
+          .eq("updated_at", stored.updated_at)
+          .select("id")
+      : await supabase.from("module_content").insert(payload as never).select("id");
     setSaving(false);
     if (error) {
       toast.error("Could not save", { description: error.message });
+      return;
+    }
+    if (!data?.length) {
+      toast.error("Newer saved content found", {
+        description: "Your older version was not saved. The latest saved content has been loaded; review it before saving again.",
+      });
+      await reload();
       return;
     }
     toast.success(
@@ -283,6 +297,23 @@ function InstructorPage() {
               </Link>
             </Button>
             <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={loadingContent || saving}
+                onClick={async () => {
+                  if (!window.confirm("Reload saved content? Any unsaved changes in this module will be discarded.")) return;
+                  const latestRows = await reload();
+                  if (!latestRows || !builtIn) {
+                    toast.error("Could not reload saved content");
+                    return;
+                  }
+                  setDraft(fromSources(builtIn, latestRows.find((row) => row.course_slug === courseSlug && row.module_slug === moduleSlug)));
+                  toast.success("Latest saved content loaded");
+                }}
+              >
+                <RefreshCw className="mr-1.5 h-4 w-4" /> Refresh saved content
+              </Button>
               <Button asChild variant="outline" size="sm">
                 <Link to="/admin/submissions">Submissions</Link>
               </Button>
@@ -604,7 +635,7 @@ function InstructorPage() {
 
               <div className="sticky bottom-0 mt-10 -mx-5 flex flex-wrap items-center gap-3 border-t bg-background/95 px-5 py-4 backdrop-blur lg:-mx-10 lg:px-10">
                 {!stored?.published ? (
-                  <Button variant="brand" onClick={() => save(true)} disabled={saving}>
+                  <Button variant="brand" onClick={() => save(true)} disabled={saving || loadingContent}>
                     {saving ? (
                       <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
                     ) : (
@@ -615,11 +646,11 @@ function InstructorPage() {
                       : "Publish to students"}
                   </Button>
                 ) : null}
-                <Button variant="outline" onClick={() => save()} disabled={saving}>
+                <Button variant="outline" onClick={() => save()} disabled={saving || loadingContent}>
                   <Save className="mr-1.5 h-4 w-4" /> {stored?.published ? "Save changes" : "Save draft"}
                 </Button>
                 {stored?.published ? (
-                  <Button variant="ghost" onClick={() => save(false)} disabled={saving}>
+                  <Button variant="ghost" onClick={() => save(false)} disabled={saving || loadingContent}>
                     Unpublish
                   </Button>
                 ) : null}

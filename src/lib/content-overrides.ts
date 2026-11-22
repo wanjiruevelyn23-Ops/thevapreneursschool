@@ -115,14 +115,17 @@ export function useModuleOverrides(userId: string | undefined) {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
+    setLoading(true);
     const { data, error } = await supabase
       .from("module_content")
       .select("*")
       .order("updated_at", { ascending: false });
-    if (!error && data) {
-      setRows((data as unknown as Record<string, unknown>[]).map(toRow));
-    }
+    const latestRows = !error && data
+      ? (data as unknown as Record<string, unknown>[]).map(toRow)
+      : null;
+    if (latestRows) setRows(latestRows);
     setLoading(false);
+    return latestRows;
   }, []);
 
   useEffect(() => {

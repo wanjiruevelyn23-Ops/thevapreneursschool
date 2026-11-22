@@ -14,3 +14,4 @@
 - Lesson availability (published + release_at passed) is decided in the database by `module_available`; every student read/write path (content RPCs, quiz, progress, hand-ins, files) must check it — why: upcoming lessons must never leak through a side door.
 - Student notes and the instructor saved-notes preview share NotesView and LessonBody — keep formatting identical without exposing drafts to student reads.
 - Student assignment instructions and downloads share AssignmentView and ModuleDownloads with saved instructor previews — previews never submit work or record student progress.
+- Instructor module saves compare the loaded updated_at in the write and reject stale revisions — an older open editor must not erase imported or newer saved content.
