@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, FileDown, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Check, Eye, FileDown, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +23,8 @@ import {
   overrideKey,
 } from "@/lib/content-overrides";
 import { BlockEditor } from "@/components/instructor/BlockEditor";
+import { NotesView } from "@/components/portal/NotesView";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +47,8 @@ export const Route = createFileRoute("/admin/instructor")({
       { name: "robots", content: "noindex" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: InstructorPage,
@@ -407,6 +411,21 @@ function InstructorPage() {
                 </TabsContent>
 
                 <TabsContent value="notes" className="mt-6 space-y-4">
+                  <div className="flex justify-end">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button type="button" variant="outline" disabled={loadingContent || !stored?.notes}>
+                          <Eye className="mr-1.5 h-4 w-4" /> Preview saved notes
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto" aria-describedby={undefined}>
+                        <DialogHeader>
+                          <DialogTitle className="pr-8">{stored?.title ?? builtIn?.title} — Student preview</DialogTitle>
+                        </DialogHeader>
+                        {stored?.notes ? <NotesView notes={stored.notes} /> : null}
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Notes title">
                       <Input
