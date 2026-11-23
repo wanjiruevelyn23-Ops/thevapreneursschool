@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +31,7 @@ export function AssignmentSubmit({
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+  const queryClient = useQueryClient();
 
   async function load() {
     const { data } = await supabase.rpc("my_submissions");
@@ -77,6 +79,7 @@ export function AssignmentSubmit({
     setText("");
     setFile(null);
     void load();
+    void queryClient.invalidateQueries({ queryKey: ["module_progress", userId] });
   }
 
   return (

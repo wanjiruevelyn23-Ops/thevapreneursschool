@@ -458,6 +458,10 @@ export type Database = {
         Args: { _course_slug: string; _user_id: string }
         Returns: boolean
       }
+      lesson_requirements: {
+        Args: { _course_slug: string; _module_slug: string; _user_id: string }
+        Returns: Json
+      }
       module_available: {
         Args: { _course_slug: string; _module_slug: string }
         Returns: boolean

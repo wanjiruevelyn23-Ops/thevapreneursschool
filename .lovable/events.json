@@ -118,7 +118,7 @@
       }
     },
     "project.quiz_completed": {
-      "event_schema_version": 1,
+      "event_schema_version": 2,
       "description": "A student submitted a lesson quiz and it was graded.",
       "privacy": {
         "contains_pii": false,
@@ -143,6 +143,66 @@
           },
           "total": {
             "type": "number"
+          },
+          "percent": {
+            "type": "number"
+          },
+          "attempt_number": {
+            "type": "number"
+          },
+          "is_retake": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "project.quiz_retake_started": {
+      "event_schema_version": 1,
+      "description": "A student chose to retake a lesson quiz.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug",
+          "module_slug"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          },
+          "module_slug": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "project.quiz_started": {
+      "event_schema_version": 1,
+      "description": "A student picked their first answer in a lesson quiz.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "course_slug",
+          "module_slug"
+        ],
+        "properties": {
+          "course_slug": {
+            "type": "string"
+          },
+          "module_slug": {
+            "type": "string"
+          },
+          "is_retake": {
+            "type": "boolean"
           }
         }
       }

@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BookOpen,
   Map as MapIcon,
@@ -294,7 +294,7 @@ type LessonState = {
 
 function lessonStates(course: Course, rows: Rows, availability: Availability): LessonState[] {
   const state = courseState(course, rows);
-  return state.modules.map(({ module, isCompleted, isUnlocked, isCurrent }) => {
+  return state.modules.map(({ module, index, isCompleted, isUnlocked, isCurrent }) => {
     const key = overrideKey(course.slug, module.slug);
     if (!isScheduled(course)) {
       return {
@@ -304,7 +304,9 @@ function lessonStates(course: Course, rows: Rows, availability: Availability): L
         label: isCompleted ? "Completed" : isCurrent ? "Current module" : "Locked — finish the previous module",
       };
     }
-    const open = availability.released.has(key);
+    const released = availability.released.has(key);
+    const prevDone = index === 0 || Boolean(state.modules[index - 1]?.isCompleted);
+    const open = released && prevDone;
     const opensAt = availability.upcoming.get(key);
     return {
       module,
@@ -314,7 +316,9 @@ function lessonStates(course: Course, rows: Rows, availability: Availability): L
         ? "Completed"
         : open
           ? "Available"
-          : opensAt
+          : released
+            ? "Locked — finish the previous day's quiz and assignment"
+            : opensAt
             ? `Upcoming · opens ${new Date(opensAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}`
             : "Upcoming",
     };
@@ -550,6 +554,31 @@ function ModuleView({
   const unit = course.category === "cohort" ? "Day" : "Module";
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<SubmitResult | null>(null);
+  const progressQ = useProgress(userId);
+  const saved = progressQ.data?.find(
+    (r) => r.course_slug === course.slug && r.module_slug === module.slug,
+  );
+  const [retaking, setRetaking] = useState(false);
+  const quizStarted = useRef(false);
+  function noteQuizStart() {
+    if (quizStarted.current) return;
+    quizStarted.current = true;
+    window.__lovableEvents?.track?.("project.quiz_started", {
+      course_slug: course.slug,
+      module_slug: module.slug,
+      is_retake: Boolean(saved?.total != null || retaking),
+    });
+  }
+  function startRetake() {
+    setAnswers({});
+    setResult(null);
+    setRetaking(true);
+    quizStarted.current = false;
+    window.__lovableEvents?.track?.("project.quiz_retake_started", {
+      course_slug: course.slug,
+      module_slug: module.slug,
+    });
+  }
 
   const hasLesson = module.lesson.length > 0;
 
@@ -564,7 +593,13 @@ function ModuleView({
             module_slug: module.slug,
             ...(res.score != null ? { score: res.score } : {}),
             ...(res.total != null ? { total: res.total } : {}),
+            ...(res.score != null && res.total
+              ? { percent: Math.round((res.score / res.total) * 100) }
+              : {}),
+            ...(res.attempt != null ? { attempt_number: res.attempt } : {}),
+            is_retake: (res.attempt ?? 1) > 1,
           });
+          setRetaking(false);
           if (res.completed) {
             window.__lovableEvents?.track?.("project.module_completed", {
               course_slug: course.slug,
@@ -572,6 +607,8 @@ function ModuleView({
             });
           }
           if (res.completed) toast.success("Quiz complete — well done!");
+          else if (res.needs_assignment)
+            toast.success("Quiz graded. Hand in the assignment to finish this lesson.");
           else toast.success("Answers submitted.");
         },
         onError: (err) => toast.error(err.message),
@@ -768,8 +805,10 @@ function ModuleView({
                           name={question.id}
                           checked={selected}
                           disabled={Boolean(result)}
-                          onChange={() =>
-                            setAnswers((prev) => ({ ...prev, [question.id]: optionIndex }))
+                          onChange={() => {
+                            noteQuizStart();
+                            setAnswers((prev) => ({ ...prev, [question.id]: optionIndex }));
+                          }
                           }
                           className="mt-1 accent-[oklch(0.5642_0.1207_161.75)]"
                         />
@@ -787,7 +826,23 @@ function ModuleView({
             ))}
           </div>
 
-          {module.quiz.length === 0 ? null : !result ? (
+          {module.quiz.length > 0 && !result && !retaking && saved?.total != null ? (
+            <div className="mt-8 rounded-xl border border-accent/30 bg-mint/70 p-5">
+              <p className="font-display text-lg font-semibold text-primary">
+                {module.quizFeedback === "none" || saved.score == null
+                  ? "Quiz submitted"
+                  : `Your recorded grade: ${Math.round((saved.score / saved.total) * 100)}% (${saved.score} / ${saved.total})`}
+              </p>
+              <p className="mt-1 text-sm text-primary">
+                {saved.completed
+                  ? "This lesson is complete. Your grade stays saved unless you retake the quiz."
+                  : "Your grade is saved. Hand in the assignment to complete this lesson."}
+              </p>
+              <Button variant="outline" className="mt-4" onClick={startRetake}>
+                Retake quiz
+              </Button>
+            </div>
+          ) : module.quiz.length === 0 ? null : !result ? (
             <Button
               variant="brand"
               size="lg"
@@ -832,7 +887,7 @@ function ModuleView({
                   <p className="mt-1 text-sm text-primary">
                     {result.score === null
                       ? "Your instructor will review your results."
-                      : "Full marks — this lesson is complete."}
+                      : "Your grade is saved and this lesson is complete."}
                   </p>
                   <Button variant="brand" className="mt-4" onClick={onBack}>
                     Back to lessons
@@ -841,39 +896,18 @@ function ModuleView({
               ) : (
                 <>
                   <p className="mt-1 text-sm text-primary">
-                    Not a perfect score yet. Retake the quiz, or mark it complete anyway to
-                    keep moving.
+                    {result.needs_assignment
+                      ? "Your grade is saved. Hand in the assignment on the Assignment tab to complete this lesson and unlock the next one."
+                      : "Your grade is saved."}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Button
-                      variant="brand"
-                      onClick={() => {
-                        setAnswers({});
-                        setResult(null);
-                      }}
-                    >
+                    {result.needs_assignment ? (
+                      <Button variant="brand" onClick={() => setTab("assignment")}>
+                        Go to assignment
+                      </Button>
+                    ) : null}
+                    <Button variant="outline" onClick={startRetake}>
                       Retake quiz
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() =>
-                        complete.mutate(
-                          {
-                            courseSlug: course.slug,
-                            moduleSlug: module.slug,
-                            answers,
-                            force: true,
-                          },
-                          {
-                            onSuccess: () => {
-                              toast.success("Module marked complete.");
-                              onBack();
-                            },
-                          },
-                        )
-                      }
-                    >
-                      Mark complete anyway
                     </Button>
                   </div>
                 </>

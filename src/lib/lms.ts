@@ -66,6 +66,8 @@ export type SubmitResult = {
   total: number | null;
   feedback?: "full" | "score" | "none";
   completed: boolean;
+  attempt?: number;
+  needs_assignment?: boolean;
   key: Record<string, { answerIndex: number; explanation?: string | null }>;
 };
 
