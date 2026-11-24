@@ -57,6 +57,13 @@
       "when": 1795464998143,
       "tag": "0007_quiz_prerequisites_and_kept_grades",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795544423867,
+      "tag": "0008_accelerator_day3_lovable_prompt_resource",
+      "breakpoints": true
     }
   ]
 }
