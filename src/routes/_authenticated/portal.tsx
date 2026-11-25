@@ -26,7 +26,7 @@ import {
   useStudentCourses,
   overrideKey,
 } from "@/lib/content-overrides";
-import { videoEmbedUrl } from "@/lib/video";
+import { safeVideoLink, videoEmbedUrl } from "@/lib/video";
 import type { Course, CourseModule } from "@/content/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -550,7 +550,11 @@ function ModuleView({
         }
       });
   }, [course.slug, module.slug]);
-  const embed = videoEmbedUrl(module.videoUrl);
+  const videos = module.videoUrls?.length
+    ? module.videoUrls
+    : module.videoUrl
+      ? [module.videoUrl]
+      : [];
   const unit = course.category === "cohort" ? "Day" : "Module";
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<SubmitResult | null>(null);
@@ -676,25 +680,43 @@ function ModuleView({
       {tab === "lesson" ? (
         <>
           <div className="mt-8">
-            {embed ? (
-              <div className="aspect-video overflow-hidden rounded-xl border border-border bg-muted">
-                <iframe
-                  src={embed}
-                  title={`${module.title} video`}
-                  className="h-full w-full"
-                  allow="fullscreen; picture-in-picture"
-                  allowFullScreen
-                />
+            {videos.length > 0 ? (
+              <div className="space-y-6">
+                {videos.map((url, idx) => {
+                  const embed = videoEmbedUrl(url);
+                  const href = safeVideoLink(url);
+                  return (
+                    <div key={`${idx}-${url}`} className="space-y-2">
+                      {videos.length > 1 ? (
+                        <p className="font-mono text-[0.6875rem] uppercase tracking-widest text-muted-foreground">
+                          Video {idx + 1}
+                        </p>
+                      ) : null}
+                      {embed ? (
+                        <div className="aspect-video overflow-hidden rounded-xl border border-border bg-muted">
+                          <iframe
+                            src={embed}
+                            title={`${module.title} video ${idx + 1}`}
+                            className="h-full w-full"
+                            allow="fullscreen; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      ) : href ? (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 rounded-xl border border-border bg-card p-5 text-sm text-primary hover:border-accent"
+                        >
+                          <PlayCircle className="h-5 w-5 text-accent" />
+                          {videos.length > 1 ? `Watch video ${idx + 1}` : "Watch the video lesson"}
+                        </a>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
-            ) : module.videoUrl ? (
-              <a
-                href={module.videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-xl border border-border bg-card p-5 text-sm text-primary hover:border-accent"
-              >
-                <PlayCircle className="h-5 w-5 text-accent" /> Watch the video lesson
-              </a>
             ) : course.category === "cohort" ? (
               <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 text-center">
                 <PlayCircle className="h-8 w-8 text-muted-foreground" />

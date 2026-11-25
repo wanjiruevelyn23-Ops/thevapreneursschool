@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { videoEmbedUrl } from "./video";
+import { safeVideoLink, videoEmbedUrl } from "./video";
 
 describe("videoEmbedUrl", () => {
   it("embeds YouTube watch links", () => {
@@ -15,5 +15,13 @@ describe("videoEmbedUrl", () => {
   });
   it("refuses non-https links", () => {
     expect(videoEmbedUrl("http://youtube.com/watch?v=abc")).toBeNull();
+  });
+});
+
+describe("safeVideoLink", () => {
+  it("allows https external links and blocks unsafe schemes", () => {
+    expect(safeVideoLink("https://example.com/video")).toBe("https://example.com/video");
+    expect(safeVideoLink("javascript:alert(1)")).toBeNull();
+    expect(safeVideoLink("http://example.com/video")).toBeNull();
   });
 });

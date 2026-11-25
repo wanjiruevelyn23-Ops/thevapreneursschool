@@ -66,7 +66,7 @@ type Draft = {
   assignment: ModuleAssignment;
   resources: ModuleResource[];
   slides: ModuleResource[];
-  videoUrl: string;
+  videoUrls: string[];
   /** datetime-local value in the instructor's timezone, "" = open on publish. */
   releaseAt: string;
   quizFeedback: QuizFeedback;
@@ -155,6 +155,7 @@ function InstructorPage() {
   async function save(publish?: boolean) {
     if (!draft || !builtIn || !user || loadingContent) return;
     setSaving(true);
+    const cleanVideoUrls = draft.videoUrls.map((u) => u.trim()).filter(Boolean);
     const payload = {
       course_slug: courseSlug,
       module_slug: moduleSlug,
@@ -169,7 +170,8 @@ function InstructorPage() {
         : null,
       resources: draft.resources,
       slides: draft.slides,
-      video_url: draft.videoUrl.trim() || null,
+      video_url: cleanVideoUrls[0] ?? null,
+      video_urls: cleanVideoUrls,
       release_at: draft.releaseAt ? new Date(draft.releaseAt).toISOString() : null,
       quiz_feedback: draft.quizFeedback,
       published: publish ?? stored?.published ?? false,
@@ -404,37 +406,78 @@ function InstructorPage() {
 
                 </TabsList>
 
-                <TabsContent value="video" className="mt-6 space-y-4">
-                  <Field label="Video link">
-                    <Input
-                      value={draft.videoUrl}
-                      placeholder="https://www.youtube.com/watch?v=… (YouTube, Vimeo, Loom or Google Drive)"
-                      onChange={(e) => setDraft({ ...draft, videoUrl: e.target.value })}
-                    />
-                  </Field>
-                  {draft.videoUrl.trim() ? (
-                    videoEmbedUrl(draft.videoUrl) ? (
-                      <div className="aspect-video overflow-hidden rounded-lg border bg-muted">
-                        <iframe
-                          src={videoEmbedUrl(draft.videoUrl) ?? undefined}
-                          title="Video preview"
-                          className="h-full w-full"
-                          allow="fullscreen; picture-in-picture"
-                          allowFullScreen
-                        />
+                <TabsContent value="video" className="mt-6 space-y-5">
+                  {draft.videoUrls.map((url, idx) => {
+                    const embed = videoEmbedUrl(url);
+                    const label = draft.videoUrls.length > 1 ? `Video ${idx + 1} link` : "Video link";
+                    return (
+                      <div key={idx} className="space-y-3 rounded-lg border border-border p-4">
+                        <div className="flex items-end gap-2">
+                          <div className="min-w-0 flex-1">
+                            <Field label={label}>
+                              <Input
+                                value={url}
+                                placeholder="https://www.youtube.com/watch?v=… (YouTube, Vimeo, Loom or Google Drive)"
+                                onChange={(e) => {
+                                  const next = [...draft.videoUrls];
+                                  next[idx] = e.target.value;
+                                  setDraft({ ...draft, videoUrls: next });
+                                }}
+                              />
+                            </Field>
+                          </div>
+                          {draft.videoUrls.length > 1 ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Remove video ${idx + 1}`}
+                              onClick={() =>
+                                setDraft({
+                                  ...draft,
+                                  videoUrls: draft.videoUrls.filter((_, i) => i !== idx),
+                                })
+                              }
+                            >
+                              <Trash2 className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          ) : null}
+                        </div>
+                        {url.trim() ? (
+                          embed ? (
+                            <div className="aspect-video overflow-hidden rounded-lg border bg-muted">
+                              <iframe
+                                src={embed}
+                                title={`Video ${idx + 1} preview`}
+                                className="h-full w-full"
+                                allow="fullscreen; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
+                          ) : (
+                            <p className="text-sm text-destructive">
+                              This link can't be played inside the portal. Use a YouTube, Vimeo, Loom or
+                              Google Drive (shared "anyone with the link") video link.
+                            </p>
+                          )
+                        ) : null}
                       </div>
-                    ) : (
-                      <p className="text-sm text-destructive">
-                        This link can't be played inside the portal. Use a YouTube, Vimeo, Loom or
-                        Google Drive (shared "anyone with the link") video link.
-                      </p>
-                    )
-                  ) : (
+                    );
+                  })}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDraft({ ...draft, videoUrls: [...draft.videoUrls, ""] })}
+                  >
+                    <Plus className="h-4 w-4" /> Add another video
+                  </Button>
+                  {draft.videoUrls.every((u) => !u.trim()) ? (
                     <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
                       No video yet. Upload your video to YouTube (unlisted), Vimeo, Loom or Google
                       Drive and paste the link here. Students see a placeholder until then.
                     </p>
-                  )}
+                  ) : null}
                 </TabsContent>
 
                 <TabsContent value="slides" className="mt-6">
@@ -679,6 +722,9 @@ function fromSources(
   builtIn: CourseModule,
   stored: ReturnType<typeof useModuleOverrides>["rows"][number] | undefined,
 ): Draft {
+  const storedVideos = stored
+    ? stored.video_urls
+    : builtIn.videoUrls ?? (builtIn.videoUrl ? [builtIn.videoUrl] : []);
   return {
     title: stored?.title ?? builtIn.title,
     summary: stored?.summary ?? builtIn.summary,
@@ -689,7 +735,7 @@ function fromSources(
     assignment: stored?.assignment ?? builtIn.assignment ?? emptyAssignment(),
     resources: stored?.resources ?? builtIn.resources ?? [],
     slides: stored?.slides ?? builtIn.slides ?? [],
-    videoUrl: stored?.video_url ?? builtIn.videoUrl ?? "",
+    videoUrls: storedVideos.length > 0 ? storedVideos : [""],
     releaseAt: toLocalInput(stored?.release_at),
     quizFeedback: stored?.quiz_feedback ?? "full",
   };

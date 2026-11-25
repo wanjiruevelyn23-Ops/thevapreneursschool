@@ -79,6 +79,8 @@ export type CourseModule = {
   resources?: ModuleResource[];
   /** Video lesson link (YouTube, Vimeo, Loom or Google Drive). */
   videoUrl?: string;
+  /** All video lesson links in order (supports multiple videos per module/day). */
+  videoUrls?: string[];
   /** Presentation slides students can view/download. */
   slides?: ModuleResource[];
   /** When the lesson opens to students (ISO). Unset = as soon as it's published. */

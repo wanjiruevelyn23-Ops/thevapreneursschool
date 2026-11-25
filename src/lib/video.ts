@@ -36,3 +36,14 @@ export function videoEmbedUrl(raw: string | undefined | null): string | null {
   }
   return null;
 }
+
+/** Returns a safe https URL for opening a non-embedded video link externally. */
+export function safeVideoLink(raw: string | undefined | null): string | null {
+  if (!raw) return null;
+  try {
+    const url = new URL(raw.trim());
+    return url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}

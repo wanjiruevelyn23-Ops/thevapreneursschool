@@ -242,6 +242,7 @@ export type Database = {
           updated_at: string
           updated_by: string | null
           video_url: string | null
+          video_urls: Json
         }
         Insert: {
           assignment?: Json | null
@@ -263,6 +264,7 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           video_url?: string | null
+          video_urls?: Json
         }
         Update: {
           assignment?: Json | null
@@ -284,6 +286,7 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           video_url?: string | null
+          video_urls?: Json
         }
         Relationships: []
       }
@@ -513,6 +516,26 @@ export type Database = {
           summary: string
           title: string
           video_url: string
+        }[]
+      }
+      student_modules_v3: {
+        Args: never
+        Returns: {
+          assignment: Json
+          course_slug: string
+          duration: string
+          lesson: Json
+          module_slug: string
+          notes: Json
+          quiz: Json
+          quiz_feedback: string
+          release_at: string
+          resources: Json
+          slides: Json
+          summary: string
+          title: string
+          video_url: string
+          video_urls: Json
         }[]
       }
       student_modules_with_video: {

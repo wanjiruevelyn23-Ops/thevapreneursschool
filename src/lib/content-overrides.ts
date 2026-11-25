@@ -34,6 +34,7 @@ export type ModuleContentRow = {
   resources: ModuleResource[];
   slides: ModuleResource[];
   video_url: string | null;
+  video_urls: string[];
   release_at: string | null;
   quiz_feedback: QuizFeedback;
   published: boolean;
@@ -47,6 +48,14 @@ export const overrideKey = (courseSlug: string, moduleSlug: string) =>
   `${courseSlug}::${moduleSlug}`;
 
 function toRow(raw: Record<string, unknown>): ModuleContentRow {
+  const legacyVideo = ((raw['video_url'] as string | null) ?? null)?.trim() || null;
+  const rawVideos = Array.isArray(raw['video_urls'])
+    ? (raw['video_urls'] as unknown[])
+        .filter((v): v is string => typeof v === "string")
+        .map((v) => v.trim())
+        .filter(Boolean)
+    : [];
+  const videoUrls = rawVideos.length > 0 ? rawVideos : legacyVideo ? [legacyVideo] : [];
   return {
     id: String(raw['id']),
     course_slug: String(raw['course_slug']),
@@ -60,7 +69,8 @@ function toRow(raw: Record<string, unknown>): ModuleContentRow {
     assignment: (raw['assignment'] as ModuleAssignment | null) ?? null,
     resources: (raw['resources'] as ModuleResource[] | null) ?? [],
     slides: (raw['slides'] as ModuleResource[] | null) ?? [],
-    video_url: (raw['video_url'] as string | null) ?? null,
+    video_url: videoUrls[0] ?? legacyVideo,
+    video_urls: videoUrls,
     release_at: (raw['release_at'] as string | null) ?? null,
     quiz_feedback: ((raw['quiz_feedback'] as QuizFeedback | null) ?? "full"),
     published: Boolean(raw['published']),
@@ -90,7 +100,10 @@ export function mergeModule(
   if (assignment) merged.assignment = assignment;
   merged.resources = row.resources;
   merged.slides = row.slides;
-  if (row.video_url) merged.videoUrl = row.video_url;
+  const videoUrls = row.video_urls.length > 0 ? row.video_urls : row.video_url?.trim() ? [row.video_url.trim()] : [];
+  merged.videoUrls = videoUrls;
+  if (videoUrls[0]) merged.videoUrl = videoUrls[0];
+  else delete merged.videoUrl;
   if (row.release_at) merged.releaseAt = row.release_at;
   merged.quizFeedback = row.quiz_feedback;
   return merged;
@@ -164,7 +177,7 @@ export function useStudentCourses(userId: string | undefined) {
   const [upcoming, setUpcoming] = useState<Map<string, string>>(new Map());
   const load = useCallback(async () => {
     const [content, schedule] = await Promise.all([
-      supabase.rpc("student_modules_v2"),
+      supabase.rpc("student_modules_v3"),
       supabase.rpc("student_schedule"),
     ]);
     if (!content.error && content.data) {

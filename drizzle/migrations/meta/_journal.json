@@ -64,6 +64,13 @@
       "when": 1795544423867,
       "tag": "0008_accelerator_day3_lovable_prompt_resource",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795633266357,
+      "tag": "0009_module_multiple_video_urls",
+      "breakpoints": true
     }
   ]
 }

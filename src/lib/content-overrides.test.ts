@@ -9,11 +9,12 @@ const base: CourseModule = {
   quiz: [{ id: "old", question: "Original?", options: ["Yes", "No"], answerIndex: 0 }],
   resources: [{ path: "old-resource", name: "Original resource" }],
   slides: [{ path: "old-slide", name: "Original slide" }],
+  videoUrl: "https://vimeo.com/111111",
 };
 const stored: ModuleContentRow = {
   id: "saved", course_slug: "accelerator", module_slug: "day-2", title: null,
   summary: null, duration: null, lesson: [], quiz: [], notes: null,
-  assignment: null, resources: [], slides: [], video_url: null, release_at: null,
+  assignment: null, resources: [], slides: [], video_url: null, video_urls: [], release_at: null,
   quiz_feedback: "full", published: false, updated_at: "2026-11-22T10:00:00Z",
 };
 describe("saved content is authoritative", () => {
@@ -32,5 +33,16 @@ describe("saved content is authoritative", () => {
   it("uses saved questions instead of original questions", () => {
     const quiz = [{ id: "new", question: "Best fit?", options: ["Yes", "No"], answerIndex: 0 }];
     expect(mergeModule(base, { ...stored, quiz }).quiz).toEqual(quiz);
+  });
+  it("does not restore removed videos", () => {
+    const merged = mergeModule(base, stored);
+    expect(merged.videoUrls).toEqual([]);
+    expect(merged.videoUrl).toBeUndefined();
+  });
+  it("keeps multiple saved video links in order", () => {
+    const video_urls = ["https://vimeo.com/12345", "https://vimeo.com/67890"];
+    const merged = mergeModule(base, { ...stored, video_url: video_urls[0] ?? null, video_urls });
+    expect(merged.videoUrls).toEqual(video_urls);
+    expect(merged.videoUrl).toBe("https://vimeo.com/12345");
   });
 });
