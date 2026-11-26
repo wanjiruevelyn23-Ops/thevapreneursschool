@@ -9,3 +9,8 @@
 - [ ] Add a public FAQs page covering courses, applications, and Accelerator cohorts.
 - [x] Preserve active-enrollment content protection and verify the preview/build.- [x] Instructor: video, slides, resources, release schedule, quiz marks/result settings, unpublish.
 - [x] Student portal shows only enrolled courses with Available/Upcoming/Completed days.
+
+- [ ] Add an admin-only Accelerator student progress dashboard with per-day quiz, assignment and completion details.
+- [ ] Record ten-day Accelerator completion and send a once-only congratulations email with a feedback link.
+- [ ] Add a private completion feedback form and an instructor feedback view.
+- [ ] Configure a verified sender domain, then verify progress, completion email and feedback end to end.
