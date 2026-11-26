@@ -139,6 +139,82 @@ export type Database = {
         }
         Relationships: []
       }
+      course_completions: {
+        Row: {
+          completed_at: string
+          course_slug: string
+          email_sent_at: string | null
+          email_status: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          course_slug: string
+          email_sent_at?: string | null
+          email_status?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          course_slug?: string
+          email_sent_at?: string | null
+          email_status?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_feedback: {
+        Row: {
+          comments: string | null
+          course_slug: string
+          created_at: string
+          id: string
+          improve: string | null
+          most_useful: string | null
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          course_slug: string
+          created_at?: string
+          id?: string
+          improve?: string | null
+          most_useful?: string | null
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          course_slug?: string
+          created_at?: string
+          id?: string
+          improve?: string | null
+          most_useful?: string | null
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_instructors: {
         Row: {
           course_slug: string

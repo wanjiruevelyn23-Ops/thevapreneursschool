@@ -71,6 +71,13 @@
       "when": 1795633266357,
       "tag": "0009_module_multiple_video_urls",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795702569094,
+      "tag": "0010_accelerator_completion_and_feedback",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { EnrollmentsPanel } from "@/components/admin/EnrollmentsPanel";
 import { GradingPanel } from "@/components/admin/GradingPanel";
 import { AccountsPanel } from "@/components/admin/AccountsPanel";
+import { ProgressPanel, FeedbackPanel } from "@/components/admin/ProgressPanel";
 
 const TITLE = "Submissions | The VApreneurs School";
 const DESCRIPTION =
@@ -60,7 +61,7 @@ function formatDate(value: string) {
 function SubmissionsPage() {
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"applications" | "enrollments" | "messages" | "accounts" | "grading">("accounts");
+  const [tab, setTab] = useState<"applications" | "enrollments" | "messages" | "accounts" | "grading" | "progress" | "feedback">("accounts");
   const [prefill, setPrefill] = useState<{ email: string; course: string } | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -162,13 +163,23 @@ function SubmissionsPage() {
         <TabButton active={tab === "grading"} onClick={() => setTab("grading")}>
           Assignments
         </TabButton>
+        <TabButton active={tab === "progress"} onClick={() => setTab("progress")}>
+          Student progress
+        </TabButton>
+        <TabButton active={tab === "feedback"} onClick={() => setTab("feedback")}>
+          Student feedback
+        </TabButton>
         <TabButton active={tab === "accounts"} onClick={() => setTab("accounts")}>
           Accounts
         </TabButton>
       </div>
 
       <div className="mt-6 space-y-4">
-        {tab === "grading" ? (
+        {tab === "progress" ? (
+          <ProgressPanel />
+        ) : tab === "feedback" ? (
+          <FeedbackPanel />
+        ) : tab === "grading" ? (
           <GradingPanel />
         ) : tab === "accounts" ? (
           <AccountsPanel />

@@ -37,6 +37,7 @@ import { LessonBody, NotesView } from "@/components/portal/NotesView";
 import { AssignmentView } from "@/components/portal/AssignmentView";
 import { ModuleDownloads } from "@/components/portal/ModuleDownloads";
 import { AssignmentSubmit } from "@/components/portal/AssignmentSubmit";
+import { CompletionCard } from "@/components/portal/CompletionCard";
 
 const TITLE = "Student Portal | The VApreneurs School";
 const DESCRIPTION =
@@ -190,6 +191,7 @@ function PortalPage() {
 
       <div className="flex-1 px-5 py-8 lg:px-10">
         <div className="mx-auto max-w-4xl">
+          {nav === "courses" && !activeCourse ? <CompletionCard userId={user.id} /> : null}
           {nav === "courses" && !activeCourse ? (
             <MyCourses
               courses={myCourses}
