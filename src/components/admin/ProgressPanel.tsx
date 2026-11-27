@@ -135,7 +135,7 @@ export function ProgressPanel() {
                     const sub = data.subs.find((s) => s.user_id === r.st.id && s.module_slug === m.slug);
                     return (
                       <tr key={m.slug} className="border-t border-border">
-                        <td className="py-2 pr-3">Day {m.number}: {m.title}</td>
+                        <td className="py-2 pr-3">{/^day\s+\d+/i.test(m.title) ? m.title : `Day ${m.number}: ${m.title}`}</td>
                         <td className="pr-3">{p?.total ? `${Math.round(((p.score ?? 0) / p.total) * 100)}% (${p.score}/${p.total})` : "—"}</td>
                         <td className="pr-3">{att || "—"}</td>
                         <td className="pr-3">{sub ? (sub.status === "reviewed" ? "Reviewed" : "Submitted") : "—"}</td>

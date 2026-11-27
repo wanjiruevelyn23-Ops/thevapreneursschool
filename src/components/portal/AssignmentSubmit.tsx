@@ -80,6 +80,7 @@ export function AssignmentSubmit({
     setFile(null);
     void load();
     void queryClient.invalidateQueries({ queryKey: ["module_progress", userId] });
+    void queryClient.invalidateQueries({ queryKey: ["completion", userId] });
   }
 
   return (

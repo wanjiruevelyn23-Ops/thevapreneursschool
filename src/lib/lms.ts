@@ -96,8 +96,10 @@ export function useCompleteModule(userId: string | undefined) {
       if (error) throw error;
       return data as unknown as SubmitResult;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["module_progress", userId] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["module_progress", userId] });
+      void queryClient.invalidateQueries({ queryKey: ["completion", userId] });
+    },
   });
 }
 
